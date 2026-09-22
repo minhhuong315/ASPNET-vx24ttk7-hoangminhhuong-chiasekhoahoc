@@ -72,6 +72,10 @@
         padding: 0 20px;
     }
 
+    /* =========================
+       HERO
+    ========================= */
+
     .course-hero {
         background: #172033;
         color: #ffffff;
@@ -96,11 +100,15 @@
         text-decoration: none;
     }
 
+    .breadcrumb-text a:hover {
+        color: #ffffff;
+    }
+
     .course-category-badge {
         display: inline-block;
         padding: 6px 11px;
         border-radius: 20px;
-        background: rgba(255,255,255,.12);
+        background: rgba(255, 255, 255, 0.12);
         color: #bcd5ff;
         font-size: 12px;
         font-weight: 700;
@@ -129,12 +137,16 @@
         font-size: 13px;
     }
 
+    /* =========================
+       CARD ĐĂNG KÝ
+    ========================= */
+
     .hero-card {
         background: #ffffff;
         color: #202938;
         padding: 22px;
         border-radius: 18px;
-        box-shadow: 0 18px 45px rgba(0,0,0,.20);
+        box-shadow: 0 18px 45px rgba(0, 0, 0, 0.20);
     }
 
     .hero-thumbnail {
@@ -200,7 +212,9 @@
         margin-bottom: 18px;
     }
 
-    /* TIẾN ĐỘ HỌC */
+    /* =========================
+       TIẾN ĐỘ
+    ========================= */
 
     .learning-progress {
         margin-bottom: 18px;
@@ -265,14 +279,6 @@
         color: #ffffff;
     }
 
-    .login-note {
-        color: #7a8494;
-        font-size: 12px;
-        text-align: center;
-        margin-top: 12px;
-        line-height: 1.5;
-    }
-
     .role-note {
         padding: 13px 15px;
         background: #eef8ff;
@@ -282,6 +288,10 @@
         font-size: 13px;
         text-align: center;
     }
+
+    /* =========================
+       CONTENT
+    ========================= */
 
     .course-content {
         padding: 55px 0 80px;
@@ -314,6 +324,10 @@
         white-space: pre-line;
     }
 
+    /* =========================
+       MODULE / LESSON
+    ========================= */
+
     .module-card {
         border: 1px solid #e9edf3;
         border-radius: 12px;
@@ -344,6 +358,10 @@
         padding: 20px;
         border-radius: 10px;
     }
+
+    /* =========================
+       SIDEBAR
+    ========================= */
 
     .info-row {
         padding: 11px 0;
@@ -377,6 +395,10 @@
         font-size: 13px;
         line-height: 1.6;
     }
+
+    /* =========================
+       REVIEW
+    ========================= */
 
     .rating-summary {
         display: flex;
@@ -412,7 +434,9 @@
         line-height: 1.6;
     }
 
-    /* POPUP */
+    /* =========================
+       TOAST
+    ========================= */
 
     .toast-position {
         position: fixed !important;
@@ -431,7 +455,7 @@
         border-radius: 14px;
         overflow: hidden;
         background: #ffffff;
-        box-shadow: 0 12px 35px rgba(0,0,0,.16);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.16);
     }
 
     .toast-success {
@@ -473,6 +497,10 @@
         font-size: 13px;
         margin-top: 2px;
     }
+
+    /* =========================
+       RESPONSIVE
+    ========================= */
 
     @@media (max-width: 991px) {
 
@@ -516,11 +544,17 @@
 
 <div class="details-page">
 
+    <!-- =========================
+         HERO
+    ========================= -->
+
     <section class="course-hero">
 
         <div class="details-container">
 
             <div class="course-hero-grid">
+
+                <!-- THÔNG TIN KHÓA HỌC -->
 
                 <div>
 
@@ -578,6 +612,7 @@
                             @Model.ViewCount lượt xem
                         </span>
 
+
                         @if (approvedReviews.Any())
                         {
                             <span>
@@ -590,6 +625,8 @@
 
                 </div>
 
+
+                <!-- CARD BÊN PHẢI -->
 
                 <div class="hero-card">
 
@@ -611,6 +648,8 @@
                     </div>
 
 
+                    <!-- CHƯA ĐĂNG NHẬP -->
+
                     @if (!isAuthenticated)
                     {
                         <a asp-controller="Account"
@@ -621,13 +660,10 @@
                             Đăng nhập để đăng ký
 
                         </a>
-
-                        <div class="login-note">
-                            Bạn cần đăng nhập bằng tài khoản học viên
-                            trước khi tham gia khóa học.
-                        </div>
                     }
 
+
+                    <!-- STUDENT CHƯA ĐĂNG KÝ -->
 
                     @if (isStudent && !isEnrolled)
                     {
@@ -647,19 +683,26 @@
                             </button>
 
                         </form>
-
-                        <div class="login-note">
-                            Khóa học sẽ được thêm vào danh sách
-                            “Khóa học của tôi”.
-                        </div>
                     }
 
 
+                    <!-- STUDENT ĐÃ ĐĂNG KÝ -->
+
                     @if (isStudent && isEnrolled)
                     {
-                        <div class="enrolled-status">
-                            ✓ Đã đăng ký khóa học
-                        </div>
+                        @if (enrollmentProgress >= 100)
+                        {
+                            <div class="enrolled-status">
+                                ✓ Đã hoàn thành khóa học
+                            </div>
+                        }
+
+                        @if (enrollmentProgress < 100)
+                        {
+                            <div class="enrolled-status">
+                                ✓ Đã đăng ký khóa học
+                            </div>
+                        }
 
 
                         <div class="learning-progress">
@@ -692,13 +735,16 @@
                                     Bạn đã hoàn thành khóa học này.
                                 </div>
                             }
-                            else if (enrollmentProgress > 0)
+
+                            @if (enrollmentProgress > 0 &&
+                                 enrollmentProgress < 100)
                             {
                                 <div class="progress-extra">
                                     Tiếp tục quá trình học tập của bạn.
                                 </div>
                             }
-                            else
+
+                            @if (enrollmentProgress == 0)
                             {
                                 <div class="progress-extra">
                                     Bạn chưa bắt đầu bài học nào.
@@ -708,20 +754,48 @@
                         </div>
 
 
-                        <a href="#course-content"
-                           class="learn-button">
+                        @if (enrollmentProgress >= 100)
+                        {
+                            <a asp-controller="Courses"
+                               asp-action="Learn"
+                               asp-route-courseId="@Model.Id"
+                               class="learn-button">
 
-                            @(enrollmentProgress > 0
-                                ? "Tiếp tục học"
-                                : "Học ngay")
+                                Xem lại khóa học
 
-                        </a>
+                            </a>
+                        }
 
-                        <div class="login-note">
-                            Khóa học này đã có trong tài khoản của bạn.
-                        </div>
+
+                        @if (enrollmentProgress > 0 &&
+                             enrollmentProgress < 100)
+                        {
+                            <a asp-controller="Courses"
+                               asp-action="Learn"
+                               asp-route-courseId="@Model.Id"
+                               class="learn-button">
+
+                                Tiếp tục học
+
+                            </a>
+                        }
+
+
+                        @if (enrollmentProgress == 0)
+                        {
+                            <a asp-controller="Courses"
+                               asp-action="Learn"
+                               asp-route-courseId="@Model.Id"
+                               class="learn-button">
+
+                                Học ngay
+
+                            </a>
+                        }
                     }
 
+
+                    <!-- ADMIN -->
 
                     @if (isAdmin)
                     {
@@ -730,6 +804,8 @@
                         </div>
                     }
 
+
+                    <!-- INSTRUCTOR -->
 
                     @if (isInstructor)
                     {
@@ -747,6 +823,10 @@
     </section>
 
 
+    <!-- =========================
+         NỘI DUNG
+    ========================= -->
+
     <section class="course-content"
              id="course-content">
 
@@ -755,6 +835,8 @@
             <div class="content-layout">
 
                 <div>
+
+                    <!-- GIỚI THIỆU -->
 
                     <div class="content-card">
 
@@ -769,6 +851,8 @@
                     </div>
 
 
+                    <!-- MODULE / LESSON -->
+
                     <div class="content-card">
 
                         <h2 class="content-title">
@@ -779,7 +863,9 @@
                         @if (Model.Modules != null &&
                              Model.Modules.Any())
                         {
-                            foreach (var module in Model.Modules)
+                            foreach (var module in
+                                Model.Modules.OrderBy(
+                                    m => m.DisplayOrder))
                             {
                                 <div class="module-card">
 
@@ -790,7 +876,9 @@
 
                                     @if (module.Lessons.Any())
                                     {
-                                        foreach (var lesson in module.Lessons)
+                                        foreach (var lesson in
+                                            module.Lessons.OrderBy(
+                                                l => l.DisplayOrder))
                                         {
                                             <div class="lesson-row">
 
@@ -824,6 +912,8 @@
 
                     </div>
 
+
+                    <!-- ĐÁNH GIÁ -->
 
                     <div class="content-card">
 
@@ -867,6 +957,7 @@
                                         @review.Rating / 5 ★
                                     </div>
 
+
                                     @if (!string.IsNullOrWhiteSpace(
                                         review.Comment))
                                     {
@@ -889,6 +980,10 @@
 
                 </div>
 
+
+                <!-- =========================
+                     SIDEBAR
+                ========================= -->
 
                 <aside>
 
@@ -989,9 +1084,11 @@
                             Giảng viên
                         </h3>
 
+
                         <div class="instructor-name">
                             @Model.Instructor.FullName
                         </div>
+
 
                         @if (!string.IsNullOrWhiteSpace(
                             Model.Instructor.Bio))
@@ -1014,6 +1111,10 @@
 </div>
 
 
+<!-- =========================
+     POPUP THÔNG BÁO
+========================= -->
+
 @if (!string.IsNullOrWhiteSpace(toastMessage))
 {
     <div class="toast-container toast-position">
@@ -1027,8 +1128,13 @@
             <div class="toast-body d-flex align-items-center gap-3">
 
                 <div class="toast-icon @(toastIsSuccess ? "toast-icon-success" : "toast-icon-info")">
-                    @(toastIsSuccess ? "✓" : "i")
+
+                    @(toastIsSuccess
+                        ? "✓"
+                        : "i")
+
                 </div>
+
 
                 <div class="flex-grow-1">
 
@@ -1045,6 +1151,7 @@
                     </div>
 
                 </div>
+
 
                 <button type="button"
                         class="btn-close"

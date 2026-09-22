@@ -422,12 +422,18 @@
 
                                 </a>
 
-                                <a href="#"
-                                   class="btn-learn">
+                                <a asp-controller="Courses"
+   asp-action="Learn"
+   asp-route-courseId="@enrollment.CourseId"
+   class="btn-learn">
 
-                                    Học ngay
+    @(enrollment.Progress >= 100
+    ? "Xem lại"
+    : enrollment.Progress > 0
+        ? "Tiếp tục học"
+        : "Học ngay")
 
-                                </a>
+</a>
 
                             </div>
 
