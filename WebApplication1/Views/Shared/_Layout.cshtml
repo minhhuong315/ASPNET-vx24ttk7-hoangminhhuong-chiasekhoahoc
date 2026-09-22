@@ -1,8 +1,33 @@
-﻿<!DOCTYPE html>
+﻿@{
+    var currentController =
+        ViewContext.RouteData.Values["controller"]?.ToString();
+
+    var currentAction =
+        ViewContext.RouteData.Values["action"]?.ToString();
+
+    bool isHomePage =
+        currentController == "Home" &&
+        currentAction == "Index";
+
+    bool isCoursesPage =
+        currentController == "Courses" &&
+        (currentAction == "Index" ||
+         currentAction == "Details");
+
+    bool isMyCoursesPage =
+        currentController == "Courses" &&
+        currentAction == "MyCourses";
+}
+
+<!DOCTYPE html>
+
 <html lang="vi">
 <head>
+
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
 
     <title>@ViewData["Title"] - EduLearn</title>
 
@@ -13,320 +38,355 @@
           href="~/css/site.css"
           asp-append-version="true" />
 
-    <link rel="stylesheet"
-          href="~/OnlineLearningPlatform.styles.css"
-          asp-append-version="true" />
-
     <style>
+
+        html,
         body {
-            margin: 0;
-            background: #f8fafc;
-            color: #1f2937;
+            min-height: 100%;
         }
 
-        /* =========================
-           NAVBAR
-        ========================= */
+        body {
+            margin: 0;
+            background: #ffffff;
+            color: #172033;
+        }
 
         .edulearn-navbar {
             background: #ffffff;
-            border-bottom: 1px solid #eef0f3;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-            padding: 13px 0;
+            border-bottom: 1px solid #e9edf3;
+            position: relative;
+            z-index: 1000;
         }
 
-        .edulearn-brand {
-            color: #0d6efd !important;
-            font-size: 26px;
+        .edulearn-nav-container {
+            max-width: 1180px;
+            min-height: 88px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 34px;
+        }
+
+        .edulearn-logo {
+            color: #0d6efd;
+            font-size: 25px;
             font-weight: 800;
-            letter-spacing: -0.5px;
             text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .edulearn-logo:hover {
+            color: #0d6efd;
+        }
+
+        .edulearn-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+            flex: 1;
         }
 
         .edulearn-nav-link {
-            color: #374151 !important;
-            font-weight: 500;
-            margin: 0 7px;
-            transition: 0.2s;
+            color: #273142;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: color 0.2s ease;
         }
 
         .edulearn-nav-link:hover {
-            color: #0d6efd !important;
+            color: #0d6efd;
         }
 
+        /* MENU ĐANG ĐƯỢC CHỌN */
 
-        /* =========================
-           CHƯA ĐĂNG NHẬP
-        ========================= */
-
-        .btn-login-nav {
-            border-radius: 9px;
-            padding: 8px 18px;
-            font-weight: 600;
+        .edulearn-nav-link.active {
+            color: #0d6efd;
+            font-weight: 700;
         }
-
-        .btn-register-nav {
-            border-radius: 9px;
-            padding: 8px 18px;
-            font-weight: 600;
-        }
-
-
-        /* =========================
-           TÀI KHOẢN ĐÃ ĐĂNG NHẬP
-        ========================= */
 
         .account-area {
             display: flex;
             align-items: center;
             gap: 10px;
+            white-space: nowrap;
         }
 
         .account-chip {
+            min-height: 44px;
+            padding: 5px 13px 5px 6px;
             display: flex;
             align-items: center;
             gap: 9px;
-            padding: 6px 12px 6px 7px;
-            border: 1px solid #e5e7eb;
-            border-radius: 30px;
-            background: #f9fafb;
+            border: 1px solid #e3e7ed;
+            border-radius: 25px;
+            background: #ffffff;
+            color: #273142;
+            font-size: 13px;
+            font-weight: 600;
         }
 
         .account-avatar {
             width: 34px;
             height: 34px;
             border-radius: 50%;
-            background: #e8f1ff;
+            background: #edf4ff;
             color: #0d6efd;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 700;
-            font-size: 14px;
+            font-weight: 800;
+            text-transform: uppercase;
         }
 
-        .account-name {
-            max-width: 210px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            color: #374151;
-            font-size: 14px;
-            font-weight: 600;
+        .logout-form {
+            margin: 0;
         }
 
         .logout-button {
-            background: #ffffff;
-            color: #6b7280;
-            border: 1px solid #d1d5db;
+            min-height: 44px;
+            padding: 0 16px;
+            border: 1px solid #d9dee7;
             border-radius: 9px;
-            padding: 8px 15px;
-            font-size: 14px;
+            background: #ffffff;
+            color: #5b6472;
+            font-size: 13px;
             font-weight: 600;
-            transition: all 0.2s ease;
         }
 
         .logout-button:hover {
+            border-color: #dc3545;
             color: #dc3545;
-            border-color: #f0a7ae;
-            background: #fff5f5;
+            background: #fff8f8;
         }
 
-
-        /* =========================
-           NỘI DUNG
-        ========================= */
-
-        .page-content {
-            min-height: calc(100vh - 150px);
+        .auth-link {
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 10px 16px;
+            border-radius: 9px;
         }
 
+        .login-link {
+            color: #0d6efd;
+            background: #ffffff;
+            border: 1px solid #bdd5ff;
+        }
 
-        /* =========================
-           FOOTER
-        ========================= */
+        .register-link {
+            color: #ffffff;
+            background: #0d6efd;
+            border: 1px solid #0d6efd;
+        }
 
         .edulearn-footer {
+            border-top: 1px solid #e7ebf0;
             background: #ffffff;
-            border-top: 1px solid #e9ecef;
-            padding: 22px 0;
-            color: #6b7280;
-            font-size: 14px;
+        }
+
+        .footer-container {
+            max-width: 1180px;
+            margin: 0 auto;
+            min-height: 78px;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 25px;
+            color: #6c7687;
+            font-size: 13px;
         }
 
         .footer-brand {
             color: #0d6efd;
-            font-weight: 700;
+            font-weight: 800;
         }
 
+        @@media (max-width: 1050px) {
 
-        /* =========================
-           MOBILE
-        ========================= */
-
-        @@media (max-width: 991px) {
-
-            .account-area {
-                margin-top: 15px;
-                align-items: stretch;
-                flex-direction: column;
+            .edulearn-nav-container {
+                gap: 20px;
             }
 
-            .account-chip {
-                width: fit-content;
-            }
-
-            .logout-button {
-                width: 100%;
+            .edulearn-nav-links {
+                gap: 17px;
             }
 
             .edulearn-nav-link {
-                margin: 3px 0;
+                font-size: 13px;
             }
+
         }
+
+        @@media (max-width: 850px) {
+
+            .edulearn-nav-container {
+                padding-top: 15px;
+                padding-bottom: 15px;
+                flex-wrap: wrap;
+            }
+
+            .edulearn-nav-links {
+                order: 3;
+                width: 100%;
+                overflow-x: auto;
+                padding-bottom: 3px;
+            }
+
+            .account-area {
+                margin-left: auto;
+            }
+
+        }
+
+        @@media (max-width: 600px) {
+
+            .account-chip span:last-child {
+                display: none;
+            }
+
+            .edulearn-logo {
+                font-size: 22px;
+            }
+
+            .footer-container {
+                padding-top: 20px;
+                padding-bottom: 20px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+        }
+
     </style>
+
 </head>
 
 <body>
 
-    <header>
-        <nav class="navbar navbar-expand-lg edulearn-navbar">
-            <div class="container">
+    <header class="edulearn-navbar">
 
-                <!-- LOGO -->
-                <a class="navbar-brand edulearn-brand"
-                   asp-controller="Home"
-                   asp-action="Index">
-                    EduLearn
+        <div class="edulearn-nav-container">
+
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="edulearn-logo">
+                EduLearn
+            </a>
+
+
+            <nav class="edulearn-nav-links">
+
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   class="edulearn-nav-link @(isHomePage ? "active" : "")">
+                    Trang chủ
                 </a>
 
 
-                <!-- MOBILE BUTTON -->
-                <button class="navbar-toggler"
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#mainNavbar">
-
-                    <span class="navbar-toggler-icon"></span>
-
-                </button>
+                <a asp-controller="Courses"
+                   asp-action="Index"
+                   class="edulearn-nav-link @(isCoursesPage ? "active" : "")">
+                    Khóa học
+                </a>
 
 
-                <div class="collapse navbar-collapse"
-                     id="mainNavbar">
-
-                    <!-- MENU -->
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-
-                        <li class="nav-item">
-                            <a class="nav-link edulearn-nav-link"
-                               asp-controller="Home"
-                               asp-action="Index">
-                                Trang chủ
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link edulearn-nav-link"
-   asp-controller="Courses"
-   asp-action="Index">
-    Khóa học
-</a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link edulearn-nav-link"
-                               href="#">
-                                Giảng viên
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link edulearn-nav-link"
-                               href="#">
-                                Về EduLearn
-                            </a>
-                        </li>
-
-                    </ul>
+                @if (User.Identity?.IsAuthenticated == true &&
+                     User.IsInRole("Student"))
+                {
+                    <a asp-controller="Courses"
+                       asp-action="MyCourses"
+                       class="edulearn-nav-link @(isMyCoursesPage ? "active" : "")">
+                        Khóa học của tôi
+                    </a>
+                }
 
 
-                    <!-- CHƯA ĐĂNG NHẬP -->
-                    @if (User.Identity?.IsAuthenticated != true)
-                    {
-                        <div class="d-flex gap-2">
-
-                            <a class="btn btn-outline-primary btn-login-nav"
-                               asp-controller="Account"
-                               asp-action="Login">
-                                Đăng nhập
-                            </a>
-
-                            <a class="btn btn-primary btn-register-nav"
-                               asp-controller="Account"
-                               asp-action="Register">
-                                Đăng ký
-                            </a>
-
-                        </div>
-                    }
+                <a href="#"
+                   class="edulearn-nav-link">
+                    Giảng viên
+                </a>
 
 
-                    <!-- ĐÃ ĐĂNG NHẬP -->
-                    @if (User.Identity?.IsAuthenticated == true)
-                    {
-                        <div class="account-area">
+                <a href="#"
+                   class="edulearn-nav-link">
+                    Về EduLearn
+                </a>
 
-                            <div class="account-chip">
-
-                                <div class="account-avatar">
-                                    @(
-                                        string.IsNullOrWhiteSpace(User.Identity.Name)
-                                        ? "U"
-                                        : User.Identity.Name.Substring(0, 1).ToUpper()
-                                    )
-                                </div>
-
-                                <span class="account-name"
-                                      title="@User.Identity.Name">
-                                    @User.Identity.Name
-                                </span>
-
-                            </div>
+            </nav>
 
 
-                            <form asp-controller="Account"
-                                  asp-action="Logout"
-                                  method="post"
-                                  class="m-0">
+            <div class="account-area">
 
-                                <button type="submit"
-                                        class="logout-button">
-                                    Đăng xuất
-                                </button>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    var userName =
+                        User.Identity?.Name ?? "User";
 
-                            </form>
+                    var firstLetter =
+                        !string.IsNullOrWhiteSpace(userName)
+                            ? userName.Substring(0, 1)
+                            : "U";
 
-                        </div>
-                    }
 
-                </div>
+                    <div class="account-chip">
+
+                        <span class="account-avatar">
+                            @firstLetter
+                        </span>
+
+                        <span>
+                            @userName
+                        </span>
+
+                    </div>
+
+
+                    <form asp-controller="Account"
+                          asp-action="Logout"
+                          method="post"
+                          class="logout-form">
+
+                        <button type="submit"
+                                class="logout-button">
+                            Đăng xuất
+                        </button>
+
+                    </form>
+                }
+                else
+                {
+                    <a asp-controller="Account"
+                       asp-action="Login"
+                       class="auth-link login-link">
+                        Đăng nhập
+                    </a>
+
+                    <a asp-controller="Account"
+                       asp-action="Register"
+                       class="auth-link register-link">
+                        Đăng ký
+                    </a>
+                }
+
             </div>
-        </nav>
+
+        </div>
+
     </header>
 
 
-    <main class="page-content">
+    <main>
         @RenderBody()
     </main>
 
 
     <footer class="edulearn-footer">
 
-        <div class="container d-flex
-                    flex-column flex-md-row
-                    justify-content-between
-                    align-items-center gap-2">
+        <div class="footer-container">
 
             <div>
                 © 2026
@@ -354,8 +414,7 @@
 
     @await RenderSectionAsync(
         "Scripts",
-        required: false
-    )
+        required: false)
 
 </body>
 </html>

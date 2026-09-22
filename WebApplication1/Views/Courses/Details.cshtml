@@ -3,31 +3,48 @@
 @{
     ViewData["Title"] = Model.Title;
 
-    var approvedReviews = Model.Reviews?.ToList()
+    var approvedReviews =
+        Model.Reviews?.ToList()
         ?? new List<OnlineLearningPlatform.Models.Review>();
 
-    var averageRating = approvedReviews.Any()
-        ? approvedReviews.Average(r => r.Rating)
-        : 0;
+    var averageRating =
+        approvedReviews.Any()
+            ? approvedReviews.Average(r => r.Rating)
+            : 0;
 
-    var totalLessons = Model.Modules?
-        .Sum(m => m.Lessons.Count) ?? 0;
+    var totalLessons =
+        Model.Modules?.Sum(m => m.Lessons.Count) ?? 0;
 
     bool isEnrolled =
         ViewBag.IsEnrolled != null &&
         (bool)ViewBag.IsEnrolled;
 
+    decimal enrollmentProgress = 0m;
+
+    if (ViewBag.EnrollmentProgress != null)
+    {
+        enrollmentProgress =
+            Math.Clamp(
+                Convert.ToDecimal(
+                    ViewBag.EnrollmentProgress),
+                0m,
+                100m);
+    }
+
     bool isAuthenticated =
         User.Identity?.IsAuthenticated == true;
 
     bool isStudent =
-        isAuthenticated && User.IsInRole("Student");
+        isAuthenticated &&
+        User.IsInRole("Student");
 
     bool isAdmin =
-        isAuthenticated && User.IsInRole("Admin");
+        isAuthenticated &&
+        User.IsInRole("Admin");
 
     bool isInstructor =
-        isAuthenticated && User.IsInRole("Instructor");
+        isAuthenticated &&
+        User.IsInRole("Instructor");
 
     string? successMessage =
         TempData["SuccessMessage"]?.ToString();
@@ -43,6 +60,7 @@
 }
 
 <style>
+
     .details-page {
         background: #f8fafc;
         min-height: 80vh;
@@ -53,8 +71,6 @@
         margin: 0 auto;
         padding: 0 20px;
     }
-
-    /* HERO */
 
     .course-hero {
         background: #172033;
@@ -84,7 +100,7 @@
         display: inline-block;
         padding: 6px 11px;
         border-radius: 20px;
-        background: rgba(255, 255, 255, 0.12);
+        background: rgba(255,255,255,.12);
         color: #bcd5ff;
         font-size: 12px;
         font-weight: 700;
@@ -113,19 +129,20 @@
         font-size: 13px;
     }
 
-    /* CARD BÊN PHẢI */
-
     .hero-card {
         background: #ffffff;
         color: #202938;
         padding: 22px;
         border-radius: 18px;
-        box-shadow: 0 18px 45px rgba(0,0,0,0.20);
+        box-shadow: 0 18px 45px rgba(0,0,0,.20);
     }
 
     .hero-thumbnail {
         height: 190px;
-        background: linear-gradient(135deg, #0d6efd, #478cff);
+        background: linear-gradient(
+            135deg,
+            #0d6efd,
+            #478cff);
         border-radius: 14px;
         display: flex;
         flex-direction: column;
@@ -171,35 +188,81 @@
         color: #ffffff;
     }
 
-    .enrolled-button {
-        display: block;
+    .enrolled-status {
         width: 100%;
         background: #eaf8ef;
         color: #198754;
         border: 1px solid #bfe5cb;
         text-align: center;
-        padding: 13px 16px;
+        padding: 12px 16px;
         border-radius: 10px;
         font-weight: 700;
-        margin-bottom: 10px;
+        margin-bottom: 18px;
+    }
+
+    /* TIẾN ĐỘ HỌC */
+
+    .learning-progress {
+        margin-bottom: 18px;
+    }
+
+    .progress-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        margin-bottom: 8px;
+    }
+
+    .progress-label {
+        color: #566273;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .progress-percent {
+        color: #0d6efd;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .progress-track {
+        width: 100%;
+        height: 9px;
+        background: #edf1f6;
+        border-radius: 50px;
+        overflow: hidden;
+    }
+
+    .progress-value {
+        height: 100%;
+        background: #0d6efd;
+        border-radius: 50px;
+        transition: width .3s ease;
+    }
+
+    .progress-extra {
+        color: #929aaa;
+        font-size: 11px;
+        margin-top: 7px;
     }
 
     .learn-button {
         display: block;
         width: 100%;
-        background: #ffffff;
-        color: #0d6efd;
+        background: #0d6efd;
+        color: #ffffff;
         border: 1px solid #0d6efd;
         text-align: center;
         text-decoration: none;
-        padding: 12px 16px;
+        padding: 13px 16px;
         border-radius: 10px;
         font-weight: 700;
     }
 
     .learn-button:hover {
-        background: #edf4ff;
-        color: #0d6efd;
+        background: #0b5ed7;
+        color: #ffffff;
     }
 
     .login-note {
@@ -219,8 +282,6 @@
         font-size: 13px;
         text-align: center;
     }
-
-    /* CONTENT */
 
     .course-content {
         padding: 55px 0 80px;
@@ -253,8 +314,6 @@
         white-space: pre-line;
     }
 
-    /* MODULE */
-
     .module-card {
         border: 1px solid #e9edf3;
         border-radius: 12px;
@@ -285,8 +344,6 @@
         padding: 20px;
         border-radius: 10px;
     }
-
-    /* SIDEBAR */
 
     .info-row {
         padding: 11px 0;
@@ -320,8 +377,6 @@
         font-size: 13px;
         line-height: 1.6;
     }
-
-    /* REVIEWS */
 
     .rating-summary {
         display: flex;
@@ -357,9 +412,7 @@
         line-height: 1.6;
     }
 
-    /* =========================
-       TOAST POPUP
-    ========================= */
+    /* POPUP */
 
     .toast-position {
         position: fixed !important;
@@ -378,7 +431,7 @@
         border-radius: 14px;
         overflow: hidden;
         background: #ffffff;
-        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.16);
+        box-shadow: 0 12px 35px rgba(0,0,0,.16);
     }
 
     .toast-success {
@@ -422,6 +475,7 @@
     }
 
     @@media (max-width: 991px) {
+
         .course-hero-grid,
         .content-layout {
             grid-template-columns: 1fr;
@@ -430,9 +484,11 @@
         .hero-card {
             max-width: 500px;
         }
+
     }
 
     @@media (max-width: 600px) {
+
         .course-main-title {
             font-size: 30px;
         }
@@ -452,7 +508,9 @@
             width: auto;
             max-width: none;
         }
+
     }
+
 </style>
 
 
@@ -484,28 +542,36 @@
 
                     </div>
 
+
                     <div class="course-category-badge">
                         @Model.Category.Name
                     </div>
+
 
                     <h1 class="course-main-title">
                         @Model.Title
                     </h1>
 
+
                     <p class="course-short-description">
                         @Model.ShortDescription
                     </p>
+
 
                     <div class="course-meta">
 
                         <span>
                             Giảng viên:
-                            <strong>@Model.Instructor.FullName</strong>
+                            <strong>
+                                @Model.Instructor.FullName
+                            </strong>
                         </span>
 
                         <span>
                             Cấp độ:
-                            <strong>@Model.Level</strong>
+                            <strong>
+                                @Model.Level
+                            </strong>
                         </span>
 
                         <span>
@@ -539,6 +605,7 @@
 
                     </div>
 
+
                     <div class="course-price">
                         @Model.Price.ToString("N0") đ
                     </div>
@@ -562,47 +629,97 @@
                     }
 
 
-                    @if (isStudent)
+                    @if (isStudent && !isEnrolled)
                     {
-                        if (isEnrolled)
-                        {
-                            <div class="enrolled-button">
-                                ✓ Đã đăng ký khóa học
+                        <form asp-controller="Courses"
+                              asp-action="Enroll"
+                              method="post">
+
+                            <input type="hidden"
+                                   name="courseId"
+                                   value="@Model.Id" />
+
+                            <button type="submit"
+                                    class="enroll-button">
+
+                                Đăng ký khóa học
+
+                            </button>
+
+                        </form>
+
+                        <div class="login-note">
+                            Khóa học sẽ được thêm vào danh sách
+                            “Khóa học của tôi”.
+                        </div>
+                    }
+
+
+                    @if (isStudent && isEnrolled)
+                    {
+                        <div class="enrolled-status">
+                            ✓ Đã đăng ký khóa học
+                        </div>
+
+
+                        <div class="learning-progress">
+
+                            <div class="progress-heading">
+
+                                <span class="progress-label">
+                                    Tiến độ học tập
+                                </span>
+
+                                <span class="progress-percent">
+                                    @enrollmentProgress.ToString("0")%
+                                </span>
+
                             </div>
 
-                            <a href="#course-content"
-                               class="learn-button">
-                                Xem nội dung khóa học
-                            </a>
 
-                            <div class="login-note">
-                                Khóa học này đã có trong tài khoản của bạn.
+                            <div class="progress-track">
+
+                                <div class="progress-value"
+                                     style="width: @enrollmentProgress.ToString("0")%;">
+                                </div>
+
                             </div>
-                        }
-                        else
-                        {
-                            <form asp-controller="Courses"
-                                  asp-action="Enroll"
-                                  method="post">
 
-                                <input type="hidden"
-                                       name="courseId"
-                                       value="@Model.Id" />
 
-                                <button type="submit"
-                                        class="enroll-button">
+                            @if (enrollmentProgress >= 100)
+                            {
+                                <div class="progress-extra">
+                                    Bạn đã hoàn thành khóa học này.
+                                </div>
+                            }
+                            else if (enrollmentProgress > 0)
+                            {
+                                <div class="progress-extra">
+                                    Tiếp tục quá trình học tập của bạn.
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="progress-extra">
+                                    Bạn chưa bắt đầu bài học nào.
+                                </div>
+                            }
 
-                                    Đăng ký khóa học
+                        </div>
 
-                                </button>
 
-                            </form>
+                        <a href="#course-content"
+                           class="learn-button">
 
-                            <div class="login-note">
-                                Khóa học sẽ được thêm vào danh sách
-                                “Khóa học của tôi”.
-                            </div>
-                        }
+                            @(enrollmentProgress > 0
+                                ? "Tiếp tục học"
+                                : "Học ngay")
+
+                        </a>
+
+                        <div class="login-note">
+                            Khóa học này đã có trong tài khoản của bạn.
+                        </div>
                     }
 
 
@@ -658,6 +775,7 @@
                             Nội dung khóa học
                         </h2>
 
+
                         @if (Model.Modules != null &&
                              Model.Modules.Any())
                         {
@@ -668,6 +786,7 @@
                                     <div class="module-title">
                                         @module.Title
                                     </div>
+
 
                                     @if (module.Lessons.Any())
                                     {
@@ -712,6 +831,7 @@
                             Đánh giá khóa học
                         </h2>
 
+
                         @if (approvedReviews.Any())
                         {
                             <div class="rating-summary">
@@ -721,6 +841,7 @@
                                 </div>
 
                                 <div>
+
                                     <div class="rating-stars">
                                         ★★★★★
                                     </div>
@@ -728,9 +849,11 @@
                                     <div class="text-muted small">
                                         @approvedReviews.Count đánh giá
                                     </div>
+
                                 </div>
 
                             </div>
+
 
                             foreach (var review in approvedReviews)
                             {
@@ -744,7 +867,8 @@
                                         @review.Rating / 5 ★
                                     </div>
 
-                                    @if (!string.IsNullOrWhiteSpace(review.Comment))
+                                    @if (!string.IsNullOrWhiteSpace(
+                                        review.Comment))
                                     {
                                         <div class="review-comment">
                                             @review.Comment
@@ -774,39 +898,86 @@
                             Thông tin khóa học
                         </h3>
 
-                        <div class="info-row">
-                            <div class="info-label">Danh mục</div>
-                            <div class="info-value">@Model.Category.Name</div>
-                        </div>
 
                         <div class="info-row">
-                            <div class="info-label">Cấp độ</div>
-                            <div class="info-value">@Model.Level</div>
-                        </div>
 
-                        <div class="info-row">
-                            <div class="info-label">Ngôn ngữ</div>
+                            <div class="info-label">
+                                Danh mục
+                            </div>
 
                             <div class="info-value">
+                                @Model.Category.Name
+                            </div>
+
+                        </div>
+
+
+                        <div class="info-row">
+
+                            <div class="info-label">
+                                Cấp độ
+                            </div>
+
+                            <div class="info-value">
+                                @Model.Level
+                            </div>
+
+                        </div>
+
+
+                        <div class="info-row">
+
+                            <div class="info-label">
+                                Ngôn ngữ
+                            </div>
+
+                            <div class="info-value">
+
                                 @(Model.Language == "vi"
                                     ? "Tiếng Việt"
                                     : Model.Language)
+
                             </div>
+
                         </div>
 
-                        <div class="info-row">
-                            <div class="info-label">Thời lượng</div>
-                            <div class="info-value">@Model.Duration phút</div>
-                        </div>
 
                         <div class="info-row">
-                            <div class="info-label">Số bài học</div>
-                            <div class="info-value">@totalLessons bài</div>
+
+                            <div class="info-label">
+                                Thời lượng
+                            </div>
+
+                            <div class="info-value">
+                                @Model.Duration phút
+                            </div>
+
                         </div>
 
+
                         <div class="info-row">
-                            <div class="info-label">Học viên</div>
-                            <div class="info-value">@Model.EnrollmentCount học viên</div>
+
+                            <div class="info-label">
+                                Số bài học
+                            </div>
+
+                            <div class="info-value">
+                                @totalLessons bài
+                            </div>
+
+                        </div>
+
+
+                        <div class="info-row">
+
+                            <div class="info-label">
+                                Học viên
+                            </div>
+
+                            <div class="info-value">
+                                @Model.EnrollmentCount học viên
+                            </div>
+
                         </div>
 
                     </div>
@@ -822,7 +993,8 @@
                             @Model.Instructor.FullName
                         </div>
 
-                        @if (!string.IsNullOrWhiteSpace(Model.Instructor.Bio))
+                        @if (!string.IsNullOrWhiteSpace(
+                            Model.Instructor.Bio))
                         {
                             <div class="instructor-bio">
                                 @Model.Instructor.Bio
@@ -842,10 +1014,6 @@
 </div>
 
 
-<!-- =========================
-     POPUP
-========================= -->
-
 @if (!string.IsNullOrWhiteSpace(toastMessage))
 {
     <div class="toast-container toast-position">
@@ -859,17 +1027,17 @@
             <div class="toast-body d-flex align-items-center gap-3">
 
                 <div class="toast-icon @(toastIsSuccess ? "toast-icon-success" : "toast-icon-info")">
-
                     @(toastIsSuccess ? "✓" : "i")
-
                 </div>
 
                 <div class="flex-grow-1">
 
                     <div class="toast-title">
+
                         @(toastIsSuccess
                             ? "Thành công"
                             : "Thông báo")
+
                     </div>
 
                     <div class="toast-message">
@@ -893,24 +1061,31 @@
 
 
 @section Scripts {
+
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
 
-            const toastElement =
-                document.getElementById("courseToast");
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
 
-            if (toastElement) {
+                const toastElement =
+                    document.getElementById(
+                        "courseToast");
 
-                const toast =
-                    new bootstrap.Toast(
-                        toastElement,
-                        {
-                            autohide: true,
-                            delay: 3500
-                        });
+                if (toastElement) {
 
-                toast.show();
-            }
-        });
+                    const toast =
+                        new bootstrap.Toast(
+                            toastElement,
+                            {
+                                autohide: true,
+                                delay: 3500
+                            });
+
+                    toast.show();
+                }
+            });
+
     </script>
+
 }

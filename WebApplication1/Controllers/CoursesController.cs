@@ -20,11 +20,9 @@ namespace OnlineLearningPlatform.Controllers
             _userManager = userManager;
         }
 
-
         // =========================
         // DANH SÁCH KHÓA HỌC
         // =========================
-
         public async Task<IActionResult> Index(
             string? search,
             int? categoryId)
@@ -67,11 +65,9 @@ namespace OnlineLearningPlatform.Controllers
             return View(courses);
         }
 
-
         // =========================
         // CHI TIẾT KHÓA HỌC
         // =========================
-
         public async Task<IActionResult> Details(string slug)
         {
             if (string.IsNullOrWhiteSpace(slug))
@@ -98,8 +94,8 @@ namespace OnlineLearningPlatform.Controllers
                 return NotFound();
             }
 
-            // Kiểm tra Student đã đăng ký khóa học chưa
             ViewBag.IsEnrolled = false;
+            ViewBag.EnrollmentProgress = 0m;
 
             if (User.Identity?.IsAuthenticated == true)
             {
@@ -107,14 +103,23 @@ namespace OnlineLearningPlatform.Controllers
 
                 if (!string.IsNullOrWhiteSpace(userId))
                 {
-                    ViewBag.IsEnrolled =
-                        await _context.Enrollments.AnyAsync(e =>
+                    var enrollment = await _context.Enrollments
+                        .FirstOrDefaultAsync(e =>
                             e.UserId == userId &&
                             e.CourseId == course.Id);
+
+                    if (enrollment != null)
+                    {
+                        ViewBag.IsEnrolled = true;
+                        ViewBag.EnrollmentProgress =
+                            Math.Clamp(
+                                enrollment.Progress,
+                                0m,
+                                100m);
+                    }
                 }
             }
 
-            // Tăng lượt xem
             course.ViewCount++;
 
             await _context.SaveChangesAsync();
@@ -122,11 +127,9 @@ namespace OnlineLearningPlatform.Controllers
             return View(course);
         }
 
-
         // =========================
         // ĐĂNG KÝ KHÓA HỌC
         // =========================
-
         [HttpPost]
         [Authorize(Roles = "Student")]
         [ValidateAntiForgeryToken]
@@ -149,7 +152,6 @@ namespace OnlineLearningPlatform.Controllers
                 return NotFound();
             }
 
-            // Không cho đăng ký trùng
             var alreadyEnrolled =
                 await _context.Enrollments.AnyAsync(e =>
                     e.UserId == userId &&
@@ -186,6 +188,32 @@ namespace OnlineLearningPlatform.Controllers
             return RedirectToAction(
                 "Details",
                 new { slug = course.Slug });
+        }
+
+        // =========================
+        // KHÓA HỌC CỦA TÔI
+        // =========================
+        [Authorize(Roles = "Student")]
+        public async Task<IActionResult> MyCourses()
+        {
+            var userId = _userManager.GetUserId(User);
+
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Challenge();
+            }
+
+            var enrollments = await _context.Enrollments
+                .Where(e => e.UserId == userId)
+                .Include(e => e.Course)
+                    .ThenInclude(c => c.Category)
+                .Include(e => e.Course)
+                    .ThenInclude(c => c.Instructor)
+                .OrderByDescending(e =>
+                    e.LastAccessedAt ?? e.EnrolledAt)
+                .ToListAsync();
+
+            return View(enrollments);
         }
     }
 }

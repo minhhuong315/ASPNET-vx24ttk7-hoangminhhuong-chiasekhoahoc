@@ -1,0 +1,471 @@
+﻿@model IEnumerable<OnlineLearningPlatform.Models.Enrollment>
+
+@{
+    ViewData["Title"] = "Khóa học của tôi";
+
+    var enrollmentList = Model.ToList();
+
+    var completedCount =
+        enrollmentList.Count(e => e.CompletedAt != null);
+
+    var studyingCount =
+        enrollmentList.Count - completedCount;
+}
+
+<style>
+    .mycourses-page {
+        min-height: 80vh;
+        background: #f8fafc;
+        padding: 55px 0 80px;
+    }
+
+    .mycourses-container {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .page-header {
+        margin-bottom: 30px;
+    }
+
+    .page-title {
+        color: #172033;
+        font-size: 34px;
+        font-weight: 800;
+        margin-bottom: 8px;
+    }
+
+    .page-description {
+        color: #7a8494;
+        margin: 0;
+    }
+
+    /* SUMMARY */
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-bottom: 35px;
+    }
+
+    .summary-card {
+        background: #ffffff;
+        border: 1px solid #e8ebf0;
+        border-radius: 15px;
+        padding: 22px;
+    }
+
+    .summary-number {
+        color: #0d6efd;
+        font-size: 28px;
+        font-weight: 800;
+    }
+
+    .summary-label {
+        color: #7a8494;
+        font-size: 13px;
+        margin-top: 3px;
+    }
+
+    /* COURSE GRID */
+
+    .course-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 22px;
+    }
+
+    .course-card {
+        background: #ffffff;
+        border: 1px solid #e8ebf0;
+        border-radius: 17px;
+        overflow: hidden;
+        transition: 0.2s ease;
+    }
+
+    .course-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 14px 35px rgba(33, 52, 84, 0.10);
+    }
+
+    .course-thumbnail {
+        height: 155px;
+        padding: 20px;
+        background: linear-gradient(135deg, #0d6efd, #488dff);
+        color: #ffffff;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .course-category {
+        font-size: 12px;
+        font-weight: 700;
+        opacity: 0.9;
+    }
+
+    .course-logo {
+        font-size: 31px;
+        font-weight: 800;
+    }
+
+    .course-body {
+        padding: 20px;
+    }
+
+    .course-name {
+        color: #202938;
+        font-size: 17px;
+        font-weight: 700;
+        line-height: 1.45;
+        min-height: 50px;
+    }
+
+    .course-instructor {
+        color: #8992a3;
+        font-size: 12px;
+        margin-top: 8px;
+        margin-bottom: 17px;
+    }
+
+    /* PROGRESS */
+
+    .progress-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 7px;
+    }
+
+    .progress-label {
+        color: #667085;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .progress-percent {
+        color: #0d6efd;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .progress-track {
+        height: 8px;
+        background: #edf1f6;
+        border-radius: 30px;
+        overflow: hidden;
+    }
+
+    .progress-value {
+        height: 100%;
+        background: #0d6efd;
+        border-radius: 30px;
+    }
+
+    .course-meta {
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid #eef0f3;
+        color: #8992a3;
+        font-size: 12px;
+    }
+
+    .course-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 17px;
+    }
+
+    .btn-detail,
+    .btn-learn {
+        flex: 1;
+        min-height: 42px;
+        border-radius: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .btn-detail {
+        color: #0d6efd;
+        background: #ffffff;
+        border: 1px solid #bdd5ff;
+    }
+
+    .btn-detail:hover {
+        color: #0d6efd;
+        background: #f2f7ff;
+    }
+
+    .btn-learn {
+        color: #ffffff;
+        background: #0d6efd;
+        border: 1px solid #0d6efd;
+    }
+
+    .btn-learn:hover {
+        color: #ffffff;
+        background: #0b5ed7;
+    }
+
+    /* EMPTY */
+
+    .empty-state {
+        background: #ffffff;
+        border: 1px solid #e8ebf0;
+        border-radius: 18px;
+        text-align: center;
+        padding: 65px 25px;
+    }
+
+    .empty-icon {
+        width: 70px;
+        height: 70px;
+        margin: 0 auto 18px;
+        border-radius: 20px;
+        background: #edf4ff;
+        color: #0d6efd;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        font-weight: 800;
+    }
+
+    .empty-title {
+        color: #273142;
+        font-size: 21px;
+        font-weight: 800;
+        margin-bottom: 8px;
+    }
+
+    .empty-description {
+        color: #8992a3;
+        margin-bottom: 22px;
+    }
+
+    .explore-button {
+        display: inline-block;
+        background: #0d6efd;
+        color: #ffffff;
+        padding: 11px 20px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 700;
+    }
+
+    .explore-button:hover {
+        color: #ffffff;
+        background: #0b5ed7;
+    }
+
+    @@media (max-width: 991px) {
+        .course-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .summary-grid,
+        .course-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+
+<div class="mycourses-page">
+
+    <div class="mycourses-container">
+
+        <div class="page-header">
+
+            <h1 class="page-title">
+                Khóa học của tôi
+            </h1>
+
+            <p class="page-description">
+                Quản lý các khóa học bạn đã đăng ký
+                và tiếp tục quá trình học tập.
+            </p>
+
+        </div>
+
+
+        @if (enrollmentList.Any())
+        {
+            <!-- TỔNG QUAN -->
+
+            <div class="summary-grid">
+
+                <div class="summary-card">
+
+                    <div class="summary-number">
+                        @enrollmentList.Count
+                    </div>
+
+                    <div class="summary-label">
+                        Tổng khóa học
+                    </div>
+
+                </div>
+
+
+                <div class="summary-card">
+
+                    <div class="summary-number">
+                        @studyingCount
+                    </div>
+
+                    <div class="summary-label">
+                        Đang học
+                    </div>
+
+                </div>
+
+
+                <div class="summary-card">
+
+                    <div class="summary-number">
+                        @completedCount
+                    </div>
+
+                    <div class="summary-label">
+                        Đã hoàn thành
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- KHÓA HỌC -->
+
+            <div class="course-grid">
+
+                @foreach (var enrollment in enrollmentList)
+                {
+                    var progress =
+                        Math.Clamp(
+                            enrollment.Progress,
+                            0,
+                            100);
+
+                    <div class="course-card">
+
+                        <div class="course-thumbnail">
+
+                            <div class="course-category">
+                                @enrollment.Course.Category.Name
+                            </div>
+
+                            <div class="course-logo">
+                                @(enrollment.Course.Category.Icon ?? "IT")
+                            </div>
+
+                        </div>
+
+
+                        <div class="course-body">
+
+                            <div class="course-name">
+                                @enrollment.Course.Title
+                            </div>
+
+                            <div class="course-instructor">
+                                Giảng viên:
+                                @enrollment.Course.Instructor.FullName
+                            </div>
+
+
+                            <div class="progress-header">
+
+                                <span class="progress-label">
+                                    Tiến độ
+                                </span>
+
+                                <span class="progress-percent">
+                                    @progress.ToString("0")%
+                                </span>
+
+                            </div>
+
+                            <div class="progress-track">
+
+                                <div class="progress-value"
+                                     style="width: @progress.ToString("0")%;">
+                                </div>
+
+                            </div>
+
+
+                            <div class="course-meta">
+
+                                Đăng ký:
+                                @(enrollment.EnrolledAt.ToLocalTime().ToString("dd/MM/yyyy"))
+                            </div>
+
+
+                            <div class="course-actions">
+
+                                <a asp-controller="Courses"
+                                   asp-action="Details"
+                                   asp-route-slug="@enrollment.Course.Slug"
+                                   class="btn-detail">
+
+                                    Chi tiết
+
+                                </a>
+
+                                <a href="#"
+                                   class="btn-learn">
+
+                                    Học ngay
+
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+
+                <div class="empty-icon">
+                    IT
+                </div>
+
+                <div class="empty-title">
+                    Bạn chưa đăng ký khóa học nào
+                </div>
+
+                <div class="empty-description">
+                    Khám phá các khóa học Công nghệ thông tin
+                    và bắt đầu hành trình học tập của bạn.
+                </div>
+
+                <a asp-controller="Courses"
+                   asp-action="Index"
+                   class="explore-button">
+
+                    Khám phá khóa học
+
+                </a>
+
+            </div>
+        }
+
+    </div>
+
+</div>
