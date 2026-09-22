@@ -43,9 +43,11 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 // Khởi tạo các Role mặc định
+// Khởi tạo Role và tài khoản Admin mặc định
 using (var scope = app.Services.CreateScope())
 {
-    var services = scope.ServiceProvider;
-    await DbInitializer.SeedRolesAsync(services);
+    await DbInitializer.InitializeAsync(
+        scope.ServiceProvider,
+        builder.Configuration);
 }
 app.Run();
