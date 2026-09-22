@@ -1,0 +1,262 @@
+﻿@model OnlineLearningPlatform.ViewModels.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Đăng ký";
+}
+
+<style>
+    .register-page {
+        min-height: 78vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 15px;
+        background: #f7f9fc;
+    }
+
+    .register-wrapper {
+        width: 100%;
+        max-width: 1000px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        background: #ffffff;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 15px 45px rgba(0, 0, 0, 0.08);
+    }
+
+    .register-brand {
+        background: linear-gradient(135deg, #0d6efd, #4d8df7);
+        color: white;
+        padding: 55px 45px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .brand-logo {
+        font-size: 30px;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .brand-slogan {
+        font-size: 22px;
+        font-weight: 600;
+        margin-bottom: 15px;
+    }
+
+    .brand-description {
+        opacity: 0.9;
+        line-height: 1.7;
+        margin-bottom: 30px;
+    }
+
+    .tech-box {
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 16px;
+        padding: 20px;
+    }
+
+    .tech-title {
+        font-weight: 600;
+        margin-bottom: 15px;
+    }
+
+    .tech-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .tech-item {
+        background: white;
+        color: #0d6efd;
+        padding: 7px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .register-form {
+        padding: 50px 45px;
+    }
+
+    .register-form h2 {
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .register-subtitle {
+        color: #6c757d;
+        margin-bottom: 30px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 7px;
+    }
+
+    .form-control {
+        min-height: 48px;
+        border-radius: 10px;
+    }
+
+    .form-control:focus {
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12);
+    }
+
+    .btn-register {
+        min-height: 48px;
+        border-radius: 10px;
+        font-weight: 600;
+    }
+
+    .login-text {
+        text-align: center;
+        margin-top: 22px;
+        color: #6c757d;
+    }
+
+    .validation-summary-errors ul {
+        margin-bottom: 0;
+    }
+
+    @@media (max-width: 768px) {
+        .register-wrapper {
+            grid-template-columns: 1fr;
+        }
+
+        .register-brand {
+            padding: 35px 25px;
+        }
+
+        .register-form {
+            padding: 35px 25px;
+        }
+    }
+</style>
+
+<div class="register-page">
+    <div class="register-wrapper">
+
+        <!-- Phần giới thiệu EduLearn -->
+        <div class="register-brand">
+            <div class="brand-logo">EduLearn</div>
+
+            <div class="brand-slogan">
+                Chia sẻ tri thức,<br />
+                kiến tạo tương lai
+            </div>
+
+            <p class="brand-description">
+                Nền tảng học trực tuyến chuyên về Công nghệ thông tin,
+                giúp bạn tiếp cận kiến thức thực tế và phát triển kỹ năng
+                mỗi ngày.
+            </p>
+
+            <div class="tech-box">
+                <div class="tech-title">
+                    Khám phá các lĩnh vực công nghệ
+                </div>
+
+                <div class="tech-list">
+                    <span class="tech-item">ASP.NET Core</span>
+                    <span class="tech-item">C#</span>
+                    <span class="tech-item">JavaScript</span>
+                    <span class="tech-item">Python</span>
+                    <span class="tech-item">SQL Server</span>
+                    <span class="tech-item">Git & GitHub</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form đăng ký -->
+        <div class="register-form">
+            <h2>Tạo tài khoản</h2>
+
+            <p class="register-subtitle">
+                Bắt đầu hành trình học tập cùng EduLearn.
+            </p>
+
+            <form asp-controller="Account"
+                  asp-action="Register"
+                  method="post">
+
+                <div asp-validation-summary="ModelOnly"
+                     class="alert alert-danger"></div>
+
+                <div class="mb-3">
+                    <label asp-for="FullName"
+                           class="form-label"></label>
+
+                    <input asp-for="FullName"
+                           class="form-control"
+                           placeholder="Nhập họ và tên"
+                           autocomplete="name" />
+
+                    <span asp-validation-for="FullName"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Email"
+                           class="form-label"></label>
+
+                    <input asp-for="Email"
+                           class="form-control"
+                           placeholder="Nhập địa chỉ email"
+                           autocomplete="email" />
+
+                    <span asp-validation-for="Email"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Password"
+                           class="form-label"></label>
+
+                    <input asp-for="Password"
+                           class="form-control"
+                           placeholder="Nhập mật khẩu"
+                           autocomplete="new-password" />
+
+                    <span asp-validation-for="Password"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="ConfirmPassword"
+                           class="form-label"></label>
+
+                    <input asp-for="ConfirmPassword"
+                           class="form-control"
+                           placeholder="Nhập lại mật khẩu"
+                           autocomplete="new-password" />
+
+                    <span asp-validation-for="ConfirmPassword"
+                          class="text-danger"></span>
+                </div>
+
+                <button type="submit"
+                        class="btn btn-primary btn-register w-100">
+                    Đăng ký
+                </button>
+            </form>
+
+            <div class="login-text">
+                Đã có tài khoản?
+                <a asp-controller="Account"
+                   asp-action="Login"
+                   class="text-decoration-none fw-semibold">
+                    Đăng nhập
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

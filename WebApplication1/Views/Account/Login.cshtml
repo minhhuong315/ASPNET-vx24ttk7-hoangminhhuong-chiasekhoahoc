@@ -1,0 +1,244 @@
+﻿@model OnlineLearningPlatform.ViewModels.LoginViewModel
+
+@{
+    ViewData["Title"] = "Đăng nhập";
+}
+
+<style>
+    .login-page {
+        min-height: 78vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 15px;
+        background: #f7f9fc;
+    }
+
+    .login-wrapper {
+        width: 100%;
+        max-width: 950px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        background: #ffffff;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 15px 45px rgba(0, 0, 0, 0.08);
+    }
+
+    .login-brand {
+        background: linear-gradient(135deg, #0d6efd, #4d8df7);
+        color: white;
+        padding: 55px 45px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .brand-logo {
+        font-size: 30px;
+        font-weight: 700;
+        margin-bottom: 12px;
+    }
+
+    .brand-slogan {
+        font-size: 22px;
+        font-weight: 600;
+        line-height: 1.45;
+        margin-bottom: 15px;
+    }
+
+    .brand-description {
+        line-height: 1.7;
+        opacity: 0.9;
+    }
+
+    .platform-box {
+        margin-top: 30px;
+        padding: 20px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .platform-item {
+        padding: 8px 0;
+        font-size: 14px;
+    }
+
+    .login-form {
+        padding: 55px 45px;
+    }
+
+        .login-form h2 {
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+    .login-subtitle {
+        color: #6c757d;
+        margin-bottom: 30px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 7px;
+    }
+
+    .form-control {
+        min-height: 48px;
+        border-radius: 10px;
+    }
+
+        .form-control:focus {
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12);
+        }
+
+    .btn-login {
+        min-height: 48px;
+        border-radius: 10px;
+        font-weight: 600;
+    }
+
+    .register-text {
+        text-align: center;
+        margin-top: 22px;
+        color: #6c757d;
+    }
+
+    @@media (max-width: 768px) {
+        .login-wrapper {
+            grid-template-columns: 1fr;
+        }
+
+        .login-brand,
+        .login-form {
+            padding: 35px 25px;
+        }
+    }
+</style>
+
+<div class="login-page">
+    <div class="login-wrapper">
+
+        <div class="login-brand">
+
+            <div class="brand-logo">
+                EduLearn
+            </div>
+
+            <div class="brand-slogan">
+                Chia sẻ tri thức,<br />
+                kiến tạo tương lai
+            </div>
+
+            <p class="brand-description">
+                Đăng nhập để tiếp tục hành trình học tập
+                và khám phá các khóa học Công nghệ thông tin.
+            </p>
+
+            <div class="platform-box">
+
+                <div class="platform-item">
+                    ✓ Theo dõi tiến độ học tập
+                </div>
+
+                <div class="platform-item">
+                    ✓ Quản lý khóa học của bạn
+                </div>
+
+                <div class="platform-item">
+                    ✓ Lưu khóa học yêu thích
+                </div>
+
+                <div class="platform-item">
+                    ✓ Học mọi lúc, mọi nơi
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="login-form">
+
+            <h2>Chào mừng trở lại!</h2>
+
+            <p class="login-subtitle">
+                Đăng nhập vào tài khoản EduLearn của bạn.
+            </p>
+
+            <form asp-controller="Account"
+                  asp-action="Login"
+                  method="post">
+
+                <input type="hidden"
+                       name="returnUrl"
+                       value="@ViewData["ReturnUrl"]" />
+
+                <div asp-validation-summary="ModelOnly"
+                     class="alert alert-danger"></div>
+
+                <div class="mb-3">
+
+                    <label asp-for="Email"
+                           class="form-label"></label>
+
+                    <input asp-for="Email"
+                           class="form-control"
+                           placeholder="Nhập địa chỉ email"
+                           autocomplete="email" />
+
+                    <span asp-validation-for="Email"
+                          class="text-danger"></span>
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label asp-for="Password"
+                           class="form-label"></label>
+
+                    <input asp-for="Password"
+                           class="form-control"
+                           placeholder="Nhập mật khẩu"
+                           autocomplete="current-password" />
+
+                    <span asp-validation-for="Password"
+                          class="text-danger"></span>
+
+                </div>
+
+                <div class="form-check mb-4">
+
+                    <input asp-for="RememberMe"
+                           class="form-check-input" />
+
+                    <label asp-for="RememberMe"
+                           class="form-check-label"></label>
+
+                </div>
+
+                <button type="submit"
+                        class="btn btn-primary btn-login w-100">
+                    Đăng nhập
+                </button>
+
+            </form>
+
+            <div class="register-text">
+                Chưa có tài khoản?
+
+                <a asp-controller="Account"
+                   asp-action="Register"
+                   class="text-decoration-none fw-semibold">
+                    Đăng ký ngay
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
