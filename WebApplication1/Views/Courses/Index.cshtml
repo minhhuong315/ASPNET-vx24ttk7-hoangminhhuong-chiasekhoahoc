@@ -341,10 +341,12 @@
                                             @course.Price.ToString("N0") đ
                                         </span>
 
-                                        <a href="#"
-                                           class="course-detail">
-                                            Xem chi tiết
-                                        </a>
+                                        <a asp-controller="Courses"
+   asp-action="Details"
+   asp-route-slug="@course.Slug"
+   class="course-detail">
+    Xem chi tiết
+</a>
 
                                     </div>
 
