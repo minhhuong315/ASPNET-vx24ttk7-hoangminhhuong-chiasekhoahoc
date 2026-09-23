@@ -1,4 +1,6 @@
-﻿@{
+﻿@model OnlineLearningPlatform.ViewModels.HomeIndexViewModel
+
+@{
     ViewData["Title"] = "Trang chủ";
 
     bool isAuthenticated =
@@ -21,6 +23,53 @@
 
     bool showLearningHome =
         !isAuthenticated || isStudent;
+}
+
+@functions {
+    string GetCourseBadge(string title)
+    {
+        if (string.IsNullOrWhiteSpace(title))
+        {
+            return "IT";
+        }
+
+        if (title.Contains(
+            "ASP.NET",
+            StringComparison.OrdinalIgnoreCase))
+        {
+            return ".NET";
+        }
+
+        if (title.Contains(
+            "SQL",
+            StringComparison.OrdinalIgnoreCase))
+        {
+            return "SQL";
+        }
+
+        if (title.Contains(
+            "Git",
+            StringComparison.OrdinalIgnoreCase))
+        {
+            return "Git";
+        }
+
+        if (title.Contains(
+            "C#",
+            StringComparison.OrdinalIgnoreCase))
+        {
+            return "C#";
+        }
+
+        if (title.Contains(
+            "Python",
+            StringComparison.OrdinalIgnoreCase))
+        {
+            return "PY";
+        }
+
+        return "IT";
+    }
 }
 
 <style>
@@ -69,6 +118,7 @@
         align-items: center;
 
         padding: 8px 14px;
+        margin-bottom: 18px;
 
         border-radius: 30px;
 
@@ -77,8 +127,6 @@
 
         font-size: 13px;
         font-weight: 700;
-
-        margin-bottom: 18px;
     }
 
     .hero-title {
@@ -88,7 +136,6 @@
 
         font-size: 48px;
         line-height: 1.15;
-
         font-weight: 800;
     }
 
@@ -139,13 +186,11 @@
         border: 1px solid #0d6efd;
 
         background: #0d6efd;
-
         color: #ffffff;
     }
 
     .hero-primary:hover {
         background: #0b5ed7;
-
         color: #ffffff;
     }
 
@@ -153,13 +198,11 @@
         border: 1px solid #d9dee7;
 
         background: #ffffff;
-
         color: #374151;
     }
 
     .hero-secondary:hover {
         border-color: #9fc4ff;
-
         color: #0d6efd;
     }
 
@@ -174,7 +217,6 @@
         padding: 7px 12px;
 
         border: 1px solid #e5e7eb;
-
         border-radius: 30px;
 
         background: #ffffff;
@@ -187,14 +229,13 @@
 
 
     /* =========================================
-       PREVIEW CARD
+       PREVIEW
     ========================================= */
 
     .platform-preview {
         padding: 22px;
 
         border: 1px solid #e7ebf2;
-
         border-radius: 22px;
 
         background: #ffffff;
@@ -227,7 +268,6 @@
         border-radius: 20px;
 
         background: #edfdf2;
-
         color: #16a34a;
 
         font-size: 12px;
@@ -238,15 +278,18 @@
 
     .preview-status.blue {
         background: #edf4ff;
-
         color: #0d6efd;
     }
 
     .preview-status.purple {
         background: #f5edff;
-
         color: #7c3aed;
     }
+
+
+    /* =========================================
+       COURSE PREVIEW STUDENT
+    ========================================= */
 
     .preview-course {
         display: grid;
@@ -255,14 +298,36 @@
         gap: 15px;
 
         padding: 15px;
-
         margin-bottom: 12px;
 
         border: 1px solid #edf0f5;
-
         border-radius: 14px;
 
         background: #ffffff;
+    }
+
+    .preview-course-link {
+        color: inherit;
+        text-decoration: none;
+
+        cursor: pointer;
+
+        transition:
+            transform .2s ease,
+            border-color .2s ease,
+            box-shadow .2s ease;
+    }
+
+    .preview-course-link:hover {
+        color: inherit;
+
+        transform: translateY(-2px);
+
+        border-color: #bdd4fb;
+
+        box-shadow:
+            0 8px 20px
+            rgba(13, 110, 253, .08);
     }
 
     .preview-thumb {
@@ -271,7 +336,6 @@
         border-radius: 12px;
 
         background: #e8f1ff;
-
         color: #0d6efd;
 
         display: flex;
@@ -284,13 +348,11 @@
 
     .preview-thumb.purple {
         background: #f4edff;
-
         color: #7c3aed;
     }
 
     .preview-thumb.green {
         background: #eaf8ef;
-
         color: #198754;
     }
 
@@ -330,6 +392,7 @@
 
     .preview-meta {
         display: flex;
+        align-items: center;
         justify-content: space-between;
 
         gap: 12px;
@@ -340,6 +403,17 @@
 
         font-size: 11px;
     }
+
+    .preview-course-state {
+        color: #0d6efd;
+
+        font-weight: 700;
+    }
+
+
+    /* =========================================
+       STUDENT SUMMARY
+    ========================================= */
 
     .preview-summary {
         display: grid;
@@ -381,7 +455,90 @@
 
 
     /* =========================================
-       INSTRUCTOR HOME
+       EMPTY COURSES
+    ========================================= */
+
+    .home-course-empty {
+        padding: 28px 20px;
+
+        border: 1px dashed #cddcf2;
+        border-radius: 14px;
+
+        background: #f9fbff;
+
+        text-align: center;
+    }
+
+    .home-course-empty-icon {
+        width: 50px;
+        height: 50px;
+
+        margin: 0 auto 13px;
+
+        border-radius: 14px;
+
+        background: #e8f1ff;
+        color: #0d6efd;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 16px;
+        font-weight: 800;
+    }
+
+    .home-course-empty-title {
+        margin-bottom: 6px;
+
+        color: #253047;
+
+        font-size: 14px;
+        font-weight: 800;
+    }
+
+    .home-course-empty-text {
+        max-width: 330px;
+
+        margin:
+            0
+            auto
+            16px;
+
+        color: #7a8494;
+
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+    .home-course-empty-button {
+        min-height: 40px;
+
+        padding: 0 16px;
+
+        border-radius: 9px;
+
+        background: #0d6efd;
+        color: #ffffff;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 12px;
+        font-weight: 700;
+
+        text-decoration: none;
+    }
+
+    .home-course-empty-button:hover {
+        background: #0b5ed7;
+        color: #ffffff;
+    }
+
+
+    /* =========================================
+       INSTRUCTOR
     ========================================= */
 
     .instructor-section {
@@ -422,7 +579,6 @@
         padding: 25px;
 
         border: 1px solid #e8edf4;
-
         border-radius: 16px;
 
         background: #ffffff;
@@ -449,7 +605,6 @@
         border-radius: 12px;
 
         background: #edf4ff;
-
         color: #0d6efd;
 
         display: flex;
@@ -462,13 +617,11 @@
 
     .instructor-tool-icon.purple {
         background: #f5edff;
-
         color: #7c3aed;
     }
 
     .instructor-tool-icon.green {
         background: #eaf8ef;
-
         color: #198754;
     }
 
@@ -492,18 +645,7 @@
 
 
     /* =========================================
-       ADMIN HOME
-    ========================================= */
-
-    .admin-section {
-        padding: 65px 0 80px;
-
-        background: #ffffff;
-    }
-
-
-    /* =========================================
-       PUBLIC STATS
+       STATS
     ========================================= */
 
     .stats-section {
@@ -548,7 +690,7 @@
 
 
     /* =========================================
-       COMMON PUBLIC SECTIONS
+       COMMON
     ========================================= */
 
     .home-section {
@@ -609,7 +751,6 @@
         padding: 22px;
 
         border: 1px solid #e9edf3;
-
         border-radius: 15px;
 
         background: #ffffff;
@@ -638,7 +779,6 @@
         border-radius: 12px;
 
         background: #eaf2ff;
-
         color: #0d6efd;
 
         display: flex;
@@ -675,18 +815,24 @@
     }
 
     .course-card {
-        border: 1px solid #e8ebf0;
+        display: block;
 
+        border: 1px solid #e8ebf0;
         border-radius: 16px;
 
         background: #ffffff;
 
         overflow: hidden;
 
+        text-decoration: none;
+        color: inherit;
+
         transition: .2s ease;
     }
 
     .course-card:hover {
+        color: inherit;
+
         transform: translateY(-4px);
 
         box-shadow:
@@ -804,7 +950,7 @@
     .course-footer {
         display: flex;
         align-items: center;
-        justify-content: space-between;
+        justify-content: flex-end;
 
         margin-top: 14px;
 
@@ -813,19 +959,11 @@
         border-top: 1px solid #eef0f3;
     }
 
-    .course-price {
-        color: #172033;
-
-        font-weight: 800;
-    }
-
     .course-detail {
         color: #0d6efd;
 
         font-size: 13px;
         font-weight: 700;
-
-        text-decoration: none;
     }
 
 
@@ -848,7 +986,6 @@
         padding: 25px;
 
         border: 1px solid #e9edf3;
-
         border-radius: 15px;
 
         background: #ffffff;
@@ -1035,27 +1172,17 @@
 
     @if (isInstructor)
     {
-
         <section class="hero-section">
-
 
             <div class="home-container">
 
-
                 <div class="hero-wrapper">
-
-
-                    <!-- BÊN TRÁI -->
 
                     <div>
 
-
                         <div class="hero-badge">
-
                             Không gian giảng dạy EduLearn
-
                         </div>
-
 
                         <h1 class="hero-title">
 
@@ -1067,7 +1194,6 @@
 
                         </h1>
 
-
                         <p class="hero-description">
 
                             Theo dõi các khóa học đang phụ trách,
@@ -1076,9 +1202,7 @@
 
                         </p>
 
-
                         <div class="hero-actions">
-
 
                             <a href="#instructor-tools"
                                class="hero-primary">
@@ -1087,7 +1211,6 @@
 
                             </a>
 
-
                             <a href="#instructor-qa"
                                class="hero-secondary">
 
@@ -1095,9 +1218,7 @@
 
                             </a>
 
-
                         </div>
-
 
                         <div class="hero-techs">
 
@@ -1119,56 +1240,35 @@
 
                         </div>
 
-
                     </div>
 
 
-
-                    <!-- BÊN PHẢI -->
-
                     <div class="platform-preview">
-
 
                         <div class="preview-top">
 
-
                             <div class="preview-title">
-
                                 Không gian giảng viên
-
                             </div>
-
 
                             <div class="preview-status blue">
-
                                 Giảng viên
-
                             </div>
-
 
                         </div>
 
 
-
                         <div class="preview-course">
 
-
                             <div class="preview-thumb">
-
                                 KH
-
                             </div>
-
 
                             <div>
 
-
                                 <div class="preview-course-title">
-
                                     Quản lý khóa học
-
                                 </div>
-
 
                                 <div class="preview-description">
 
@@ -1178,70 +1278,47 @@
 
                                 </div>
 
-
                             </div>
 
-
                         </div>
-
 
 
                         <div class="preview-course"
                              id="instructor-qa">
 
-
                             <div class="preview-thumb purple">
-
                                 Q&A
-
                             </div>
-
 
                             <div>
 
-
                                 <div class="preview-course-title">
-
                                     Hỏi đáp học viên
-
                                 </div>
-
 
                                 <div class="preview-description">
 
                                     Nhận câu hỏi theo từng bài học
-                                    và phản hồi trực tiếp
-                                    cho học viên.
+                                    và phản hồi trực tiếp cho học viên.
 
                                 </div>
 
-
                             </div>
-
 
                         </div>
 
 
-
                         <div class="preview-course">
 
-
                             <div class="preview-thumb green">
-
                                 TB
-
                             </div>
-
 
                             <div>
 
-
                                 <div class="preview-course-title">
-
                                     Thông báo
-
                                 </div>
-
 
                                 <div class="preview-description">
 
@@ -1251,46 +1328,29 @@
 
                                 </div>
 
-
                             </div>
-
 
                         </div>
 
-
                     </div>
-
 
                 </div>
 
-
             </div>
-
 
         </section>
 
 
-
-        <!-- =========================
-             CÔNG CỤ GIẢNG VIÊN
-        ========================== -->
-
         <section class="instructor-section"
                  id="instructor-tools">
 
-
             <div class="home-container">
-
 
                 <div class="role-section-header">
 
-
                     <h2 class="role-section-title">
-
                         Công cụ dành cho giảng viên
-
                     </h2>
-
 
                     <p class="role-section-description">
 
@@ -1299,30 +1359,20 @@
 
                     </p>
 
-
                 </div>
-
 
 
                 <div class="instructor-tool-grid">
 
-
                     <div class="instructor-tool-card">
 
-
                         <div class="instructor-tool-icon">
-
                             KH
-
                         </div>
-
 
                         <div class="instructor-tool-title">
-
                             Khóa học đang phụ trách
-
                         </div>
-
 
                         <p class="instructor-tool-description">
 
@@ -1332,27 +1382,18 @@
 
                         </p>
 
-
                     </div>
-
 
 
                     <div class="instructor-tool-card">
 
-
                         <div class="instructor-tool-icon purple">
-
                             Q&A
-
                         </div>
-
 
                         <div class="instructor-tool-title">
-
                             Hỏi đáp học viên
-
                         </div>
-
 
                         <p class="instructor-tool-description">
 
@@ -1362,27 +1403,18 @@
 
                         </p>
 
-
                     </div>
-
 
 
                     <div class="instructor-tool-card">
 
-
                         <div class="instructor-tool-icon green">
-
                             UP
-
                         </div>
-
 
                         <div class="instructor-tool-title">
-
                             Cập nhật bài giảng
-
                         </div>
-
 
                         <p class="instructor-tool-description">
 
@@ -1392,18 +1424,13 @@
 
                         </p>
 
-
                     </div>
-
 
                 </div>
 
-
             </div>
 
-
         </section>
-
     }
 
 
@@ -1414,25 +1441,17 @@
 
     @if (isAdmin)
     {
-
         <section class="hero-section">
-
 
             <div class="home-container">
 
-
                 <div class="hero-wrapper">
-
 
                     <div>
 
-
                         <div class="hero-badge">
-
                             Quản trị hệ thống EduLearn
-
                         </div>
-
 
                         <h1 class="hero-title">
 
@@ -1444,7 +1463,6 @@
 
                         </h1>
 
-
                         <p class="hero-description">
 
                             Theo dõi người dùng,
@@ -1453,54 +1471,35 @@
 
                         </p>
 
-
                     </div>
-
 
 
                     <div class="platform-preview">
 
-
                         <div class="preview-top">
 
-
                             <div class="preview-title">
-
                                 Khu vực quản trị
-
                             </div>
-
 
                             <div class="preview-status purple">
-
                                 Admin
-
                             </div>
-
 
                         </div>
 
 
-
                         <div class="preview-course">
 
-
                             <div class="preview-thumb purple">
-
                                 U
-
                             </div>
-
 
                             <div>
 
-
                                 <div class="preview-course-title">
-
                                     Người dùng & phân quyền
-
                                 </div>
-
 
                                 <div class="preview-description">
 
@@ -1509,33 +1508,22 @@
 
                                 </div>
 
-
                             </div>
-
 
                         </div>
 
 
-
                         <div class="preview-course">
 
-
                             <div class="preview-thumb">
-
                                 KH
-
                             </div>
-
 
                             <div>
 
-
                                 <div class="preview-course-title">
-
                                     Nội dung khóa học
-
                                 </div>
-
 
                                 <div class="preview-description">
 
@@ -1544,42 +1532,31 @@
 
                                 </div>
 
-
                             </div>
-
 
                         </div>
 
-
                     </div>
-
 
                 </div>
 
-
             </div>
 
-
         </section>
-
     }
 
 
 
     <!-- =====================================================
-         STUDENT / PUBLIC HOME
+         STUDENT / PUBLIC
     ====================================================== -->
 
     @if (showLearningHome)
     {
 
-        <!-- HERO -->
-
         <section class="hero-section">
 
-
             <div class="home-container">
-
 
                 <div class="hero-wrapper">
 
@@ -1588,13 +1565,9 @@
 
                     <div>
 
-
                         <div class="hero-badge">
-
                             Nền tảng học Công nghệ thông tin
-
                         </div>
-
 
                         <h1 class="hero-title">
 
@@ -1605,7 +1578,6 @@
                             </span>
 
                         </h1>
-
 
                         <p class="hero-description">
 
@@ -1619,8 +1591,8 @@
 
                         <div class="hero-actions">
 
-
-                            <a href="#featured-courses"
+                            <a asp-controller="Courses"
+                               asp-action="Index"
                                class="hero-primary">
 
                                 Khám phá khóa học
@@ -1640,7 +1612,8 @@
                             }
 
 
-                            @if (isStudent)
+                            @if (isStudent &&
+                                 Model.RegisteredCourseCount > 0)
                             {
                                 <a asp-controller="Courses"
                                    asp-action="MyCourses"
@@ -1650,7 +1623,6 @@
 
                                 </a>
                             }
-
 
                         </div>
 
@@ -1683,235 +1655,330 @@
 
                         </div>
 
-
                     </div>
 
 
 
-                    <!-- STUDENT PREVIEW -->
+                    <!-- =====================================
+                         STUDENT - DỮ LIỆU THẬT
+                    ====================================== -->
 
                     @if (isStudent)
                     {
-
                         <div class="platform-preview">
-
 
                             <div class="preview-top">
 
-
                                 <div class="preview-title">
-
                                     Khóa học của tôi
-
                                 </div>
 
 
-                                <div class="preview-status">
-
-                                    Đang học
-
-                                </div>
-
+                                @if (Model.RegisteredCourseCount > 0)
+                                {
+                                    <div class="preview-status">
+                                        Đang học
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="preview-status blue">
+                                        Chưa có khóa học
+                                    </div>
+                                }
 
                             </div>
 
 
+                            @if (Model.StudentCourses.Any())
+                            {
+                                @foreach (var course in Model.StudentCourses)
+                                {
+                                    string? courseUrl;
 
-                            <div class="preview-course">
+                                    if (course.ContinueLessonId.HasValue)
+                                    {
+                                        courseUrl =
+                                            Url.Action(
+                                                "Learn",
+                                                "Courses",
+                                                new
+                                                {
+                                                    courseId =
+                                                        course.CourseId,
+
+                                                    lessonId =
+                                                        course.ContinueLessonId.Value
+                                                });
+                                    }
+                                    else
+                                    {
+                                        courseUrl =
+                                            Url.Action(
+                                                "Details",
+                                                "Courses",
+                                                new
+                                                {
+                                                    slug =
+                                                        course.Slug
+                                                });
+                                    }
 
 
-                                <div class="preview-thumb">
-
-                                    .NET
-
-                                </div>
+                                    var progressWidth =
+                                        $"{course.Progress:0}%";
 
 
-                                <div>
+                                    string progressState;
+
+                                    if (course.Progress >= 100)
+                                    {
+                                        progressState =
+                                            "Xem lại khóa học";
+                                    }
+                                    else if (course.Progress > 0)
+                                    {
+                                        progressState =
+                                            "Tiếp tục học";
+                                    }
+                                    else
+                                    {
+                                        progressState =
+                                            "Học ngay";
+                                    }
 
 
-                                    <div class="preview-course-title">
+                                    <a href="@courseUrl"
+                                       class="preview-course preview-course-link">
 
-                                        Lập trình ASP.NET Core
+                                        <div class="preview-thumb">
 
-                                    </div>
+                                            @GetCourseBadge(
+                                                course.Title)
+
+                                        </div>
 
 
-                                    <div class="progress-track">
+                                        <div>
 
-                                        <div class="progress-value"
-                                             style="width: 72%;">
+                                            <div class="preview-course-title">
+
+                                                @course.Title
+
+                                            </div>
+
+
+                                            <div class="progress-track">
+
+                                                <div class="progress-value"
+                                                     style="width:@progressWidth">
+                                                </div>
+
+                                            </div>
+
+
+                                            <div class="preview-meta">
+
+                                                <span>
+
+                                                    @course.CompletedLessonCount /
+                                                    @course.TotalLessonCount bài
+
+                                                </span>
+
+
+                                                <span>
+
+                                                    @course.Progress.ToString("0")%
+
+                                                </span>
+
+                                            </div>
+
+
+                                            <div class="preview-meta">
+
+                                                <span>
+                                                    Tiến độ
+                                                </span>
+
+
+                                                <span class="preview-course-state">
+
+                                                    @progressState →
+
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+
+                                    </a>
+                                }
+
+
+                                <div class="preview-summary">
+
+                                    <div class="summary-card">
+
+                                        <div class="summary-number">
+
+                                            @Model.RegisteredCourseCount
+
+                                        </div>
+
+                                        <div class="summary-label">
+                                            Khóa học
                                         </div>
 
                                     </div>
 
 
-                                    <div class="preview-meta">
+                                    <div class="summary-card">
 
-                                        <span>
-                                            Tiến độ
-                                        </span>
+                                        <div class="summary-number">
 
-                                        <span>
-                                            72%
-                                        </span>
+                                            @Model.CompletedLessonCount
 
-                                    </div>
+                                        </div>
 
-
-                                </div>
-
-
-                            </div>
-
-
-
-                            <div class="preview-course">
-
-
-                                <div class="preview-thumb">
-
-                                    SQL
-
-                                </div>
-
-
-                                <div>
-
-
-                                    <div class="preview-course-title">
-
-                                        SQL Server thực chiến
-
-                                    </div>
-
-
-                                    <div class="progress-track">
-
-                                        <div class="progress-value"
-                                             style="width: 45%;">
+                                        <div class="summary-label">
+                                            Bài đã học
                                         </div>
 
                                     </div>
 
 
-                                    <div class="preview-meta">
+                                    <div class="summary-card">
 
-                                        <span>
-                                            Tiến độ
-                                        </span>
+                                        <div class="summary-number">
 
-                                        <span>
-                                            45%
-                                        </span>
+                                            @Model.AverageProgress.ToString("0")%
+
+                                        </div>
+
+                                        <div class="summary-label">
+                                            Tiến độ TB
+                                        </div>
 
                                     </div>
 
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="home-course-empty">
+
+                                    <div class="home-course-empty-icon">
+                                        KH
+                                    </div>
+
+                                    <div class="home-course-empty-title">
+
+                                        Bạn chưa có khóa học nào
+
+                                    </div>
+
+                                    <div class="home-course-empty-text">
+
+                                        Khám phá các khóa học
+                                        Công nghệ thông tin
+                                        và đăng ký khóa học phù hợp
+                                        để bắt đầu học tập.
+
+                                    </div>
+
+                                    <a asp-controller="Courses"
+                                       asp-action="Index"
+                                       class="home-course-empty-button">
+
+                                        Khám phá khóa học
+
+                                    </a>
 
                                 </div>
 
 
-                            </div>
+                                <div class="preview-summary">
 
+                                    <div class="summary-card">
 
+                                        <div class="summary-number">
+                                            0
+                                        </div>
 
-                            <div class="preview-summary">
+                                        <div class="summary-label">
+                                            Khóa học
+                                        </div>
 
-
-                                <div class="summary-card">
-
-                                    <div class="summary-number">
-                                        5
                                     </div>
 
-                                    <div class="summary-label">
-                                        Khóa học
+
+                                    <div class="summary-card">
+
+                                        <div class="summary-number">
+                                            0
+                                        </div>
+
+                                        <div class="summary-label">
+                                            Bài đã học
+                                        </div>
+
                                     </div>
 
-                                </div>
 
+                                    <div class="summary-card">
 
-                                <div class="summary-card">
+                                        <div class="summary-number">
+                                            0%
+                                        </div>
 
-                                    <div class="summary-number">
-                                        18
-                                    </div>
+                                        <div class="summary-label">
+                                            Tiến độ TB
+                                        </div>
 
-                                    <div class="summary-label">
-                                        Bài đã học
-                                    </div>
-
-                                </div>
-
-
-                                <div class="summary-card">
-
-                                    <div class="summary-number">
-                                        65%
-                                    </div>
-
-                                    <div class="summary-label">
-                                        Tiến độ
                                     </div>
 
                                 </div>
-
-
-                            </div>
-
+                            }
 
                         </div>
-
                     }
 
 
 
-                    <!-- GUEST PREVIEW -->
+                    <!-- =====================================
+                         GUEST
+                    ====================================== -->
 
                     @if (!isAuthenticated)
                     {
-
                         <div class="platform-preview">
-
 
                             <div class="preview-top">
 
-
                                 <div class="preview-title">
-
                                     Khám phá lộ trình học CNTT
-
                                 </div>
-
 
                                 <div class="preview-status">
-
                                     Bắt đầu
-
                                 </div>
-
 
                             </div>
 
 
-
                             <div class="preview-course">
-
 
                                 <div class="preview-thumb">
                                     01
                                 </div>
 
-
                                 <div>
 
-
                                     <div class="preview-course-title">
-
                                         Nền tảng lập trình
-
                                     </div>
-
 
                                     <div class="preview-meta">
 
@@ -1925,31 +1992,22 @@
 
                                     </div>
 
-
                                 </div>
-
 
                             </div>
 
 
-
                             <div class="preview-course">
-
 
                                 <div class="preview-thumb">
                                     02
                                 </div>
 
-
                                 <div>
 
-
                                     <div class="preview-course-title">
-
                                         Phát triển Web
-
                                     </div>
-
 
                                     <div class="preview-meta">
 
@@ -1963,31 +2021,22 @@
 
                                     </div>
 
-
                                 </div>
-
 
                             </div>
 
 
-
                             <div class="preview-course">
-
 
                                 <div class="preview-thumb">
                                     03
                                 </div>
 
-
                                 <div>
 
-
                                     <div class="preview-course-title">
-
                                         Cơ sở dữ liệu & Git
-
                                     </div>
-
 
                                     <div class="preview-meta">
 
@@ -2001,16 +2050,12 @@
 
                                     </div>
 
-
                                 </div>
-
 
                             </div>
 
 
-
                             <div class="preview-summary">
-
 
                                 <div class="summary-card">
 
@@ -2050,37 +2095,28 @@
 
                                 </div>
 
-
                             </div>
 
-
                         </div>
-
                     }
-
 
                 </div>
 
-
             </div>
-
 
         </section>
 
 
 
-        <!-- =========================
-             PUBLIC STATS
-        ========================== -->
+        <!-- =========================================
+             THỐNG KÊ NỀN TẢNG
+        ========================================== -->
 
         <section class="stats-section">
 
-
             <div class="home-container">
 
-
                 <div class="stats-grid">
-
 
                     <div class="stat-item">
 
@@ -2133,39 +2169,29 @@
 
                     </div>
 
-
                 </div>
 
-
             </div>
-
 
         </section>
 
 
 
-        <!-- =========================
+        <!-- =========================================
              CATEGORIES
-        ========================== -->
+        ========================================== -->
 
         <section class="home-section category-section">
 
-
             <div class="home-container">
-
 
                 <div class="section-header">
 
-
                     <div>
 
-
                         <h2 class="section-title">
-
                             Khám phá theo lĩnh vực
-
                         </h2>
-
 
                         <p class="section-description">
 
@@ -2174,18 +2200,15 @@
 
                         </p>
 
-
                     </div>
-
 
                 </div>
 
 
-
                 <div class="category-grid">
 
-
-                    <a href="#"
+                    <a asp-controller="Courses"
+                       asp-action="Index"
                        class="category-card">
 
                         <div class="category-icon">
@@ -2197,13 +2220,14 @@
                         </div>
 
                         <div class="category-count">
-                            18 khóa học
+                            Khám phá khóa học
                         </div>
 
                     </a>
 
 
-                    <a href="#"
+                    <a asp-controller="Courses"
+                       asp-action="Index"
                        class="category-card">
 
                         <div class="category-icon">
@@ -2215,13 +2239,14 @@
                         </div>
 
                         <div class="category-count">
-                            24 khóa học
+                            Khám phá khóa học
                         </div>
 
                     </a>
 
 
-                    <a href="#"
+                    <a asp-controller="Courses"
+                       asp-action="Index"
                        class="category-card">
 
                         <div class="category-icon">
@@ -2233,13 +2258,14 @@
                         </div>
 
                         <div class="category-count">
-                            15 khóa học
+                            Khám phá khóa học
                         </div>
 
                     </a>
 
 
-                    <a href="#"
+                    <a asp-controller="Courses"
+                       asp-action="Index"
                        class="category-card">
 
                         <div class="category-icon">
@@ -2251,13 +2277,14 @@
                         </div>
 
                         <div class="category-count">
-                            20 khóa học
+                            Khám phá khóa học
                         </div>
 
                     </a>
 
 
-                    <a href="#"
+                    <a asp-controller="Courses"
+                       asp-action="Index"
                        class="category-card">
 
                         <div class="category-icon">
@@ -2269,13 +2296,14 @@
                         </div>
 
                         <div class="category-count">
-                            17 khóa học
+                            Khám phá khóa học
                         </div>
 
                     </a>
 
 
-                    <a href="#"
+                    <a asp-controller="Courses"
+                       asp-action="Index"
                        class="category-card">
 
                         <div class="category-icon">
@@ -2287,13 +2315,14 @@
                         </div>
 
                         <div class="category-count">
-                            10 khóa học
+                            Khám phá khóa học
                         </div>
 
                     </a>
 
 
-                    <a href="#"
+                    <a asp-controller="Courses"
+                       asp-action="Index"
                        class="category-card">
 
                         <div class="category-icon">
@@ -2305,13 +2334,14 @@
                         </div>
 
                         <div class="category-count">
-                            12 khóa học
+                            Khám phá khóa học
                         </div>
 
                     </a>
 
 
-                    <a href="#"
+                    <a asp-controller="Courses"
+                       asp-action="Index"
                        class="category-card">
 
                         <div class="category-icon">
@@ -2323,45 +2353,35 @@
                         </div>
 
                         <div class="category-count">
-                            25 khóa học
+                            Khám phá khóa học
                         </div>
 
                     </a>
 
-
                 </div>
 
-
             </div>
-
 
         </section>
 
 
 
-        <!-- =========================
+        <!-- =========================================
              FEATURED COURSES
-        ========================== -->
+        ========================================== -->
 
         <section class="home-section"
                  id="featured-courses">
 
-
             <div class="home-container">
-
 
                 <div class="section-header">
 
-
                     <div>
 
-
                         <h2 class="section-title">
-
                             Khóa học nổi bật
-
                         </h2>
-
 
                         <p class="section-description">
 
@@ -2370,9 +2390,7 @@
 
                         </p>
 
-
                     </div>
-
 
                     <a asp-controller="Courses"
                        asp-action="Index"
@@ -2382,48 +2400,36 @@
 
                     </a>
 
-
                 </div>
-
 
 
                 <div class="course-grid">
 
 
-                    <!-- COURSE 1 -->
+                    <!-- ASP.NET -->
 
-                    <div class="course-card">
-
+                    <a asp-controller="Courses"
+                       asp-action="Details"
+                       asp-route-slug="lap-trinh-aspnet-core-tu-co-ban-den-nang-cao"
+                       class="course-card">
 
                         <div class="course-thumbnail">
 
-
                             <div class="course-tech">
-
                                 ASP.NET CORE
-
                             </div>
-
 
                             <div class="course-tech-logo">
-
                                 .NET
-
                             </div>
-
 
                         </div>
 
-
                         <div class="course-body">
 
-
                             <span class="course-level">
-
                                 Cơ bản → Nâng cao
-
                             </span>
-
 
                             <div class="course-name">
 
@@ -2432,86 +2438,48 @@
 
                             </div>
 
-
                             <div class="course-instructor">
-
                                 Giảng viên EduLearn
-
                             </div>
-
-
-                            <div class="d-flex justify-content-between">
-
-
-                                <span class="course-rating">
-                                    ★ 4.9
-                                </span>
-
-
-                                <span class="course-students">
-                                    320 học viên
-                                </span>
-
-
-                            </div>
-
 
                             <div class="course-footer">
 
-
-                                <span class="course-price">
-                                    1.200.000 đ
+                                <span class="course-detail">
+                                    Xem chi tiết →
                                 </span>
-
-
-                                <a asp-controller="Courses"
-                                   asp-action="Details"
-                                   asp-route-slug="lap-trinh-aspnet-core-tu-co-ban-den-nang-cao"
-                                   class="course-detail">
-
-                                    Xem chi tiết
-
-                                </a>
-
 
                             </div>
 
-
                         </div>
 
-
-                    </div>
-
+                    </a>
 
 
-                    <!-- COURSE 2 -->
 
-                    <div class="course-card">
+                    <!-- C# -->
 
+                    <a asp-controller="Courses"
+                       asp-action="Details"
+                       asp-route-slug="csharp-nen-tang-cho-nguoi-moi-bat-dau"
+                       class="course-card">
 
                         <div class="course-thumbnail purple">
-
 
                             <div class="course-tech">
                                 C#
                             </div>
 
-
                             <div class="course-tech-logo">
                                 C#
                             </div>
 
-
                         </div>
 
-
                         <div class="course-body">
-
 
                             <span class="course-level">
                                 Cơ bản
                             </span>
-
 
                             <div class="course-name">
 
@@ -2520,84 +2488,48 @@
 
                             </div>
 
-
                             <div class="course-instructor">
                                 Giảng viên EduLearn
                             </div>
 
-
-                            <div class="d-flex justify-content-between">
-
-
-                                <span class="course-rating">
-                                    ★ 4.8
-                                </span>
-
-
-                                <span class="course-students">
-                                    280 học viên
-                                </span>
-
-
-                            </div>
-
-
                             <div class="course-footer">
 
-
-                                <span class="course-price">
-                                    790.000 đ
+                                <span class="course-detail">
+                                    Xem chi tiết →
                                 </span>
 
-
-                                <a asp-controller="Courses"
-                                   asp-action="Details"
-                                   asp-route-slug="csharp-nen-tang-cho-nguoi-moi-bat-dau"
-                                   class="course-detail">
-
-                                    Xem chi tiết
-
-                                </a>
-
-
                             </div>
-
 
                         </div>
 
-
-                    </div>
-
+                    </a>
 
 
-                    <!-- COURSE 3 -->
 
-                    <div class="course-card">
+                    <!-- SQL -->
 
+                    <a asp-controller="Courses"
+                       asp-action="Details"
+                       asp-route-slug="sql-server-va-thiet-ke-co-so-du-lieu"
+                       class="course-card">
 
                         <div class="course-thumbnail teal">
-
 
                             <div class="course-tech">
                                 DATABASE
                             </div>
 
-
                             <div class="course-tech-logo">
                                 SQL
                             </div>
 
-
                         </div>
 
-
                         <div class="course-body">
-
 
                             <span class="course-level">
                                 Trung cấp
                             </span>
-
 
                             <div class="course-name">
 
@@ -2606,84 +2538,48 @@
 
                             </div>
 
-
                             <div class="course-instructor">
                                 Giảng viên EduLearn
                             </div>
 
-
-                            <div class="d-flex justify-content-between">
-
-
-                                <span class="course-rating">
-                                    ★ 4.7
-                                </span>
-
-
-                                <span class="course-students">
-                                    210 học viên
-                                </span>
-
-
-                            </div>
-
-
                             <div class="course-footer">
 
-
-                                <span class="course-price">
-                                    690.000 đ
+                                <span class="course-detail">
+                                    Xem chi tiết →
                                 </span>
 
-
-                                <a asp-controller="Courses"
-                                   asp-action="Details"
-                                   asp-route-slug="sql-server-va-thiet-ke-co-so-du-lieu"
-                                   class="course-detail">
-
-                                    Xem chi tiết
-
-                                </a>
-
-
                             </div>
-
 
                         </div>
 
-
-                    </div>
-
+                    </a>
 
 
-                    <!-- COURSE 4 -->
 
-                    <div class="course-card">
+                    <!-- GIT -->
 
+                    <a asp-controller="Courses"
+                       asp-action="Details"
+                       asp-route-slug="git-github-cho-lap-trinh-vien"
+                       class="course-card">
 
                         <div class="course-thumbnail dark">
-
 
                             <div class="course-tech">
                                 VERSION CONTROL
                             </div>
 
-
                             <div class="course-tech-logo">
                                 Git
                             </div>
 
-
                         </div>
 
-
                         <div class="course-body">
-
 
                             <span class="course-level">
                                 Cơ bản
                             </span>
-
 
                             <div class="course-name">
 
@@ -2692,87 +2588,45 @@
 
                             </div>
 
-
                             <div class="course-instructor">
                                 Giảng viên EduLearn
                             </div>
 
-
-                            <div class="d-flex justify-content-between">
-
-
-                                <span class="course-rating">
-                                    ★ 4.9
-                                </span>
-
-
-                                <span class="course-students">
-                                    350 học viên
-                                </span>
-
-
-                            </div>
-
-
                             <div class="course-footer">
 
-
-                                <span class="course-price">
-                                    490.000 đ
+                                <span class="course-detail">
+                                    Xem chi tiết →
                                 </span>
 
-
-                                <a asp-controller="Courses"
-                                   asp-action="Details"
-                                   asp-route-slug="git-github-cho-lap-trinh-vien"
-                                   class="course-detail">
-
-                                    Xem chi tiết
-
-                                </a>
-
-
                             </div>
-
 
                         </div>
 
-
-                    </div>
-
+                    </a>
 
                 </div>
 
-
             </div>
-
 
         </section>
 
 
 
-        <!-- =========================
+        <!-- =========================================
              BENEFITS
-        ========================== -->
+        ========================================== -->
 
         <section class="home-section benefit-section">
 
-
             <div class="home-container">
-
 
                 <div class="section-header">
 
-
                     <div>
 
-
                         <h2 class="section-title">
-
                             Tại sao chọn EduLearn?
-
                         </h2>
-
 
                         <p class="section-description">
 
@@ -2782,31 +2636,22 @@
 
                         </p>
 
-
                     </div>
-
 
                 </div>
 
 
-
                 <div class="benefit-grid">
 
-
                     <div class="benefit-card">
-
 
                         <div class="benefit-number">
                             01
                         </div>
 
-
                         <div class="benefit-title">
-
                             Học theo tiến độ cá nhân
-
                         </div>
-
 
                         <p class="benefit-description">
 
@@ -2816,25 +2661,18 @@
 
                         </p>
 
-
                     </div>
 
 
-
                     <div class="benefit-card">
-
 
                         <div class="benefit-number">
                             02
                         </div>
 
-
                         <div class="benefit-title">
-
                             Nội dung thực tế
-
                         </div>
-
 
                         <p class="benefit-description">
 
@@ -2844,25 +2682,18 @@
 
                         </p>
 
-
                     </div>
 
 
-
                     <div class="benefit-card">
-
 
                         <div class="benefit-number">
                             03
                         </div>
 
-
                         <div class="benefit-title">
-
                             Quản lý tiến độ
-
                         </div>
-
 
                         <p class="benefit-description">
 
@@ -2872,25 +2703,18 @@
 
                         </p>
 
-
                     </div>
 
 
-
                     <div class="benefit-card">
-
 
                         <div class="benefit-number">
                             04
                         </div>
 
-
                         <div class="benefit-title">
-
                             Học mọi lúc, mọi nơi
-
                         </div>
-
 
                         <p class="benefit-description">
 
@@ -2900,38 +2724,29 @@
 
                         </p>
 
-
                     </div>
-
 
                 </div>
 
-
             </div>
-
 
         </section>
 
 
 
-        <!-- =========================
-             CTA CHO KHÁCH
-        ========================== -->
+        <!-- =========================================
+             CTA GUEST
+        ========================================== -->
 
         @if (!isAuthenticated)
         {
-
             <section class="cta-section">
-
 
                 <div class="home-container">
 
-
                     <div class="cta-box">
 
-
                         <div>
-
 
                             <div class="cta-title">
 
@@ -2939,7 +2754,6 @@
                                 cùng EduLearn
 
                             </div>
-
 
                             <p class="cta-description">
 
@@ -2949,9 +2763,7 @@
 
                             </p>
 
-
                         </div>
-
 
                         <a asp-controller="Account"
                            asp-action="Register"
@@ -2961,18 +2773,13 @@
 
                         </a>
 
-
                     </div>
-
 
                 </div>
 
-
             </section>
-
         }
 
     }
-
 
 </div>
