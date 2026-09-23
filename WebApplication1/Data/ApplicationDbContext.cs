@@ -4,7 +4,8 @@ using OnlineLearningPlatform.Models;
 
 namespace OnlineLearningPlatform.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    public class ApplicationDbContext
+        : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext(
             DbContextOptions<ApplicationDbContext> options)
@@ -12,131 +13,251 @@ namespace OnlineLearningPlatform.Data
         {
         }
 
-        public DbSet<Category> Categories { get; set; }
 
-        public DbSet<Course> Courses { get; set; }
+        // =========================
+        // DB SETS
+        // =========================
 
-        public DbSet<Module> Modules { get; set; }
+        public DbSet<Category> Categories
+            => Set<Category>();
 
-        public DbSet<Lesson> Lessons { get; set; }
+        public DbSet<Course> Courses
+            => Set<Course>();
 
-        public DbSet<Enrollment> Enrollments { get; set; }
+        public DbSet<Module> Modules
+            => Set<Module>();
 
-        public DbSet<LessonProgress> LessonProgresses { get; set; }
+        public DbSet<Lesson> Lessons
+            => Set<Lesson>();
 
-        public DbSet<Review> Reviews { get; set; }
+        public DbSet<Enrollment> Enrollments
+            => Set<Enrollment>();
 
-        public DbSet<Wishlist> Wishlists { get; set; }
+        public DbSet<LessonProgress> LessonProgresses
+            => Set<LessonProgress>();
 
-        protected override void OnModelCreating(ModelBuilder builder)
+        public DbSet<Review> Reviews
+            => Set<Review>();
+
+        public DbSet<Wishlist> Wishlists
+            => Set<Wishlist>();
+
+
+        // HỎI ĐÁP BÀI HỌC
+
+        public DbSet<LessonQuestion> LessonQuestions
+            => Set<LessonQuestion>();
+
+        public DbSet<LessonAnswer> LessonAnswers
+            => Set<LessonAnswer>();
+
+
+        protected override void OnModelCreating(
+            ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
-            // Enrollment có khóa chính gồm UserId + CourseId
-            builder.Entity<Enrollment>()
-                .HasKey(e => new { e.UserId, e.CourseId });
 
-            // Wishlist có khóa chính gồm UserId + CourseId
-            builder.Entity<Wishlist>()
-                .HasKey(w => new { w.UserId, w.CourseId });
+            // =========================
+            // CATEGORY
+            // =========================
 
-            // LessonProgress có khóa chính gồm UserId + LessonId
-            builder.Entity<LessonProgress>()
-                .HasKey(lp => new { lp.UserId, lp.LessonId });
-
-            // Slug của danh mục không được trùng
             builder.Entity<Category>()
                 .HasIndex(c => c.Slug)
                 .IsUnique();
 
-            // Slug của khóa học không được trùng
-            builder.Entity<Course>()
-                .HasIndex(c => c.Slug)
-                .IsUnique();
 
-            // Một người chỉ được đánh giá một khóa học một lần
-            builder.Entity<Review>()
-                .HasIndex(r => new { r.UserId, r.CourseId })
-                .IsUnique();
-
-            // Danh mục cha - danh mục con
             builder.Entity<Category>()
                 .HasOne(c => c.Parent)
                 .WithMany(c => c.Children)
                 .HasForeignKey(c => c.ParentId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Giảng viên - khóa học
-            builder.Entity<Course>()
-                .HasOne(c => c.Instructor)
-                .WithMany(u => u.Courses)
-                .HasForeignKey(c => c.InstructorId)
-                .OnDelete(DeleteBehavior.Restrict);
 
-            // Danh mục - khóa học
+            // =========================
+            // COURSE
+            // =========================
+
+            builder.Entity<Course>()
+                .HasIndex(c => c.Slug)
+                .IsUnique();
+
+
             builder.Entity<Course>()
                 .HasOne(c => c.Category)
                 .WithMany(c => c.Courses)
                 .HasForeignKey(c => c.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Khóa học - chương
+
+            builder.Entity<Course>()
+                .HasOne(c => c.Instructor)
+                .WithMany(u => u.Courses)
+                .HasForeignKey(c => c.InstructorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+
+            // =========================
+            // MODULE
+            // =========================
+
             builder.Entity<Module>()
                 .HasOne(m => m.Course)
                 .WithMany(c => c.Modules)
                 .HasForeignKey(m => m.CourseId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Chương - bài học
+
+            // =========================
+            // LESSON
+            // =========================
+
             builder.Entity<Lesson>()
                 .HasOne(l => l.Module)
                 .WithMany(m => m.Lessons)
                 .HasForeignKey(l => l.ModuleId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Học viên - đăng ký khóa học
+
+            // =========================
+            // ENROLLMENT
+            // =========================
+
+            builder.Entity<Enrollment>()
+                .HasKey(e => new
+                {
+                    e.UserId,
+                    e.CourseId
+                });
+
+
             builder.Entity<Enrollment>()
                 .HasOne(e => e.User)
                 .WithMany(u => u.Enrollments)
-                .HasForeignKey(e => e.UserId);
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
 
             builder.Entity<Enrollment>()
                 .HasOne(e => e.Course)
                 .WithMany(c => c.Enrollments)
-                .HasForeignKey(e => e.CourseId);
+                .HasForeignKey(e => e.CourseId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            // Tiến độ bài học
+
+            // =========================
+            // LESSON PROGRESS
+            // =========================
+
             builder.Entity<LessonProgress>()
-                .HasOne(lp => lp.User)
+                .HasKey(p => new
+                {
+                    p.UserId,
+                    p.LessonId
+                });
+
+
+            builder.Entity<LessonProgress>()
+                .HasOne(p => p.User)
                 .WithMany(u => u.LessonProgresses)
-                .HasForeignKey(lp => lp.UserId);
+                .HasForeignKey(p => p.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
 
             builder.Entity<LessonProgress>()
-                .HasOne(lp => lp.Lesson)
+                .HasOne(p => p.Lesson)
                 .WithMany(l => l.LessonProgresses)
-                .HasForeignKey(lp => lp.LessonId);
+                .HasForeignKey(p => p.LessonId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            // Đánh giá khóa học
+
+            // =========================
+            // REVIEW
+            // =========================
+
+            builder.Entity<Review>()
+                .HasIndex(r => new
+                {
+                    r.UserId,
+                    r.CourseId
+                })
+                .IsUnique();
+
+
             builder.Entity<Review>()
                 .HasOne(r => r.User)
                 .WithMany(u => u.Reviews)
-                .HasForeignKey(r => r.UserId);
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
 
             builder.Entity<Review>()
                 .HasOne(r => r.Course)
                 .WithMany(c => c.Reviews)
-                .HasForeignKey(r => r.CourseId);
+                .HasForeignKey(r => r.CourseId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            // Danh sách yêu thích
+
+            // =========================
+            // WISHLIST
+            // =========================
+
+            builder.Entity<Wishlist>()
+                .HasKey(w => new
+                {
+                    w.UserId,
+                    w.CourseId
+                });
+
+
             builder.Entity<Wishlist>()
                 .HasOne(w => w.User)
                 .WithMany(u => u.Wishlists)
-                .HasForeignKey(w => w.UserId);
+                .HasForeignKey(w => w.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
 
             builder.Entity<Wishlist>()
                 .HasOne(w => w.Course)
                 .WithMany(c => c.Wishlists)
-                .HasForeignKey(w => w.CourseId);
+                .HasForeignKey(w => w.CourseId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+
+            // =========================
+            // LESSON QUESTION
+            // =========================
+
+            builder.Entity<LessonQuestion>()
+                .HasOne(q => q.Lesson)
+                .WithMany()
+                .HasForeignKey(q => q.LessonId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+
+            builder.Entity<LessonQuestion>()
+                .HasOne(q => q.User)
+                .WithMany()
+                .HasForeignKey(q => q.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+
+            // =========================
+            // LESSON ANSWER
+            // =========================
+
+            builder.Entity<LessonAnswer>()
+                .HasOne(a => a.Question)
+                .WithMany(q => q.Answers)
+                .HasForeignKey(a => a.QuestionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+
+            builder.Entity<LessonAnswer>()
+                .HasOne(a => a.User)
+                .WithMany()
+                .HasForeignKey(a => a.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

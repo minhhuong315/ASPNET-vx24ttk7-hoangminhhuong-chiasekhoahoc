@@ -1,0 +1,399 @@
+﻿@model OnlineLearningPlatform.ViewModels.LessonDiscussionViewModel
+
+<style>
+
+    .discussion-section {
+        background: #ffffff;
+        border: 1px solid #e7ebf0;
+        border-radius: 16px;
+        padding: 28px;
+        margin-top: 22px;
+    }
+
+    .discussion-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        margin-bottom: 22px;
+    }
+
+    .discussion-title {
+        color: #172033;
+        font-size: 20px;
+        font-weight: 800;
+        margin: 0;
+    }
+
+    .discussion-count {
+        background: #edf4ff;
+        color: #0d6efd;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    /* =========================
+       FORM ĐẶT CÂU HỎI
+    ========================= */
+
+    .question-form {
+        padding-bottom: 24px;
+        margin-bottom: 8px;
+        border-bottom: 1px solid #edf0f4;
+    }
+
+    .question-label {
+        color: #344054;
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 9px;
+    }
+
+    .question-textarea {
+        width: 100%;
+        min-height: 105px;
+        resize: vertical;
+        border: 1px solid #dbe1e8;
+        border-radius: 11px;
+        padding: 13px 14px;
+        color: #344054;
+        font-size: 13px;
+        outline: none;
+        transition: .2s ease;
+    }
+
+    .question-textarea:focus {
+        border-color: #8db9ff;
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, .08);
+    }
+
+    .question-form-footer {
+        margin-top: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .question-note {
+        color: #98a1af;
+        font-size: 11px;
+    }
+
+    .question-submit {
+        border: none;
+        border-radius: 9px;
+        background: #0d6efd;
+        color: #ffffff;
+        padding: 10px 18px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .question-submit:hover {
+        background: #0b5ed7;
+    }
+
+    /* =========================
+       CÂU HỎI
+    ========================= */
+
+    .question-item {
+        padding: 22px 0;
+        border-bottom: 1px solid #edf0f4;
+    }
+
+    .question-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .question-user {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        margin-bottom: 12px;
+    }
+
+    .question-avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: #edf4ff;
+        color: #0d6efd;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        text-transform: uppercase;
+        flex-shrink: 0;
+    }
+
+    .question-user-name {
+        color: #273142;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .question-time {
+        color: #99a2af;
+        font-size: 11px;
+        margin-top: 2px;
+    }
+
+    .question-content {
+        color: #515c6d;
+        line-height: 1.7;
+        font-size: 13px;
+        white-space: pre-line;
+    }
+
+    /* =========================
+       CÂU TRẢ LỜI
+    ========================= */
+
+    .answer-list {
+        margin-top: 16px;
+        margin-left: 48px;
+    }
+
+    .answer-item {
+        background: #f8fafc;
+        border-left: 3px solid #0d6efd;
+        border-radius: 0 10px 10px 0;
+        padding: 14px 16px;
+        margin-top: 10px;
+    }
+
+    .answer-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 6px;
+        flex-wrap: wrap;
+    }
+
+    .answer-user {
+        color: #273142;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .answer-badge {
+        background: #e7f0ff;
+        color: #0d6efd;
+        border-radius: 20px;
+        padding: 3px 8px;
+        font-size: 9px;
+        font-weight: 800;
+    }
+
+    .answer-time {
+        color: #9aa3b0;
+        font-size: 10px;
+    }
+
+    .answer-content {
+        color: #606b7b;
+        font-size: 12px;
+        line-height: 1.7;
+        white-space: pre-line;
+    }
+
+    .no-questions {
+        padding: 25px 10px 5px;
+        text-align: center;
+        color: #929baa;
+        font-size: 13px;
+    }
+
+    @@media (max-width: 600px) {
+
+        .discussion-section {
+            padding: 20px;
+        }
+
+        .question-form-footer {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .question-submit {
+            width: 100%;
+        }
+
+        .answer-list {
+            margin-left: 15px;
+        }
+    }
+
+</style>
+
+
+<div class="discussion-section">
+
+    <div class="discussion-header">
+
+        <h2 class="discussion-title">
+            Hỏi đáp bài học
+        </h2>
+
+        <span class="discussion-count">
+            @Model.Questions.Count câu hỏi
+        </span>
+
+    </div>
+
+
+    <!-- =========================
+         FORM ĐẶT CÂU HỎI
+    ========================= -->
+
+    <form asp-controller="LessonQuestions"
+          asp-action="Ask"
+          method="post"
+          class="question-form">
+
+        <input type="hidden"
+               name="lessonId"
+               value="@Model.LessonId" />
+
+
+        <div class="question-label">
+            Bạn có thắc mắc về bài học này?
+        </div>
+
+
+        <textarea name="content"
+                  class="question-textarea"
+                  maxlength="2000"
+                  required
+                  placeholder="Nhập câu hỏi của bạn..."></textarea>
+
+
+        <div class="question-form-footer">
+
+            <span class="question-note">
+                Hãy mô tả câu hỏi rõ ràng để giảng viên dễ hỗ trợ.
+            </span>
+
+            <button type="submit"
+                    class="question-submit">
+                Gửi câu hỏi
+            </button>
+
+        </div>
+
+    </form>
+
+
+    <!-- =========================
+         DANH SÁCH CÂU HỎI
+    ========================= -->
+
+    @if (Model.Questions.Any())
+    {
+        @foreach (var question in Model.Questions)
+        {
+            var userName =
+                !string.IsNullOrWhiteSpace(question.User.FullName)
+                    ? question.User.FullName
+                    : question.User.Email ?? "Học viên";
+
+            var firstLetter =
+                !string.IsNullOrWhiteSpace(userName)
+                    ? userName.Substring(0, 1)
+                    : "H";
+
+
+            <div class="question-item">
+
+                <div class="question-user">
+
+                    <div class="question-avatar">
+                        @firstLetter
+                    </div>
+
+                    <div>
+
+                        <div class="question-user-name">
+                            @userName
+                        </div>
+
+                        <div class="question-time">
+                            @(question.CreatedAt
+                                .ToLocalTime()
+                                .ToString("dd/MM/yyyy HH:mm"))
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="question-content">
+                    @question.Content
+                </div>
+
+
+                @if (question.Answers.Any())
+                {
+                    <div class="answer-list">
+
+                        @foreach (var answer in
+                            question.Answers
+                                .OrderBy(a => a.CreatedAt))
+                        {
+                            var answerUser =
+                                !string.IsNullOrWhiteSpace(
+                                    answer.User.FullName)
+                                    ? answer.User.FullName
+                                    : answer.User.Email
+                                        ?? "EduLearn";
+
+
+                            <div class="answer-item">
+
+                                <div class="answer-header">
+
+                                    <span class="answer-user">
+                                        @answerUser
+                                    </span>
+
+                                    <span class="answer-badge">
+                                        PHẢN HỒI
+                                    </span>
+
+                                    <span class="answer-time">
+                                        @(answer.CreatedAt
+                                            .ToLocalTime()
+                                            .ToString("dd/MM/yyyy HH:mm"))
+                                    </span>
+
+                                </div>
+
+
+                                <div class="answer-content">
+                                    @answer.Content
+                                </div>
+
+                            </div>
+                        }
+
+                    </div>
+                }
+
+            </div>
+        }
+    }
+    else
+    {
+        <div class="no-questions">
+            Chưa có câu hỏi nào cho bài học này.
+            Hãy là người đầu tiên đặt câu hỏi.
+        </div>
+    }
+
+</div>

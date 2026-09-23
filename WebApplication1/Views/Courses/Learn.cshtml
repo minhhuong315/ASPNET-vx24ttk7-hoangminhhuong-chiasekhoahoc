@@ -30,19 +30,34 @@
     }
 
     string? successMessage =
-        TempData["LearningSuccessMessage"]
-            ?.ToString();
+        TempData["LearningSuccessMessage"]?.ToString();
 
     string? infoMessage =
-        TempData["LearningInfoMessage"]
-            ?.ToString();
+        TempData["LearningInfoMessage"]?.ToString();
 
     string? toastMessage =
         successMessage ?? infoMessage;
 
     bool toastIsSuccess =
-        !string.IsNullOrWhiteSpace(
-            successMessage);
+        !string.IsNullOrWhiteSpace(successMessage);
+
+    /*
+     * Dữ liệu mẫu hiện chưa có VideoUrl.
+     * Tạm dùng video minh họa để test cơ chế
+     * xem hết video -> hoàn thành bài học.
+     */
+    string demoVideoUrl =
+        "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4";
+
+    string? currentVideoUrl =
+        currentLesson != null &&
+        !string.IsNullOrWhiteSpace(currentLesson.VideoUrl)
+            ? currentLesson.VideoUrl
+            : demoVideoUrl;
+
+    bool usingDemoVideo =
+        currentLesson != null &&
+        string.IsNullOrWhiteSpace(currentLesson.VideoUrl);
 }
 
 <style>
@@ -59,8 +74,8 @@
     }
 
     /* =========================
-       SIDEBAR
-    ========================= */
+           SIDEBAR
+        ========================= */
 
     .lesson-sidebar {
         background: #ffffff;
@@ -79,9 +94,9 @@
         font-weight: 700;
     }
 
-    .back-course:hover {
-        color: #0b5ed7;
-    }
+        .back-course:hover {
+            color: #0b5ed7;
+        }
 
     .sidebar-course-title {
         color: #172033;
@@ -124,8 +139,8 @@
     }
 
     /* =========================
-       MODULE / LESSON
-    ========================= */
+           MODULE / LESSON
+        ========================= */
 
     .modules-list {
         padding-bottom: 30px;
@@ -159,17 +174,17 @@
         transition: .2s ease;
     }
 
-    .lesson-link:hover {
-        color: #0d6efd;
-        background: #f7faff;
-    }
+        .lesson-link:hover {
+            color: #0d6efd;
+            background: #f7faff;
+        }
 
-    .lesson-link.active {
-        background: #edf4ff;
-        color: #0d6efd;
-        border-left-color: #0d6efd;
-        font-weight: 700;
-    }
+        .lesson-link.active {
+            background: #edf4ff;
+            color: #0d6efd;
+            border-left-color: #0d6efd;
+            font-weight: 700;
+        }
 
     .lesson-locked {
         color: #a8afba;
@@ -191,23 +206,23 @@
         font-weight: 700;
     }
 
-    .lesson-status.completed {
-        border-color: #b8e2c5;
-        background: #eaf8ef;
-        color: #198754;
-    }
+        .lesson-status.completed {
+            border-color: #b8e2c5;
+            background: #eaf8ef;
+            color: #198754;
+        }
 
-    .lesson-status.unlocked {
-        border-color: #b9d3ff;
-        background: #edf4ff;
-        color: #0d6efd;
-    }
+        .lesson-status.unlocked {
+            border-color: #b9d3ff;
+            background: #edf4ff;
+            color: #0d6efd;
+        }
 
-    .lesson-status.locked {
-        background: #f1f3f6;
-        color: #a2a9b3;
-        border-color: #e2e6ec;
-    }
+        .lesson-status.locked {
+            background: #f1f3f6;
+            color: #a2a9b3;
+            border-color: #e2e6ec;
+        }
 
     .lesson-title-text {
         flex: 1;
@@ -221,8 +236,8 @@
     }
 
     /* =========================
-       MAIN
-    ========================= */
+           NỘI DUNG CHÍNH
+        ========================= */
 
     .lesson-content {
         padding: 42px;
@@ -239,12 +254,35 @@
         margin-bottom: 14px;
     }
 
+    .lesson-heading-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 8px;
+    }
+
     .lesson-title {
         color: #172033;
         font-size: 34px;
         font-weight: 800;
         line-height: 1.3;
-        margin-bottom: 12px;
+        margin: 0;
+    }
+
+    .lesson-completed-badge {
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 34px;
+        padding: 0 13px;
+        border: 1px solid #b8e2c5;
+        border-radius: 20px;
+        background: #eaf8ef;
+        color: #198754;
+        font-size: 11px;
+        font-weight: 700;
     }
 
     .lesson-meta {
@@ -253,29 +291,50 @@
         margin-bottom: 28px;
     }
 
-    .video-placeholder {
+    /* =========================
+           VIDEO
+        ========================= */
+
+    .lesson-video-wrapper {
         width: 100%;
-        aspect-ratio: 16 / 9;
-        border-radius: 17px;
         background: #172033;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 25px;
-        color: #ffffff;
+        border-radius: 17px;
+        overflow: hidden;
+        margin-bottom: 10px;
+        box-shadow: 0 10px 30px rgba(23,32,51,.08);
     }
 
-    .video-symbol {
-        width: 76px;
-        height: 76px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, .12);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 27px;
-        padding-left: 5px;
+    .lesson-video {
+        width: 100%;
+        display: block;
+        aspect-ratio: 16 / 9;
+        background: #172033;
     }
+
+    .video-note {
+        color: #98a1af;
+        font-size: 11px;
+        margin-bottom: 25px;
+    }
+
+    .video-progress-note {
+        background: #edf4ff;
+        border: 1px solid #d9e8ff;
+        color: #536984;
+        border-radius: 10px;
+        padding: 11px 14px;
+        font-size: 12px;
+        line-height: 1.6;
+        margin-bottom: 22px;
+    }
+
+        .video-progress-note strong {
+            color: #0d6efd;
+        }
+
+    /* =========================
+           NỘI DUNG BÀI
+        ========================= */
 
     .lesson-card {
         background: #ffffff;
@@ -298,56 +357,9 @@
         white-space: pre-line;
     }
 
-    .unlock-note {
-        margin-top: 22px;
-        padding: 13px 16px;
-        border-radius: 10px;
-        background: #f3f7ff;
-        color: #607087;
-        font-size: 12px;
-        line-height: 1.6;
-    }
-
-    .lesson-actions {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 25px;
-    }
-
-    .completed-label {
-        min-height: 46px;
-        padding: 0 18px;
-        border: 1px solid #b8e2c5;
-        background: #eaf8ef;
-        color: #198754;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 13px;
-        font-weight: 700;
-    }
-
-    .complete-button {
-        min-height: 46px;
-        border: none;
-        border-radius: 10px;
-        background: #0d6efd;
-        color: #ffffff;
-        padding: 0 22px;
-        font-size: 13px;
-        font-weight: 700;
-    }
-
-    .complete-button:hover {
-        background: #0b5ed7;
-    }
-
     /* =========================
-       TOAST
-    ========================= */
+           TOAST
+        ========================= */
 
     .learning-toast-position {
         position: fixed !important;
@@ -369,13 +381,13 @@
         box-shadow: 0 12px 35px rgba(0,0,0,.16);
     }
 
-    .learning-toast.success {
-        border-left: 5px solid #198754;
-    }
+        .learning-toast.success {
+            border-left: 5px solid #198754;
+        }
 
-    .learning-toast.info {
-        border-left: 5px solid #0d6efd;
-    }
+        .learning-toast.info {
+            border-left: 5px solid #0d6efd;
+        }
 
     .toast-symbol {
         width: 34px;
@@ -388,15 +400,15 @@
         font-weight: 800;
     }
 
-    .toast-symbol.success {
-        background: #e7f7ed;
-        color: #198754;
-    }
+        .toast-symbol.success {
+            background: #e7f7ed;
+            color: #198754;
+        }
 
-    .toast-symbol.info {
-        background: #edf4ff;
-        color: #0d6efd;
-    }
+        .toast-symbol.info {
+            background: #edf4ff;
+            color: #0d6efd;
+        }
 
     .toast-title {
         color: #202938;
@@ -410,8 +422,8 @@
     }
 
     /* =========================
-       RESPONSIVE
-    ========================= */
+           RESPONSIVE
+        ========================= */
 
     @@media (max-width: 850px) {
 
@@ -427,10 +439,14 @@
         .lesson-content {
             padding: 28px 18px;
         }
-
     }
 
     @@media (max-width: 600px) {
+
+        .lesson-heading-row {
+            align-items: flex-start;
+            flex-direction: column;
+        }
 
         .lesson-title {
             font-size: 27px;
@@ -446,7 +462,6 @@
             width: auto;
             max-width: none;
         }
-
     }
 
 </style>
@@ -487,7 +502,8 @@
                             Tiến độ khóa học
                         </span>
 
-                        <span class="progress-percent">
+                        <span class="progress-percent"
+                              id="courseProgressText">
                             @progress.ToString("0")%
                         </span>
 
@@ -497,6 +513,7 @@
                     <div class="progress-track">
 
                         <div class="progress-value"
+                             id="courseProgressBar"
                              style="width: @progress.ToString("0")%;">
                         </div>
 
@@ -594,7 +611,7 @@
 
 
         <!-- =========================
-             NỘI DUNG BÀI HỌC
+             NỘI DUNG BÀI
         ========================= -->
 
         <main class="lesson-content">
@@ -613,9 +630,21 @@
                     </div>
 
 
-                    <h1 class="lesson-title">
-                        @currentLesson.Title
-                    </h1>
+                    <div class="lesson-heading-row">
+
+                        <h1 class="lesson-title">
+                            @currentLesson.Title
+                        </h1>
+
+
+                        @if (currentCompleted)
+                        {
+                            <span class="lesson-completed-badge">
+                                ✓ Đã hoàn thành
+                            </span>
+                        }
+
+                    </div>
 
 
                     <div class="lesson-meta">
@@ -624,14 +653,52 @@
                     </div>
 
 
-                    <div class="video-placeholder">
+                    <!-- =========================
+                         VIDEO BÀI HỌC
+                    ========================= -->
 
-                        <div class="video-symbol">
-                            ▶
-                        </div>
+                    <div class="lesson-video-wrapper">
+
+                        <video id="lessonVideo"
+                               class="lesson-video"
+                               controls
+                               preload="metadata">
+
+                            <source src="@currentVideoUrl"
+                                    type="video/mp4" />
+
+                            Trình duyệt của bạn không hỗ trợ video.
+
+                        </video>
 
                     </div>
 
+
+                    @if (usingDemoVideo)
+                    {
+                        <div class="video-note">
+                            Video minh họa đang được sử dụng trong dữ liệu mẫu.
+                            Video thật sẽ được cập nhật cho từng bài học sau.
+                        </div>
+                    }
+
+
+                    @if (!currentCompleted)
+                    {
+                        <div class="video-progress-note"
+                             id="videoProgressNote">
+
+                            Xem hết video để tự động
+                            <strong>hoàn thành bài học</strong>
+                            và mở khóa bài tiếp theo.
+
+                        </div>
+                    }
+
+
+                    <!-- =========================
+                         NỘI DUNG BÀI HỌC
+                    ========================= -->
 
                     <div class="lesson-card">
 
@@ -646,44 +713,36 @@
                     </div>
 
 
-                    @if (!currentCompleted &&
-                         progress < 100)
-                    {
-                        <div class="unlock-note">
-                            Hoàn thành bài học này để mở khóa bài tiếp theo.
-                        </div>
-                    }
+                    <!-- =========================
+                         HỎI ĐÁP
+                    ========================= -->
+
+                    @await Component.InvokeAsync(
+                                            "LessonDiscussion",
+                                            new
+                                            {
+                                                lessonId =
+                                                    currentLesson.Id
+                                            })
 
 
-                    <div class="lesson-actions">
+                    <!-- =========================
+                         FORM ẨN CHO VIDEO
+                    ========================= -->
 
-                        @if (currentCompleted)
-                        {
-                            <div class="completed-label">
-                                ✓ Đã hoàn thành bài học
-                            </div>
-                        }
-                        else
-                        {
-                            <form asp-controller="Courses"
-                                  asp-action="CompleteLesson"
-                                  method="post">
+                    <form id="videoCompletionForm"
+                          asp-controller="Learning"
+                          asp-action="CompleteFromVideo"
+                          method="post"
+                          style="display:none;">
 
-                                <input type="hidden"
-                                       name="lessonId"
-                                       value="@currentLesson.Id" />
+                        @Html.AntiForgeryToken()
 
-                                <button type="submit"
-                                        class="complete-button">
+                        <input type="hidden"
+                               name="lessonId"
+                               value="@currentLesson.Id" />
 
-                                    ✓ Hoàn thành bài học
-
-                                </button>
-
-                            </form>
-                        }
-
-                    </div>
+                    </form>
                 }
 
             </div>
@@ -696,9 +755,8 @@
 
 
 <!-- =========================
-     POPUP
+     TOAST TỪ SERVER
 ========================= -->
-
 @if (!string.IsNullOrWhiteSpace(
     toastMessage))
 {
@@ -752,6 +810,50 @@
 }
 
 
+<!-- =========================
+     TOAST KHI VIDEO KẾT THÚC
+========================= -->
+
+<div class="toast-container learning-toast-position">
+
+    <div id="videoCompleteToast"
+         class="toast learning-toast success"
+         role="alert"
+         aria-live="assertive"
+         aria-atomic="true">
+
+        <div class="toast-body d-flex align-items-center gap-3">
+
+            <div class="toast-symbol success">
+                ✓
+            </div>
+
+            <div class="flex-grow-1">
+
+                <div class="toast-title">
+                    Hoàn thành bài học
+                </div>
+
+                <div class="toast-message"
+                     id="videoCompleteMessage">
+                    Bạn đã hoàn thành bài học.
+                </div>
+
+            </div>
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="toast"
+                    aria-label="Đóng">
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
 @section Scripts {
 
     <script>
@@ -760,22 +862,212 @@
             "DOMContentLoaded",
             function () {
 
-                const toastElement =
+                // =========================
+                // TOAST TỪ SERVER
+                // =========================
+
+                const serverToastElement =
                     document.getElementById(
                         "learningToast");
 
-                if (toastElement) {
+                if (serverToastElement) {
 
-                    const toast =
+                    const serverToast =
                         new bootstrap.Toast(
-                            toastElement,
+                            serverToastElement,
                             {
                                 autohide: true,
                                 delay: 3500
                             });
 
-                    toast.show();
+                    serverToast.show();
                 }
+
+
+                // =========================
+                // VIDEO
+                // =========================
+
+                const video =
+                    document.getElementById(
+                        "lessonVideo");
+
+                const completionForm =
+                    document.getElementById(
+                        "videoCompletionForm");
+
+                if (!video ||
+                    !completionForm) {
+                    return;
+                }
+
+
+                let completionSent = false;
+
+
+                video.addEventListener(
+                    "ended",
+                    async function () {
+
+                        /*
+                         * Chỉ gửi một lần trong
+                         * mỗi lần tải trang.
+                         */
+                        if (completionSent) {
+                            return;
+                        }
+
+                        completionSent = true;
+
+
+                        try {
+
+                            const formData =
+                                new FormData(
+                                    completionForm);
+
+
+                            const response =
+                                await fetch(
+                                    completionForm.action,
+                                    {
+                                        method: "POST",
+                                        body: formData,
+                                        credentials:
+                                            "same-origin"
+                                    });
+
+
+                            if (!response.ok) {
+
+                                completionSent = false;
+
+                                console.error(
+                                    "Không thể hoàn thành bài học.");
+
+                                return;
+                            }
+
+
+                            const data =
+                                await response.json();
+
+
+                            if (!data.success) {
+
+                                completionSent = false;
+
+                                return;
+                            }
+
+
+                            // =========================
+                            // CẬP NHẬT % NGAY TRÊN UI
+                            // =========================
+
+                            const progressText =
+                                document.getElementById(
+                                    "courseProgressText");
+
+                            const progressBar =
+                                document.getElementById(
+                                    "courseProgressBar");
+
+
+                            if (progressText) {
+                                progressText.textContent =
+                                    Math.round(
+                                        data.progress) +
+                                    "%";
+                            }
+
+
+                            if (progressBar) {
+                                progressBar.style.width =
+                                    Math.round(
+                                        data.progress) +
+                                    "%";
+                            }
+
+
+                            // =========================
+                            // TOAST
+                            // =========================
+
+                            const messageElement =
+                                document.getElementById(
+                                    "videoCompleteMessage");
+
+
+                            if (messageElement) {
+                                messageElement.textContent =
+                                    data.message;
+                            }
+
+
+                            const toastElement =
+                                document.getElementById(
+                                    "videoCompleteToast");
+
+
+                            if (toastElement) {
+
+                                const toast =
+                                    new bootstrap.Toast(
+                                        toastElement,
+                                        {
+                                            autohide: true,
+                                            delay: 1800
+                                        });
+
+                                toast.show();
+                            }
+
+
+                            // =========================
+                            // CHUYỂN BÀI TIẾP THEO
+                            // =========================
+
+                            if (data.nextUrl &&
+                                !data.courseCompleted) {
+
+                                setTimeout(
+                                    function () {
+
+                                        window.location.href =
+                                            data.nextUrl;
+
+                                    },
+                                    1900);
+                            }
+
+
+                            // =========================
+                            // HOÀN THÀNH TOÀN KHÓA
+                            // =========================
+
+                            if (data.courseCompleted) {
+
+                                const note =
+                                    document.getElementById(
+                                        "videoProgressNote");
+
+                                if (note) {
+                                    note.innerHTML =
+                                        "<strong>Chúc mừng!</strong> Bạn đã hoàn thành toàn bộ khóa học.";
+                                }
+                            }
+
+                        }
+                        catch (error) {
+
+                            completionSent = false;
+
+                            console.error(
+                                "Lỗi khi cập nhật tiến độ:",
+                                error);
+                        }
+                    });
             });
 
     </script>
