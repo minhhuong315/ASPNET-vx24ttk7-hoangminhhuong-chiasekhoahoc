@@ -1,0 +1,831 @@
+﻿@model OnlineLearningPlatform.ViewModels.NotificationBellViewModel
+
+@functions {
+
+    string GetTimeAgo(DateTime createdAt)
+    {
+        var time =
+            DateTime.UtcNow - createdAt;
+
+
+        if (time.TotalMinutes < 1)
+        {
+            return "Vừa xong";
+        }
+
+
+        if (time.TotalMinutes < 60)
+        {
+            return
+                $"{Math.Floor(time.TotalMinutes)} phút trước";
+        }
+
+
+        if (time.TotalHours < 24)
+        {
+            return
+                $"{Math.Floor(time.TotalHours)} giờ trước";
+        }
+
+
+        if (time.TotalDays < 7)
+        {
+            return
+                $"{Math.Floor(time.TotalDays)} ngày trước";
+        }
+
+
+        return createdAt
+            .ToLocalTime()
+            .ToString("dd/MM/yyyy");
+    }
+
+
+    string GetNotificationIcon(
+        string type)
+    {
+        return type switch
+        {
+            "NewQuestion" => "?",
+            "QuestionAnswered" => "✓",
+            "CourseUpdated" => "↻",
+            "NewLesson" => "▶",
+            _ => "i"
+        };
+    }
+
+
+    string GetNotificationIconClass(
+        string type)
+    {
+        return type switch
+        {
+            "NewQuestion" => "question",
+            "QuestionAnswered" => "answer",
+            "CourseUpdated" => "course",
+            "NewLesson" => "lesson",
+            _ => "system"
+        };
+    }
+}
+
+
+<style>
+
+    /* =========================================
+       WRAPPER
+    ========================================= */
+
+    .notification-wrapper {
+        position: relative;
+
+        width: 44px;
+        height: 44px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+
+    /* =========================================
+       CHUÔNG
+       CHỈ HIỆN ICON - KHÔNG BORDER / BACKGROUND
+    ========================================= */
+
+    .notification-bell-button {
+        width: 44px;
+        height: 44px;
+
+        padding: 0;
+
+        position: relative;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border: none;
+
+        background: transparent;
+
+        color: #0d6efd;
+
+        cursor: pointer;
+
+        border-radius: 8px;
+
+        transition:
+            color .2s ease,
+            background .2s ease;
+    }
+
+
+    .notification-bell-button:hover,
+    .notification-bell-button:focus {
+        color: #0b5ed7;
+
+        background: #f5f9ff;
+
+        outline: none;
+    }
+
+
+    .notification-bell-svg {
+        width: 23px;
+        height: 23px;
+
+        display: block;
+
+        stroke: currentColor;
+    }
+
+
+    /* =========================================
+       BADGE SỐ THÔNG BÁO
+    ========================================= */
+
+    .notification-count {
+        position: absolute;
+
+        top: 1px;
+        right: 0;
+
+        min-width: 18px;
+        height: 18px;
+
+        padding:
+            0
+            5px;
+
+        border:
+            2px solid
+            #ffffff;
+
+        border-radius: 999px;
+
+        background: #ef4444;
+
+        color: #ffffff;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 9px;
+        font-weight: 800;
+
+        line-height: 1;
+    }
+
+
+    /* =========================================
+       DROPDOWN
+    ========================================= */
+
+    .notification-dropdown {
+        width: 380px;
+
+        max-width:
+            calc(100vw - 32px);
+
+        padding: 0;
+
+        margin-top:
+            12px !important;
+
+        border:
+            1px solid
+            #e6eaf0;
+
+        border-radius: 16px;
+
+        background: #ffffff;
+
+        overflow: hidden;
+
+        box-shadow:
+            0 18px 50px
+            rgba(16, 24, 40, .14);
+    }
+
+
+    /* =========================================
+       HEADER
+    ========================================= */
+
+    .notification-header {
+        min-height: 68px;
+
+        padding:
+            16px
+            18px;
+
+        border-bottom:
+            1px solid
+            #edf0f4;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 15px;
+    }
+
+
+    .notification-header-title {
+        color: #172033;
+
+        font-size: 16px;
+        font-weight: 800;
+    }
+
+
+    .notification-header-count {
+        margin-top: 2px;
+
+        color: #8992a3;
+
+        font-size: 11px;
+    }
+
+
+    /* =========================================
+       DANH SÁCH
+    ========================================= */
+
+    .notification-list {
+        max-height: 390px;
+
+        overflow-y: auto;
+    }
+
+
+    .notification-item {
+        position: relative;
+
+        display: flex;
+
+        gap: 12px;
+
+        padding:
+            15px
+            18px;
+
+        border-bottom:
+            1px solid
+            #f0f2f5;
+
+        background: #ffffff;
+
+        text-decoration: none;
+
+        transition:
+            background .18s ease;
+    }
+
+
+    .notification-item:last-child {
+        border-bottom: none;
+    }
+
+
+    .notification-item:hover {
+        background: #f8faff;
+    }
+
+
+    .notification-item.unread {
+        background: #f5f8ff;
+    }
+
+
+    .notification-item.unread:hover {
+        background: #eef4ff;
+    }
+
+
+    /* =========================================
+       ICON LOẠI THÔNG BÁO
+    ========================================= */
+
+    .notification-type-icon {
+        width: 38px;
+        height: 38px;
+
+        flex-shrink: 0;
+
+        border-radius: 50%;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+
+    .notification-type-icon.question {
+        background: #edf4ff;
+        color: #0d6efd;
+    }
+
+
+    .notification-type-icon.answer {
+        background: #eaf8ef;
+        color: #198754;
+    }
+
+
+    .notification-type-icon.course {
+        background: #fff6e8;
+        color: #d97706;
+    }
+
+
+    .notification-type-icon.lesson {
+        background: #f5edff;
+        color: #7c3aed;
+    }
+
+
+    .notification-type-icon.system {
+        background: #f1f3f6;
+        color: #667085;
+    }
+
+
+    /* =========================================
+       NỘI DUNG
+    ========================================= */
+
+    .notification-body {
+        min-width: 0;
+
+        flex: 1;
+    }
+
+
+    .notification-title {
+        margin-bottom: 4px;
+
+        color: #253047;
+
+        font-size: 13px;
+        font-weight: 700;
+
+        line-height: 1.4;
+    }
+
+
+    .notification-message {
+        color: #667085;
+
+        font-size: 12px;
+
+        line-height: 1.55;
+
+        display: -webkit-box;
+
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+
+        overflow: hidden;
+    }
+
+
+    .notification-time {
+        margin-top: 7px;
+
+        color: #98a2b3;
+
+        font-size: 10px;
+    }
+
+
+    .notification-unread-dot {
+        width: 7px;
+        height: 7px;
+
+        margin-top: 7px;
+
+        flex-shrink: 0;
+
+        border-radius: 50%;
+
+        background: #0d6efd;
+    }
+
+
+    /* =========================================
+       EMPTY STATE
+    ========================================= */
+
+    .notification-empty {
+        padding:
+            38px
+            24px;
+
+        text-align: center;
+    }
+
+
+    .notification-empty-icon {
+        width: 48px;
+        height: 48px;
+
+        margin:
+            0
+            auto
+            12px;
+
+        border-radius: 50%;
+
+        background: #edf4ff;
+        color: #0d6efd;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+
+    .notification-empty-icon svg {
+        width: 21px;
+        height: 21px;
+
+        stroke: currentColor;
+    }
+
+
+    .notification-empty-title {
+        color: #344054;
+
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+
+    .notification-empty-text {
+        margin-top: 4px;
+
+        color: #98a2b3;
+
+        font-size: 11px;
+    }
+
+
+    /* =========================================
+       FOOTER
+    ========================================= */
+
+    .notification-footer {
+        padding:
+            13px
+            18px;
+
+        border-top:
+            1px solid
+            #edf0f4;
+
+        background: #fbfcfe;
+
+        text-align: center;
+    }
+
+
+    .notification-view-all {
+        color: #0d6efd;
+
+        font-size: 12px;
+        font-weight: 700;
+
+        text-decoration: none;
+    }
+
+
+    .notification-view-all:hover {
+        color: #0b5ed7;
+
+        text-decoration: underline;
+    }
+
+
+    /* =========================================
+       MOBILE
+    ========================================= */
+
+    @@media (max-width: 500px) {
+
+        .notification-dropdown {
+            width:
+                calc(100vw - 24px);
+        }
+
+    }
+
+</style>
+
+
+<div class="dropdown notification-wrapper">
+
+
+    <!-- =====================================
+         CHUÔNG THÔNG BÁO
+    ====================================== -->
+
+    <button class="notification-bell-button"
+            type="button"
+            data-bs-toggle="dropdown"
+            data-bs-auto-close="outside"
+            aria-expanded="false"
+            aria-label="Thông báo">
+
+
+        <svg class="notification-bell-svg"
+             viewBox="0 0 24 24"
+             fill="none"
+             xmlns="http://www.w3.org/2000/svg"
+             aria-hidden="true">
+
+
+            <path d="M18 8A6 6 0 0 0 6 8C6 15 3 15 3 17H21C21 15 18 15 18 8Z"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round" />
+
+
+            <path d="M10 21H14"
+                  stroke-width="1.8"
+                  stroke-linecap="round" />
+
+
+        </svg>
+
+
+        <!--
+            CHỈ HIỆN BADGE ĐỎ
+            KHI CÓ THÔNG BÁO CHƯA ĐỌC
+        -->
+
+        @if (Model.UnreadCount > 0)
+        {
+            <span class="notification-count">
+
+                @(Model.UnreadCount > 99
+                    ? "99+"
+                    : Model.UnreadCount.ToString())
+
+            </span>
+        }
+
+
+    </button>
+
+
+
+    <!-- =====================================
+         DROPDOWN
+    ====================================== -->
+
+    <div class="dropdown-menu dropdown-menu-end notification-dropdown">
+
+
+        <div class="notification-header">
+
+
+            <div>
+
+
+                <div class="notification-header-title">
+
+                    Thông báo
+
+                </div>
+
+
+                @if (Model.UnreadCount > 0)
+                {
+                    <div class="notification-header-count">
+
+                        @Model.UnreadCount thông báo chưa đọc
+
+                    </div>
+                }
+                else
+                {
+                    <div class="notification-header-count">
+
+                        Không có thông báo mới
+
+                    </div>
+                }
+
+
+            </div>
+
+
+        </div>
+
+
+
+        @if (Model.Notifications.Any())
+        {
+            <div class="notification-list">
+
+
+                @foreach (var notification in
+                    Model.Notifications)
+                {
+                    var itemClass =
+                        notification.IsRead
+                            ? ""
+                            : "unread";
+
+
+                    var iconClass =
+                        GetNotificationIconClass(
+                            notification.Type);
+
+
+                    var icon =
+                        GetNotificationIcon(
+                            notification.Type);
+
+
+
+                    @if (!string.IsNullOrWhiteSpace(
+                        notification.RelatedUrl))
+                    {
+                        <a href="@notification.RelatedUrl"
+                           class="notification-item @itemClass">
+
+
+                            <div class="notification-type-icon @iconClass">
+
+                                @icon
+
+                            </div>
+
+
+                            <div class="notification-body">
+
+
+                                <div class="notification-title">
+
+                                    @notification.Title
+
+                                </div>
+
+
+                                <div class="notification-message">
+
+                                    @notification.Message
+
+                                </div>
+
+
+                                <div class="notification-time">
+
+                                    @GetTimeAgo(
+                                        notification.CreatedAt)
+
+                                </div>
+
+
+                            </div>
+
+
+                            @if (!notification.IsRead)
+                            {
+                                <span class="notification-unread-dot">
+                                </span>
+                            }
+
+
+                        </a>
+                    }
+                    else
+                    {
+                        <div class="notification-item @itemClass">
+
+
+                            <div class="notification-type-icon @iconClass">
+
+                                @icon
+
+                            </div>
+
+
+                            <div class="notification-body">
+
+
+                                <div class="notification-title">
+
+                                    @notification.Title
+
+                                </div>
+
+
+                                <div class="notification-message">
+
+                                    @notification.Message
+
+                                </div>
+
+
+                                <div class="notification-time">
+
+                                    @GetTimeAgo(
+                                        notification.CreatedAt)
+
+                                </div>
+
+
+                            </div>
+
+
+                            @if (!notification.IsRead)
+                            {
+                                <span class="notification-unread-dot">
+                                </span>
+                            }
+
+
+                        </div>
+                    }
+                }
+
+
+            </div>
+        }
+        else
+        {
+            <div class="notification-empty">
+
+
+                <div class="notification-empty-icon">
+
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         xmlns="http://www.w3.org/2000/svg"
+                         aria-hidden="true">
+
+
+                        <path d="M18 8A6 6 0 0 0 6 8C6 15 3 15 3 17H21C21 15 18 15 18 8Z"
+                              stroke-width="1.8"
+                              stroke-linecap="round"
+                              stroke-linejoin="round" />
+
+
+                        <path d="M10 21H14"
+                              stroke-width="1.8"
+                              stroke-linecap="round" />
+
+
+                    </svg>
+
+
+                </div>
+
+
+                <div class="notification-empty-title">
+
+                    Chưa có thông báo
+
+                </div>
+
+
+                <div class="notification-empty-text">
+
+                    Các cập nhật mới sẽ xuất hiện tại đây.
+
+                </div>
+
+
+            </div>
+        }
+
+
+
+        <div class="notification-footer">
+
+
+            <a asp-controller="Notifications"
+               asp-action="Index"
+               class="notification-view-all">
+
+                Xem tất cả thông báo
+
+            </a>
+
+
+        </div>
+
+
+    </div>
+
+
+</div>

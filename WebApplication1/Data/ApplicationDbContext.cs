@@ -14,9 +14,9 @@ namespace OnlineLearningPlatform.Data
         }
 
 
-        // =========================
-        // DB SETS
-        // =========================
+        // =========================================
+        // DBSETS
+        // =========================================
 
         public DbSet<Category> Categories
             => Set<Category>();
@@ -42,15 +42,19 @@ namespace OnlineLearningPlatform.Data
         public DbSet<Wishlist> Wishlists
             => Set<Wishlist>();
 
-
-        // HỎI ĐÁP BÀI HỌC
-
         public DbSet<LessonQuestion> LessonQuestions
             => Set<LessonQuestion>();
 
         public DbSet<LessonAnswer> LessonAnswers
             => Set<LessonAnswer>();
 
+        public DbSet<Notification> Notifications
+            => Set<Notification>();
+
+
+        // =========================================
+        // MODEL CONFIGURATION
+        // =========================================
 
         protected override void OnModelCreating(
             ModelBuilder builder)
@@ -58,9 +62,9 @@ namespace OnlineLearningPlatform.Data
             base.OnModelCreating(builder);
 
 
-            // =========================
+            // =====================================
             // CATEGORY
-            // =========================
+            // =====================================
 
             builder.Entity<Category>()
                 .HasIndex(c => c.Slug)
@@ -74,9 +78,9 @@ namespace OnlineLearningPlatform.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
 
-            // =========================
+            // =====================================
             // COURSE
-            // =========================
+            // =====================================
 
             builder.Entity<Course>()
                 .HasIndex(c => c.Slug)
@@ -97,9 +101,9 @@ namespace OnlineLearningPlatform.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
 
-            // =========================
+            // =====================================
             // MODULE
-            // =========================
+            // =====================================
 
             builder.Entity<Module>()
                 .HasOne(m => m.Course)
@@ -108,9 +112,9 @@ namespace OnlineLearningPlatform.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
 
-            // =========================
+            // =====================================
             // LESSON
-            // =========================
+            // =====================================
 
             builder.Entity<Lesson>()
                 .HasOne(l => l.Module)
@@ -119,9 +123,9 @@ namespace OnlineLearningPlatform.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
 
-            // =========================
+            // =====================================
             // ENROLLMENT
-            // =========================
+            // =====================================
 
             builder.Entity<Enrollment>()
                 .HasKey(e => new
@@ -145,9 +149,9 @@ namespace OnlineLearningPlatform.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
 
-            // =========================
+            // =====================================
             // LESSON PROGRESS
-            // =========================
+            // =====================================
 
             builder.Entity<LessonProgress>()
                 .HasKey(p => new
@@ -166,14 +170,14 @@ namespace OnlineLearningPlatform.Data
 
             builder.Entity<LessonProgress>()
                 .HasOne(p => p.Lesson)
-                .WithMany(l => l.LessonProgresses)
+                .WithMany()
                 .HasForeignKey(p => p.LessonId)
                 .OnDelete(DeleteBehavior.Cascade);
 
 
-            // =========================
+            // =====================================
             // REVIEW
-            // =========================
+            // =====================================
 
             builder.Entity<Review>()
                 .HasIndex(r => new
@@ -198,9 +202,9 @@ namespace OnlineLearningPlatform.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
 
-            // =========================
+            // =====================================
             // WISHLIST
-            // =========================
+            // =====================================
 
             builder.Entity<Wishlist>()
                 .HasKey(w => new
@@ -219,14 +223,14 @@ namespace OnlineLearningPlatform.Data
 
             builder.Entity<Wishlist>()
                 .HasOne(w => w.Course)
-                .WithMany(c => c.Wishlists)
+                .WithMany()
                 .HasForeignKey(w => w.CourseId)
                 .OnDelete(DeleteBehavior.Cascade);
 
 
-            // =========================
+            // =====================================
             // LESSON QUESTION
-            // =========================
+            // =====================================
 
             builder.Entity<LessonQuestion>()
                 .HasOne(q => q.Lesson)
@@ -242,9 +246,9 @@ namespace OnlineLearningPlatform.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
 
-            // =========================
+            // =====================================
             // LESSON ANSWER
-            // =========================
+            // =====================================
 
             builder.Entity<LessonAnswer>()
                 .HasOne(a => a.Question)
@@ -258,6 +262,34 @@ namespace OnlineLearningPlatform.Data
                 .WithMany()
                 .HasForeignKey(a => a.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+
+            // =====================================
+            // NOTIFICATION
+            // =====================================
+
+            builder.Entity<Notification>()
+                .HasOne(n => n.User)
+                .WithMany()
+                .HasForeignKey(n => n.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+
+            /*
+             * Index này giúp truy vấn chuông thông báo
+             * nhanh hơn:
+             *
+             * - thông báo của User nào
+             * - đã đọc hay chưa
+             * - mới nhất trước
+             */
+            builder.Entity<Notification>()
+                .HasIndex(n => new
+                {
+                    n.UserId,
+                    n.IsRead,
+                    n.CreatedAt
+                });
         }
     }
 }

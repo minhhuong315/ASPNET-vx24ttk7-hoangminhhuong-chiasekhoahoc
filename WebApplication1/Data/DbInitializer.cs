@@ -109,15 +109,28 @@ namespace OnlineLearningPlatform.Data
 
 
             // =====================================
-            // 3. TẠO GIẢNG VIÊN MẪU
+            // 3. TẠO / CẬP NHẬT GIẢNG VIÊN MẪU
             // =====================================
 
-            const string instructorEmail =
-                "instructor@edulearn.local";
+            var instructorEmail =
+                configuration["InstructorAccount:Email"];
+
+            var instructorPassword =
+                configuration["InstructorAccount:Password"];
+
+
+            if (string.IsNullOrWhiteSpace(instructorEmail) ||
+                string.IsNullOrWhiteSpace(instructorPassword))
+            {
+                throw new Exception(
+                    "Chưa cấu hình InstructorAccount trong User Secrets.");
+            }
+
 
             var instructor =
                 await userManager.FindByEmailAsync(
                     instructorEmail);
+
 
             if (instructor == null)
             {
@@ -133,10 +146,12 @@ namespace OnlineLearningPlatform.Data
                     UpdatedAt = DateTime.UtcNow
                 };
 
-                // Tài khoản này chỉ dùng cho dữ liệu mẫu.
-                // Chưa đặt mật khẩu nên chưa dùng để đăng nhập.
+
                 var createInstructor =
-                    await userManager.CreateAsync(instructor);
+                    await userManager.CreateAsync(
+                        instructor,
+                        instructorPassword);
+
 
                 if (!createInstructor.Succeeded)
                 {
@@ -149,14 +164,106 @@ namespace OnlineLearningPlatform.Data
                         $"Không thể tạo giảng viên mẫu: {errors}");
                 }
             }
+            else
+            {
+                /*
+                 * Đồng bộ mật khẩu của tài khoản mẫu
+                 * với mật khẩu trong User Secrets.
+                 */
 
+                bool hasPassword =
+                    await userManager.HasPasswordAsync(
+                        instructor);
+
+
+                if (!hasPassword)
+                {
+                    var addPasswordResult =
+                        await userManager.AddPasswordAsync(
+                            instructor,
+                            instructorPassword);
+
+
+                    if (!addPasswordResult.Succeeded)
+                    {
+                        var errors = string.Join(
+                            ", ",
+                            addPasswordResult.Errors
+                                .Select(e => e.Description));
+
+                        throw new Exception(
+                            $"Không thể thêm mật khẩu cho giảng viên: {errors}");
+                    }
+                }
+                else
+                {
+                    bool passwordMatches =
+                        await userManager.CheckPasswordAsync(
+                            instructor,
+                            instructorPassword);
+
+
+                    if (!passwordMatches)
+                    {
+                        var removePasswordResult =
+                            await userManager.RemovePasswordAsync(
+                                instructor);
+
+
+                        if (!removePasswordResult.Succeeded)
+                        {
+                            var errors = string.Join(
+                                ", ",
+                                removePasswordResult.Errors
+                                    .Select(e => e.Description));
+
+                            throw new Exception(
+                                $"Không thể đặt lại mật khẩu giảng viên: {errors}");
+                        }
+
+
+                        var addPasswordResult =
+                            await userManager.AddPasswordAsync(
+                                instructor,
+                                instructorPassword);
+
+
+                        if (!addPasswordResult.Succeeded)
+                        {
+                            var errors = string.Join(
+                                ", ",
+                                addPasswordResult.Errors
+                                    .Select(e => e.Description));
+
+                            throw new Exception(
+                                $"Không thể cập nhật mật khẩu giảng viên: {errors}");
+                        }
+                    }
+                }
+            }
+
+
+            // Đảm bảo tài khoản có role Instructor.
             if (!await userManager.IsInRoleAsync(
                 instructor,
                 "Instructor"))
             {
-                await userManager.AddToRoleAsync(
-                    instructor,
-                    "Instructor");
+                var addRoleResult =
+                    await userManager.AddToRoleAsync(
+                        instructor,
+                        "Instructor");
+
+
+                if (!addRoleResult.Succeeded)
+                {
+                    var errors = string.Join(
+                        ", ",
+                        addRoleResult.Errors
+                            .Select(e => e.Description));
+
+                    throw new Exception(
+                        $"Không thể gán role Instructor: {errors}");
+                }
             }
 
 
@@ -239,6 +346,7 @@ namespace OnlineLearningPlatform.Data
                 }
             };
 
+
             foreach (var category in categories)
             {
                 var exists =
@@ -250,6 +358,7 @@ namespace OnlineLearningPlatform.Data
                     db.Categories.Add(category);
                 }
             }
+
 
             await db.SaveChangesAsync();
 
@@ -355,6 +464,7 @@ namespace OnlineLearningPlatform.Data
                         PublishedAt = DateTime.UtcNow
                     }
                 };
+
 
                 db.Courses.AddRange(courses);
 

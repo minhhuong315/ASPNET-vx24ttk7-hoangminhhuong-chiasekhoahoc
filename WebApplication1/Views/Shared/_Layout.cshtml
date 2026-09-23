@@ -1,27 +1,60 @@
-﻿@{
+﻿@inject Microsoft.AspNetCore.Identity.UserManager<OnlineLearningPlatform.Models.ApplicationUser> UserManager
+
+@{
     var currentController =
         ViewContext.RouteData.Values["controller"]?.ToString();
 
     var currentAction =
         ViewContext.RouteData.Values["action"]?.ToString();
 
+
     bool isHomePage =
         currentController == "Home" &&
         currentAction == "Index";
+
 
     bool isCoursesPage =
         currentController == "Courses" &&
         (currentAction == "Index" ||
          currentAction == "Details");
 
+
     bool isMyCoursesPage =
         currentController == "Courses" &&
         currentAction == "MyCourses";
+
+
+    // =========================================
+    // USER ĐANG ĐĂNG NHẬP
+    // =========================================
+
+    OnlineLearningPlatform.Models.ApplicationUser? currentUser = null;
+
+
+    if (User.Identity?.IsAuthenticated == true)
+    {
+        currentUser =
+            await UserManager.GetUserAsync(User);
+    }
+
+
+    string displayName =
+        !string.IsNullOrWhiteSpace(currentUser?.FullName)
+            ? currentUser.FullName
+            : User.Identity?.Name ?? "User";
+
+
+    string firstLetter =
+        !string.IsNullOrWhiteSpace(displayName)
+            ? displayName.Substring(0, 1)
+            : "U";
 }
+
 
 <!DOCTYPE html>
 
 <html lang="vi">
+
 <head>
 
     <meta charset="utf-8" />
@@ -31,6 +64,7 @@
 
     <title>@ViewData["Title"] - EduLearn</title>
 
+
     <link rel="stylesheet"
           href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
 
@@ -38,260 +72,410 @@
           href="~/css/site.css"
           asp-append-version="true" />
 
+
     <style>
 
-        html,
-        body {
-            min-height: 100%;
-        }
+            html,
+            body {
+                min-height: 100%;
+            }
 
-        body {
-            margin: 0;
-            background: #ffffff;
-            color: #172033;
-        }
 
-        .edulearn-navbar {
-            background: #ffffff;
-            border-bottom: 1px solid #e9edf3;
-            position: relative;
-            z-index: 1000;
-        }
+            body {
+                margin: 0;
+                background: #ffffff;
+                color: #172033;
+            }
 
-        .edulearn-nav-container {
-            max-width: 1180px;
-            min-height: 88px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: flex;
-            align-items: center;
-            gap: 34px;
-        }
 
-        .edulearn-logo {
-            color: #0d6efd;
-            font-size: 25px;
-            font-weight: 800;
-            text-decoration: none;
-            white-space: nowrap;
-        }
+            /* =========================================
+                       NAVBAR
+                    ========================================= */
 
-        .edulearn-logo:hover {
-            color: #0d6efd;
-        }
+            .edulearn-navbar {
+                position: relative;
+                z-index: 1000;
+                background: #ffffff;
+                border-bottom: 1px solid #e9edf3;
+            }
 
-        .edulearn-nav-links {
-            display: flex;
-            align-items: center;
-            gap: 28px;
-            flex: 1;
-        }
-
-        .edulearn-nav-link {
-            color: #273142;
-            font-size: 14px;
-            font-weight: 600;
-            text-decoration: none;
-            white-space: nowrap;
-            transition: color 0.2s ease;
-        }
-
-        .edulearn-nav-link:hover {
-            color: #0d6efd;
-        }
-
-        /* MENU ĐANG ĐƯỢC CHỌN */
-
-        .edulearn-nav-link.active {
-            color: #0d6efd;
-            font-weight: 700;
-        }
-
-        .account-area {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            white-space: nowrap;
-        }
-
-        .account-chip {
-            min-height: 44px;
-            padding: 5px 13px 5px 6px;
-            display: flex;
-            align-items: center;
-            gap: 9px;
-            border: 1px solid #e3e7ed;
-            border-radius: 25px;
-            background: #ffffff;
-            color: #273142;
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        .account-avatar {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            background: #edf4ff;
-            color: #0d6efd;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            text-transform: uppercase;
-        }
-
-        .logout-form {
-            margin: 0;
-        }
-
-        .logout-button {
-            min-height: 44px;
-            padding: 0 16px;
-            border: 1px solid #d9dee7;
-            border-radius: 9px;
-            background: #ffffff;
-            color: #5b6472;
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        .logout-button:hover {
-            border-color: #dc3545;
-            color: #dc3545;
-            background: #fff8f8;
-        }
-
-        .auth-link {
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 700;
-            padding: 10px 16px;
-            border-radius: 9px;
-        }
-
-        .login-link {
-            color: #0d6efd;
-            background: #ffffff;
-            border: 1px solid #bdd5ff;
-        }
-
-        .register-link {
-            color: #ffffff;
-            background: #0d6efd;
-            border: 1px solid #0d6efd;
-        }
-
-        .edulearn-footer {
-            border-top: 1px solid #e7ebf0;
-            background: #ffffff;
-        }
-
-        .footer-container {
-            max-width: 1180px;
-            margin: 0 auto;
-            min-height: 78px;
-            padding: 0 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 25px;
-            color: #6c7687;
-            font-size: 13px;
-        }
-
-        .footer-brand {
-            color: #0d6efd;
-            font-weight: 800;
-        }
-
-        @@media (max-width: 1050px) {
 
             .edulearn-nav-container {
-                gap: 20px;
+                max-width: 1180px;
+                min-height: 88px;
+                margin: 0 auto;
+                padding: 0 20px;
+                display: flex;
+                align-items: center;
+                gap: 34px;
             }
+
+
+            /* =========================================
+                       LOGO
+                    ========================================= */
+
+            .edulearn-logo {
+                color: #0d6efd;
+                font-size: 25px;
+                font-weight: 800;
+                text-decoration: none;
+                white-space: nowrap;
+            }
+
+
+                .edulearn-logo:hover {
+                    color: #0d6efd;
+                }
+
+
+            /* =========================================
+                       MENU
+                    ========================================= */
 
             .edulearn-nav-links {
-                gap: 17px;
+                display: flex;
+                align-items: center;
+                gap: 28px;
+                flex: 1;
             }
 
+
             .edulearn-nav-link {
+                color: #273142;
+                font-size: 14px;
+                font-weight: 600;
+                text-decoration: none;
+                white-space: nowrap;
+                transition: color .2s ease;
+            }
+
+
+                .edulearn-nav-link:hover {
+                    color: #0d6efd;
+                }
+
+
+                .edulearn-nav-link.active {
+                    color: #0d6efd;
+                    font-weight: 700;
+                }
+
+
+            /* =========================================
+                       ACCOUNT AREA
+                    ========================================= */
+
+            .account-area {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                white-space: nowrap;
+            }
+
+
+            /* =========================================
+                       NOTIFICATION
+                       KHÔNG BORDER - CHỈ CÓ ICON
+                    ========================================= */
+
+            .notification-area {
+                width: 44px;
+                height: 44px;
+                flex-shrink: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+
+            /* =========================================
+                       ACCOUNT
+                       CÙNG STYLE VỚI LOGOUT
+                    ========================================= */
+
+            .account-chip {
+                height: 44px;
+                min-width: 0;
+                padding: 5px 14px 5px 6px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                border: 1px solid #dfe5ed;
+                /*
+                         * KHÔNG CÒN VIÊN THUỐC
+                         */
+                border-radius: 10px;
+                background: #ffffff;
+                color: #273142;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+
+            .account-avatar {
+                width: 32px;
+                height: 32px;
+                flex-shrink: 0;
+                border-radius: 50%;
+                background: #edf4ff;
+                color: #0d6efd;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 12px;
+                font-weight: 800;
+                text-transform: uppercase;
+            }
+
+
+            .account-name {
+                max-width: 180px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+
+            /* =========================================
+                       LOGOUT
+                    ========================================= */
+
+            .logout-form {
+                margin: 0;
+            }
+
+
+            .logout-button {
+                height: 44px;
+                padding: 0 17px;
+                border: 1px solid #dfe5ed;
+                /*
+                         * CÙNG BO GÓC ACCOUNT CHIP
+                         */
+                border-radius: 10px;
+                background: #ffffff;
+                color: #5b6472;
+                font-size: 13px;
+                font-weight: 600;
+                transition: background .2s ease, border-color .2s ease, color .2s ease;
+            }
+
+
+                .logout-button:hover {
+                    border-color: #dc3545;
+                    color: #dc3545;
+                    background: #fff8f8;
+                }
+
+
+            /* =========================================
+                       LOGIN / REGISTER
+                    ========================================= */
+
+            .auth-link {
+                height: 44px;
+                padding: 0 16px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 10px;
+                font-size: 13px;
+                font-weight: 700;
+                text-decoration: none;
+            }
+
+
+            .login-link {
+                color: #0d6efd;
+                background: #ffffff;
+                border: 1px solid #bdd5ff;
+            }
+
+
+                .login-link:hover {
+                    color: #0b5ed7;
+                    background: #f7faff;
+                }
+
+
+            .register-link {
+                color: #ffffff;
+                background: #0d6efd;
+                border: 1px solid #0d6efd;
+            }
+
+
+                .register-link:hover {
+                    color: #ffffff;
+                    background: #0b5ed7;
+                }
+
+
+            /* =========================================
+                       FOOTER
+                    ========================================= */
+
+            .edulearn-footer {
+                border-top: 1px solid #e7ebf0;
+                background: #ffffff;
+            }
+
+
+            .footer-container {
+                max-width: 1180px;
+                min-height: 78px;
+                margin: 0 auto;
+                padding: 0 20px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 25px;
+                color: #6c7687;
                 font-size: 13px;
             }
 
-        }
 
-        @@media (max-width: 850px) {
-
-            .edulearn-nav-container {
-                padding-top: 15px;
-                padding-bottom: 15px;
-                flex-wrap: wrap;
+            .footer-brand {
+                color: #0d6efd;
+                font-weight: 800;
             }
 
-            .edulearn-nav-links {
-                order: 3;
-                width: 100%;
-                overflow-x: auto;
-                padding-bottom: 3px;
+
+            /* =========================================
+                       RESPONSIVE
+                    ========================================= */
+
+            @@media (max-width: 1050px) {
+
+                .edulearn-nav-container {
+                    gap: 20px;
+                }
+
+
+                .edulearn-nav-links {
+                    gap: 17px;
+                }
+
+
+                .edulearn-nav-link {
+                    font-size: 13px;
+                }
             }
 
-            .account-area {
-                margin-left: auto;
+
+            @@media (max-width: 850px) {
+
+                .edulearn-nav-container {
+                    padding-top: 15px;
+                    padding-bottom: 15px;
+                    flex-wrap: wrap;
+                }
+
+
+                .edulearn-nav-links {
+                    order: 3;
+                    width: 100%;
+                    overflow-x: auto;
+                    padding-bottom: 3px;
+                }
+
+
+                .account-area {
+                    margin-left: auto;
+                }
             }
 
-        }
 
-        @@media (max-width: 600px) {
+            @@media (max-width: 600px) {
 
-            .account-chip span:last-child {
-                display: none;
+                .account-name {
+                    display: none;
+                }
+
+
+                .account-chip {
+                    width: 44px;
+                    padding: 5px;
+                    justify-content: center;
+                }
+
+
+                .edulearn-logo {
+                    font-size: 22px;
+                }
+
+
+                .logout-button {
+                    padding: 0 12px;
+                }
+
+
+                .footer-container {
+                    padding-top: 20px;
+                    padding-bottom: 20px;
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
             }
-
-            .edulearn-logo {
-                font-size: 22px;
-            }
-
-            .footer-container {
-                padding-top: 20px;
-                padding-bottom: 20px;
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-        }
 
     </style>
 
 </head>
 
+
 <body>
+
+
+    <!-- =========================================
+         NAVBAR
+    ========================================= -->
 
     <header class="edulearn-navbar">
 
+
         <div class="edulearn-nav-container">
+
+
+            <!-- =================================
+                 LOGO
+            ================================== -->
 
             <a asp-controller="Home"
                asp-action="Index"
                class="edulearn-logo">
+
                 EduLearn
+
             </a>
 
 
+
+            <!-- =================================
+                 MENU
+            ================================== -->
+
             <nav class="edulearn-nav-links">
+
 
                 <a asp-controller="Home"
                    asp-action="Index"
                    class="edulearn-nav-link @(isHomePage ? "active" : "")">
+
                     Trang chủ
+
                 </a>
+
 
 
                 <a asp-controller="Courses"
                    asp-action="Index"
                    class="edulearn-nav-link @(isCoursesPage ? "active" : "")">
+
                     Khóa học
+
                 </a>
+
 
 
                 @if (User.Identity?.IsAuthenticated == true &&
@@ -300,121 +484,215 @@
                     <a asp-controller="Courses"
                        asp-action="MyCourses"
                        class="edulearn-nav-link @(isMyCoursesPage ? "active" : "")">
+
                         Khóa học của tôi
+
                     </a>
                 }
 
 
+
                 <a href="#"
                    class="edulearn-nav-link">
+
                     Giảng viên
+
                 </a>
+
 
 
                 <a href="#"
                    class="edulearn-nav-link">
+
                     Về EduLearn
+
                 </a>
+
 
             </nav>
 
 
+
+            <!-- =================================
+                 RIGHT AREA
+            ================================== -->
+
             <div class="account-area">
+
 
                 @if (User.Identity?.IsAuthenticated == true)
                 {
-                    var userName =
-                        User.Identity?.Name ?? "User";
 
-                    var firstLetter =
-                        !string.IsNullOrWhiteSpace(userName)
-                            ? userName.Substring(0, 1)
-                            : "U";
+                    <!-- =========================
+                         CHUÔNG
+                         CHỈ ICON XANH
+                    ========================== -->
 
+                    <div class="notification-area">
 
-                    <div class="account-chip">
-
-                        <span class="account-avatar">
-                            @firstLetter
-                        </span>
-
-                        <span>
-                            @userName
-                        </span>
+                        @await Component.InvokeAsync(
+                            "NotificationBell")
 
                     </div>
 
+
+
+                    <!-- =========================
+                         AVATAR + TÊN
+                    ========================== -->
+
+                    <div class="account-chip">
+
+
+                        <span class="account-avatar">
+
+                            @firstLetter
+
+                        </span>
+
+
+                        <span class="account-name">
+
+                            @displayName
+
+                        </span>
+
+
+                    </div>
+
+
+
+                    <!-- =========================
+                         ĐĂNG XUẤT
+                    ========================== -->
 
                     <form asp-controller="Account"
                           asp-action="Logout"
                           method="post"
                           class="logout-form">
 
+
                         <button type="submit"
                                 class="logout-button">
+
                             Đăng xuất
+
                         </button>
 
+
                     </form>
+
                 }
                 else
                 {
+
+                    <!-- =========================
+                         CHƯA ĐĂNG NHẬP
+                    ========================== -->
+
                     <a asp-controller="Account"
                        asp-action="Login"
                        class="auth-link login-link">
+
                         Đăng nhập
+
                     </a>
+
 
                     <a asp-controller="Account"
                        asp-action="Register"
                        class="auth-link register-link">
+
                         Đăng ký
+
                     </a>
+
                 }
+
 
             </div>
 
+
         </div>
+
 
     </header>
 
 
+
+    <!-- =========================================
+         CONTENT
+    ========================================= -->
+
     <main>
+
         @RenderBody()
+
     </main>
 
 
+
+    <!-- =========================================
+         FOOTER
+    ========================================= -->
+
     <footer class="edulearn-footer">
+
 
         <div class="footer-container">
 
-            <div>
-                © 2026
-                <span class="footer-brand">
-                    EduLearn
-                </span>
-                - Chia sẻ tri thức, kiến tạo tương lai
-            </div>
 
             <div>
-                Nền tảng khóa học Công nghệ thông tin
+
+                © 2026
+
+                <span class="footer-brand">
+
+                    EduLearn
+
+                </span>
+
+                - Chia sẻ tri thức, kiến tạo tương lai
+
             </div>
+
+
+            <div>
+
+                Nền tảng khóa học Công nghệ thông tin
+
+            </div>
+
 
         </div>
+
 
     </footer>
 
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
 
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- =========================================
+         SCRIPTS
+    ========================================= -->
+
+    <script src="~/lib/jquery/dist/jquery.min.js">
+    </script>
+
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js">
+    </script>
+
 
     <script src="~/js/site.js"
-            asp-append-version="true"></script>
+            asp-append-version="true">
+    </script>
+
 
     @await RenderSectionAsync(
         "Scripts",
         required: false)
 
+
 </body>
+
 </html>
