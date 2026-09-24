@@ -37,6 +37,7 @@ namespace OnlineLearningPlatform.Controllers
             var userId =
                 _userManager.GetUserId(User);
 
+
             if (string.IsNullOrWhiteSpace(userId))
             {
                 return Challenge();
@@ -195,6 +196,7 @@ namespace OnlineLearningPlatform.Controllers
                 model.Categories =
                     await GetCategoryOptionsAsync();
 
+
                 return View(model);
             }
 
@@ -279,7 +281,7 @@ namespace OnlineLearningPlatform.Controllers
 
 
             TempData["InstructorCourseSuccess"] =
-                "Khóa học đã được tạo thành công.";
+                "Khóa học đã được tạo thành công và đang ở trạng thái Bản nháp.";
 
 
             return RedirectToAction(
@@ -409,6 +411,7 @@ namespace OnlineLearningPlatform.Controllers
                 model.Categories =
                     await GetCategoryOptionsAsync();
 
+
                 return View(model);
             }
 
@@ -507,6 +510,188 @@ namespace OnlineLearningPlatform.Controllers
 
 
             return View(course);
+        }
+
+
+        // =========================================
+        // PUBLISH COURSE
+        // =========================================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Publish(
+            int id)
+        {
+            var userId =
+                _userManager.GetUserId(User);
+
+
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Challenge();
+            }
+
+
+            var course =
+                await _context.Courses
+                    .Include(c =>
+                        c.Modules)
+                        .ThenInclude(m =>
+                            m.Lessons)
+                    .FirstOrDefaultAsync(c =>
+                        c.Id == id &&
+                        c.InstructorId == userId);
+
+
+            if (course == null)
+            {
+                return NotFound();
+            }
+
+
+            if (course.IsPublished)
+            {
+                TempData["InstructorCourseInfo"] =
+                    "Khóa học này đã được xuất bản.";
+
+
+                return RedirectToAction(
+                    nameof(Manage),
+                    new
+                    {
+                        id = course.Id
+                    });
+            }
+
+
+            if (!course.Modules.Any())
+            {
+                TempData["InstructorCourseError"] =
+                    "Chưa thể xuất bản. Khóa học cần có ít nhất 1 module.";
+
+
+                return RedirectToAction(
+                    nameof(Manage),
+                    new
+                    {
+                        id = course.Id
+                    });
+            }
+
+
+            int totalLessons =
+                course.Modules.Sum(m =>
+                    m.Lessons.Count);
+
+
+            if (totalLessons <= 0)
+            {
+                TempData["InstructorCourseError"] =
+                    "Chưa thể xuất bản. Khóa học cần có ít nhất 1 bài học.";
+
+
+                return RedirectToAction(
+                    nameof(Manage),
+                    new
+                    {
+                        id = course.Id
+                    });
+            }
+
+
+            course.IsPublished =
+                true;
+
+            course.PublishedAt =
+                DateTime.UtcNow;
+
+            course.UpdatedAt =
+                DateTime.UtcNow;
+
+
+            await _context.SaveChangesAsync();
+
+
+            TempData["InstructorCourseSuccess"] =
+                "Khóa học đã được xuất bản thành công.";
+
+
+            return RedirectToAction(
+                nameof(Manage),
+                new
+                {
+                    id = course.Id
+                });
+        }
+
+
+        // =========================================
+        // UNPUBLISH COURSE
+        // =========================================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Unpublish(
+            int id)
+        {
+            var userId =
+                _userManager.GetUserId(User);
+
+
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Challenge();
+            }
+
+
+            var course =
+                await _context.Courses
+                    .FirstOrDefaultAsync(c =>
+                        c.Id == id &&
+                        c.InstructorId == userId);
+
+
+            if (course == null)
+            {
+                return NotFound();
+            }
+
+
+            if (!course.IsPublished)
+            {
+                TempData["InstructorCourseInfo"] =
+                    "Khóa học hiện đang ở trạng thái Bản nháp.";
+
+
+                return RedirectToAction(
+                    nameof(Manage),
+                    new
+                    {
+                        id = course.Id
+                    });
+            }
+
+
+            course.IsPublished =
+                false;
+
+            course.UpdatedAt =
+                DateTime.UtcNow;
+
+
+            await _context.SaveChangesAsync();
+
+
+            TempData["InstructorCourseSuccess"] =
+                "Khóa học đã được chuyển về trạng thái Bản nháp.";
+
+
+            return RedirectToAction(
+                nameof(Manage),
+                new
+                {
+                    id = course.Id
+                });
         }
 
 
@@ -1136,7 +1321,7 @@ namespace OnlineLearningPlatform.Controllers
 
 
         // =========================================
-        // TÍNH LẠI THỜI LƯỢNG KHÓA HỌC
+        // RECALCULATE COURSE DURATION
         // =========================================
 
         private async Task RecalculateCourseDurationAsync(
@@ -1215,7 +1400,7 @@ namespace OnlineLearningPlatform.Controllers
 
 
         // =========================================
-        // CATEGORY
+        // CATEGORY OPTIONS
         // =========================================
 
         private async Task<

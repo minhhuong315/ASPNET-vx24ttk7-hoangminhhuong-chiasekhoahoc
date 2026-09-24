@@ -5,11 +5,18 @@
         "Quản lý nội dung - " +
         Model.Title;
 
+    int totalModules =
+        Model.Modules?.Count ?? 0;
+
     int totalLessons =
         Model.Modules?
             .Sum(m =>
                 m.Lessons.Count)
         ?? 0;
+
+    bool canPublish =
+        totalModules > 0 &&
+        totalLessons > 0;
 }
 
 <style>
@@ -35,20 +42,35 @@
         text-decoration: none;
     }
 
-    .back-link:hover {
-        color: #0d6efd;
-    }
+        .back-link:hover {
+            color: #0d6efd;
+        }
 
-    .success-message {
-        margin-bottom: 20px;
+    .message {
+        margin-bottom: 18px;
         padding: 13px 15px;
-        border: 1px solid #bce4c9;
         border-radius: 10px;
-        background: #effaf3;
-        color: #16723a;
         font-size: 12px;
         font-weight: 700;
     }
+
+        .message.success {
+            border: 1px solid #bce4c9;
+            background: #effaf3;
+            color: #16723a;
+        }
+
+        .message.error {
+            border: 1px solid #ffd2d6;
+            background: #fff4f5;
+            color: #b42332;
+        }
+
+        .message.info {
+            border: 1px solid #cfe0fb;
+            background: #f3f8ff;
+            color: #315b98;
+        }
 
     .manage-header {
         margin-bottom: 25px;
@@ -87,6 +109,14 @@
         line-height: 1.7;
     }
 
+    .header-actions {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
     .edit-course-button {
         min-height: 38px;
         padding: 0 13px;
@@ -103,9 +133,87 @@
         white-space: nowrap;
     }
 
-    .edit-course-button:hover {
-        border-color: #aac9f8;
-        color: #0d6efd;
+        .edit-course-button:hover {
+            border-color: #aac9f8;
+            color: #0d6efd;
+        }
+
+    .publish-form {
+        margin: 0;
+    }
+
+    .publish-button,
+    .unpublish-button {
+        min-height: 38px;
+        padding: 0 13px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-family: inherit;
+        font-size: 10px;
+        font-weight: 800;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .publish-button {
+        border: 1px solid #198754;
+        background: #198754;
+        color: #ffffff;
+    }
+
+        .publish-button:hover {
+            background: #157347;
+        }
+
+        .publish-button:disabled {
+            border-color: #cad2dc;
+            background: #e7ebf0;
+            color: #98a2b3;
+            cursor: not-allowed;
+        }
+
+    .unpublish-button {
+        border: 1px solid #f1c26c;
+        background: #fff8e8;
+        color: #a15c00;
+    }
+
+        .unpublish-button:hover {
+            background: #fff1cf;
+        }
+
+    .publish-requirement {
+        margin-top: 14px;
+        padding: 12px 14px;
+        border: 1px solid #e4e9f0;
+        border-radius: 10px;
+        background: #f9fafb;
+    }
+
+    .publish-requirement-title {
+        margin-bottom: 5px;
+        color: #475467;
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+    .publish-requirement-text {
+        margin: 0;
+        color: #8992a3;
+        font-size: 10px;
+        line-height: 1.6;
+    }
+
+    .requirement-ok {
+        color: #198754;
+        font-weight: 700;
+    }
+
+    .requirement-missing {
+        color: #c26a00;
+        font-weight: 700;
     }
 
     .manage-summary {
@@ -123,15 +231,15 @@
         font-weight: 700;
     }
 
-    .summary-badge.published {
-        background: #eaf8ef;
-        color: #198754;
-    }
+        .summary-badge.published {
+            background: #eaf8ef;
+            color: #198754;
+        }
 
-    .summary-badge.draft {
-        background: #fff5e5;
-        color: #b56a00;
-    }
+        .summary-badge.draft {
+            background: #fff5e5;
+            color: #b56a00;
+        }
 
     .content-section-header {
         display: flex;
@@ -173,10 +281,10 @@
         text-decoration: none;
     }
 
-    .add-module-button:hover {
-        background: #0b5ed7;
-        color: #ffffff;
-    }
+        .add-module-button:hover {
+            background: #0b5ed7;
+            color: #ffffff;
+        }
 
     .manage-module {
         overflow: hidden;
@@ -259,31 +367,31 @@
         text-decoration: none;
     }
 
-    .small-action:hover {
-        border-color: #aac9f8;
-        color: #0d6efd;
-    }
+        .small-action:hover {
+            border-color: #aac9f8;
+            color: #0d6efd;
+        }
 
-    .small-action.purple {
-        border-color: #ded7f7;
-        color: #7451d8;
-    }
+        .small-action.purple {
+            border-color: #ded7f7;
+            color: #7451d8;
+        }
 
-    .small-action.purple:hover {
-        background: #f5f1ff;
-        color: #6544c4;
-    }
+            .small-action.purple:hover {
+                background: #f5f1ff;
+                color: #6544c4;
+            }
 
-    .small-action.primary {
-        border-color: #0d6efd;
-        background: #0d6efd;
-        color: #ffffff;
-    }
+        .small-action.primary {
+            border-color: #0d6efd;
+            background: #0d6efd;
+            color: #ffffff;
+        }
 
-    .small-action.primary:hover {
-        background: #0b5ed7;
-        color: #ffffff;
-    }
+            .small-action.primary:hover {
+                background: #0b5ed7;
+                color: #ffffff;
+            }
 
     .lesson-list {
         padding: 5px 18px;
@@ -291,19 +399,16 @@
 
     .lesson-row {
         display: grid;
-        grid-template-columns:
-            36px
-            minmax(0, 1fr)
-            auto;
+        grid-template-columns: 36px minmax(0, 1fr) auto;
         gap: 12px;
         align-items: center;
         padding: 13px 0;
         border-bottom: 1px solid #edf0f4;
     }
 
-    .lesson-row:last-child {
-        border-bottom: none;
-    }
+        .lesson-row:last-child {
+            border-bottom: none;
+        }
 
     .lesson-order {
         width: 27px;
@@ -391,6 +496,7 @@
             flex-direction: column;
         }
 
+        .header-actions,
         .content-header-actions,
         .module-actions {
             align-items: flex-start;
@@ -398,9 +504,7 @@
         }
 
         .lesson-row {
-            grid-template-columns:
-                32px
-                1fr;
+            grid-template-columns: 32px 1fr;
         }
 
         .lesson-right {
@@ -427,12 +531,33 @@
 
         @if (TempData["InstructorCourseSuccess"] != null)
         {
-            <div class="success-message">
+            <div class="message success">
 
                 @TempData["InstructorCourseSuccess"]
 
             </div>
         }
+
+
+        @if (TempData["InstructorCourseError"] != null)
+        {
+            <div class="message error">
+
+                @TempData["InstructorCourseError"]
+
+            </div>
+        }
+
+
+        @if (TempData["InstructorCourseInfo"] != null)
+        {
+            <div class="message info">
+
+                @TempData["InstructorCourseInfo"]
+
+            </div>
+        }
+
 
 
         <section class="manage-header">
@@ -456,8 +581,9 @@
 
                     <p class="manage-description">
 
-                        Quản lý cấu trúc module
-                        và các bài học trong khóa học.
+                        Quản lý thông tin,
+                        cấu trúc module và bài học
+                        của khóa học.
 
                     </p>
 
@@ -465,17 +591,69 @@
                 </div>
 
 
-                <a asp-controller="InstructorCourses"
-                   asp-action="Edit"
-                   asp-route-id="@Model.Id"
-                   class="edit-course-button">
 
-                    Sửa thông tin khóa học
+                <div class="header-actions">
 
-                </a>
+
+                    <a asp-controller="InstructorCourses"
+                       asp-action="Edit"
+                       asp-route-id="@Model.Id"
+                       class="edit-course-button">
+
+                        Sửa thông tin
+
+                    </a>
+
+
+                    @if (Model.IsPublished)
+                    {
+                        <form asp-controller="InstructorCourses"
+                              asp-action="Unpublish"
+                              asp-route-id="@Model.Id"
+                              method="post"
+                              class="publish-form">
+
+                            @Html.AntiForgeryToken()
+
+
+                            <button type="submit"
+                                    class="unpublish-button"
+                                    onclick="return confirm('Chuyển khóa học này về trạng thái Bản nháp?');">
+
+                                Bỏ xuất bản
+
+                            </button>
+
+                        </form>
+                    }
+                    else
+                    {
+                        <form asp-controller="InstructorCourses"
+                              asp-action="Publish"
+                              asp-route-id="@Model.Id"
+                              method="post"
+                              class="publish-form">
+
+                            @Html.AntiForgeryToken()
+
+
+                            <button type="submit"
+                                    class="publish-button"
+                                    disabled="@(!canPublish)">
+
+                                Xuất bản khóa học
+
+                            </button>
+
+                        </form>
+                    }
+
+
+                </div>
 
 
             </div>
+
 
 
             <div class="manage-summary">
@@ -487,7 +665,7 @@
 
 
                 <span class="summary-badge">
-                    @Model.Modules.Count module
+                    @totalModules module
                 </span>
 
 
@@ -518,6 +696,60 @@
             </div>
 
 
+
+            @if (!Model.IsPublished)
+            {
+                <div class="publish-requirement">
+
+
+                    <div class="publish-requirement-title">
+
+                        Điều kiện xuất bản
+
+                    </div>
+
+
+                    <p class="publish-requirement-text">
+
+
+                        @if (totalModules > 0)
+                        {
+                            <span class="requirement-ok">
+                                ✓ Có module
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="requirement-missing">
+                                ○ Cần ít nhất 1 module
+                            </span>
+                        }
+
+
+                        &nbsp;&nbsp;
+
+
+                        @if (totalLessons > 0)
+                        {
+                            <span class="requirement-ok">
+                                ✓ Có bài học
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="requirement-missing">
+                                ○ Cần ít nhất 1 bài học
+                            </span>
+                        }
+
+
+                    </p>
+
+
+                </div>
+            }
+
+
         </section>
 
 
@@ -535,7 +767,7 @@
 
                 <div class="content-section-count">
 
-                    @Model.Modules.Count module ·
+                    @totalModules module ·
                     @totalLessons bài học
 
                 </div>
@@ -603,13 +835,12 @@
                         </div>
 
 
+
                         <div class="module-actions">
 
 
                             <div class="module-count">
-
                                 @module.Lessons.Count bài học
-
                             </div>
 
 
@@ -698,6 +929,7 @@
 
 
                                     </div>
+
 
 
                                     <div class="lesson-right">

@@ -432,7 +432,8 @@ namespace OnlineLearningPlatform.Controllers
             var enrollments =
                 await _context.Enrollments
                     .Where(e =>
-                        e.UserId == userId)
+                        e.UserId == userId &&
+                        e.Course.IsPublished)
                     .Include(e => e.Course)
                         .ThenInclude(c =>
                             c.Category)
@@ -731,7 +732,8 @@ namespace OnlineLearningPlatform.Controllers
                                     l.DisplayOrder))
                     .FirstOrDefaultAsync(c =>
                         c.Id ==
-                        courseId);
+                        courseId &&
+                        c.IsPublished);
 
 
             if (course == null)
