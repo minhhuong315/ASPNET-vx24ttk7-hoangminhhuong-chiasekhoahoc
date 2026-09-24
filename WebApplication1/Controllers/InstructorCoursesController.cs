@@ -943,6 +943,10 @@ namespace OnlineLearningPlatform.Controllers
             }
 
 
+            // =====================================
+            // CẬP NHẬT NỘI DUNG MODULE
+            // =====================================
+
             module.Title =
                 model.Title.Trim();
 
@@ -950,8 +954,60 @@ namespace OnlineLearningPlatform.Controllers
                 CleanNullable(
                     model.Description);
 
-            module.DisplayOrder =
-                model.DisplayOrder;
+
+            // =====================================
+            // LẤY CÁC MODULE CÒN LẠI
+            // =====================================
+
+            var siblingModules =
+                await _context.Modules
+                    .Where(m =>
+                        m.CourseId ==
+                        module.CourseId &&
+                        m.Id != module.Id)
+                    .OrderBy(m =>
+                        m.DisplayOrder)
+                    .ThenBy(m =>
+                        m.Id)
+                    .ToListAsync();
+
+
+            // =====================================
+            // CHUẨN HÓA THỨ TỰ MỚI
+            //
+            // Nếu nhập 100 mà chỉ có 3 module
+            // thì tự đưa xuống cuối.
+            // =====================================
+
+            int newOrder =
+                Math.Clamp(
+                    model.DisplayOrder,
+                    1,
+                    siblingModules.Count + 1);
+
+
+            // =====================================
+            // CHÈN MODULE VÀO VỊ TRÍ MỚI
+            // =====================================
+
+            siblingModules.Insert(
+                newOrder - 1,
+                module);
+
+
+            // =====================================
+            // ĐÁNH LẠI 1, 2, 3...
+            // =====================================
+
+            for (int index = 0;
+                 index < siblingModules.Count;
+                 index++)
+            {
+                siblingModules[index]
+                    .DisplayOrder =
+                        index + 1;
+            }
+
 
             module.Course.UpdatedAt =
                 DateTime.UtcNow;
@@ -961,7 +1017,7 @@ namespace OnlineLearningPlatform.Controllers
 
 
             TempData["InstructorCourseSuccess"] =
-                "Module đã được cập nhật.";
+                "Module đã được cập nhật và sắp xếp lại thứ tự.";
 
 
             return RedirectToAction(
@@ -1279,6 +1335,10 @@ namespace OnlineLearningPlatform.Controllers
             }
 
 
+            // =====================================
+            // CẬP NHẬT NỘI DUNG
+            // =====================================
+
             lesson.Title =
                 model.Title.Trim();
 
@@ -1293,11 +1353,59 @@ namespace OnlineLearningPlatform.Controllers
             lesson.Duration =
                 model.Duration;
 
-            lesson.DisplayOrder =
-                model.DisplayOrder;
-
             lesson.IsFree =
                 model.IsFree;
+
+
+            // =====================================
+            // LẤY CÁC BÀI CÒN LẠI TRONG MODULE
+            // =====================================
+
+            var siblingLessons =
+                await _context.Lessons
+                    .Where(l =>
+                        l.ModuleId ==
+                        lesson.ModuleId &&
+                        l.Id != lesson.Id)
+                    .OrderBy(l =>
+                        l.DisplayOrder)
+                    .ThenBy(l =>
+                        l.Id)
+                    .ToListAsync();
+
+
+            // =====================================
+            // CHUẨN HÓA VỊ TRÍ MỚI
+            // =====================================
+
+            int newOrder =
+                Math.Clamp(
+                    model.DisplayOrder,
+                    1,
+                    siblingLessons.Count + 1);
+
+
+            // =====================================
+            // CHÈN BÀI HỌC VÀO VỊ TRÍ MỚI
+            // =====================================
+
+            siblingLessons.Insert(
+                newOrder - 1,
+                lesson);
+
+
+            // =====================================
+            // ĐÁNH LẠI 1, 2, 3...
+            // =====================================
+
+            for (int index = 0;
+                 index < siblingLessons.Count;
+                 index++)
+            {
+                siblingLessons[index]
+                    .DisplayOrder =
+                        index + 1;
+            }
 
 
             await _context.SaveChangesAsync();
@@ -1308,7 +1416,7 @@ namespace OnlineLearningPlatform.Controllers
 
 
             TempData["InstructorCourseSuccess"] =
-                "Bài học đã được cập nhật.";
+                "Bài học đã được cập nhật và sắp xếp lại thứ tự.";
 
 
             return RedirectToAction(
@@ -1330,7 +1438,8 @@ namespace OnlineLearningPlatform.Controllers
             int totalDuration =
                 await _context.Lessons
                     .Where(l =>
-                        l.Module.CourseId == course.Id)
+                        l.Module.CourseId ==
+                        course.Id)
                     .Select(l =>
                         (int?)l.Duration)
                     .SumAsync()
