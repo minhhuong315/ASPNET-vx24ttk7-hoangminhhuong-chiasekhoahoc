@@ -40,6 +40,10 @@
         currentAction == "About";
 
 
+    bool isProfilePage =
+        currentController == "Profile";
+
+
     bool isAuthenticated =
         User.Identity?.IsAuthenticated == true;
 
@@ -1394,9 +1398,9 @@
 
 
 
-                            <a href="#"
-                               class="account-menu-item"
-                               onclick="return false;">
+                            <a asp-controller="Profile"
+                               asp-action="Index"
+                               class="account-menu-item @(isProfilePage ? "active" : "")">
 
                                 <span class="account-menu-icon">
                                     ○
