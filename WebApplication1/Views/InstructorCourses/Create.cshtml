@@ -1,0 +1,909 @@
+﻿@model OnlineLearningPlatform.ViewModels.InstructorCourseCreateViewModel
+
+@{
+    ViewData["Title"] = "Tạo khóa học mới";
+}
+
+<style>
+
+    .create-course-page {
+        min-height: 80vh;
+
+        padding: 42px 0 75px;
+
+        background: #f8fafc;
+    }
+
+
+    .create-course-container {
+        max-width: 900px;
+
+        margin: 0 auto;
+
+        padding: 0 20px;
+    }
+
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+
+        margin-bottom: 20px;
+
+        color: #697386;
+
+        font-size: 12px;
+        font-weight: 700;
+
+        text-decoration: none;
+    }
+
+
+    .back-link:hover {
+        color: #0d6efd;
+    }
+
+
+    .create-header {
+        margin-bottom: 23px;
+    }
+
+
+    .create-eyebrow {
+        margin-bottom: 6px;
+
+        color: #0d6efd;
+
+        font-size: 12px;
+        font-weight: 800;
+
+        text-transform: uppercase;
+        letter-spacing: .4px;
+    }
+
+
+    .create-title {
+        margin: 0 0 8px;
+
+        color: #172033;
+
+        font-size: 31px;
+        font-weight: 800;
+    }
+
+
+    .create-description {
+        max-width: 680px;
+
+        margin: 0;
+
+        color: #7a8494;
+
+        line-height: 1.7;
+    }
+
+
+    .create-card {
+        overflow: hidden;
+
+        border: 1px solid #e1e7ee;
+        border-radius: 16px;
+
+        background: #ffffff;
+    }
+
+
+    .create-card-section {
+        padding: 24px;
+
+        border-bottom: 1px solid #edf0f4;
+    }
+
+
+    .create-card-section:last-child {
+        border-bottom: none;
+    }
+
+
+    .section-title {
+        margin: 0 0 5px;
+
+        color: #273142;
+
+        font-size: 16px;
+        font-weight: 800;
+    }
+
+
+    .section-description {
+        margin: 0 0 20px;
+
+        color: #8992a3;
+
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+
+    .form-grid {
+        display: grid;
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 18px;
+    }
+
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+
+    .form-group:last-child {
+        margin-bottom: 0;
+    }
+
+
+    .form-group.full {
+        grid-column: 1 / -1;
+    }
+
+
+    .form-label {
+        display: block;
+
+        margin-bottom: 7px;
+
+        color: #465164;
+
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+
+    .required-mark {
+        color: #dc3545;
+    }
+
+
+    .form-control-edulearn {
+        width: 100%;
+
+        min-height: 44px;
+
+        padding: 10px 12px;
+
+        border: 1px solid #dce2ea;
+        border-radius: 9px;
+
+        background: #ffffff;
+        color: #273142;
+
+        font: inherit;
+        font-size: 13px;
+
+        outline: none;
+
+        transition:
+            border-color .2s ease,
+            box-shadow .2s ease;
+    }
+
+
+    .form-control-edulearn:focus {
+        border-color: #8db9fa;
+
+        box-shadow:
+            0 0 0 3px
+            rgba(13, 110, 253, .08);
+    }
+
+
+    textarea.form-control-edulearn {
+        min-height: 110px;
+
+        resize: vertical;
+    }
+
+
+    .description-area {
+        min-height: 170px
+            !important;
+    }
+
+
+    .field-validation-error {
+        display: block;
+
+        margin-top: 5px;
+
+        color: #dc3545;
+
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+
+    .validation-summary-errors {
+        margin-bottom: 20px;
+
+        padding: 13px 15px;
+
+        border: 1px solid #ffd3d7;
+        border-radius: 9px;
+
+        background: #fff6f7;
+        color: #b42332;
+
+        font-size: 12px;
+    }
+
+
+    .validation-summary-errors ul {
+        margin: 0;
+
+        padding-left: 18px;
+    }
+
+
+    .draft-note {
+        display: flex;
+        align-items: flex-start;
+
+        gap: 11px;
+
+        padding: 14px;
+
+        border: 1px solid #cfe0fb;
+        border-radius: 10px;
+
+        background: #f3f8ff;
+    }
+
+
+    .draft-note-icon {
+        width: 31px;
+        height: 31px;
+
+        flex: 0 0 31px;
+
+        border-radius: 8px;
+
+        background: #e0ecff;
+        color: #0d6efd;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+
+    .draft-note-title {
+        margin-bottom: 3px;
+
+        color: #315b98;
+
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+
+    .draft-note-text {
+        margin: 0;
+
+        color: #667085;
+
+        font-size: 11px;
+        line-height: 1.6;
+    }
+
+
+    .form-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+
+        gap: 10px;
+
+        padding: 20px 24px;
+
+        background: #fbfcfe;
+    }
+
+
+    .cancel-button,
+    .submit-button {
+        min-height: 42px;
+
+        padding: 0 18px;
+
+        border-radius: 9px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 12px;
+        font-weight: 800;
+
+        text-decoration: none;
+    }
+
+
+    .cancel-button {
+        border: 1px solid #dce2ea;
+
+        background: #ffffff;
+        color: #667085;
+    }
+
+
+    .cancel-button:hover {
+        border-color: #b9c8dc;
+
+        color: #344054;
+    }
+
+
+    .submit-button {
+        border: 1px solid #0d6efd;
+
+        background: #0d6efd;
+        color: #ffffff;
+
+        cursor: pointer;
+    }
+
+
+    .submit-button:hover {
+        background: #0b5ed7;
+    }
+
+
+    @@media (max-width: 700px) {
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+
+        .form-group.full {
+            grid-column: auto;
+        }
+
+
+        .form-actions {
+            align-items: stretch;
+
+            flex-direction: column-reverse;
+        }
+
+
+        .cancel-button,
+        .submit-button {
+            width: 100%;
+        }
+
+    }
+
+</style>
+
+
+<div class="create-course-page">
+
+    <div class="create-course-container">
+
+
+        <a asp-controller="InstructorCourses"
+           asp-action="Index"
+           class="back-link">
+
+            ← Quay lại khóa học phụ trách
+
+        </a>
+
+
+        <header class="create-header">
+
+
+            <div class="create-eyebrow">
+
+                Không gian giảng viên
+
+            </div>
+
+
+            <h1 class="create-title">
+
+                Tạo khóa học mới
+
+            </h1>
+
+
+            <p class="create-description">
+
+                Nhập thông tin cơ bản của khóa học.
+                Sau khi tạo,
+                bạn có thể tiếp tục xây dựng module
+                và các bài học bên trong.
+
+            </p>
+
+
+        </header>
+
+
+
+        <form asp-controller="InstructorCourses"
+              asp-action="Create"
+              method="post">
+
+
+            @Html.AntiForgeryToken()
+
+
+            <div asp-validation-summary="ModelOnly">
+            </div>
+
+
+            <div class="create-card">
+
+
+                <!-- =====================================
+                     THÔNG TIN CƠ BẢN
+                ====================================== -->
+
+                <section class="create-card-section">
+
+
+                    <h2 class="section-title">
+
+                        Thông tin cơ bản
+
+                    </h2>
+
+
+                    <p class="section-description">
+
+                        Thông tin này sẽ xuất hiện
+                        trên trang giới thiệu khóa học.
+
+                    </p>
+
+
+                    <div class="form-group">
+
+
+                        <label asp-for="Title"
+                               class="form-label">
+
+                            Tên khóa học
+                            <span class="required-mark">
+                                *
+                            </span>
+
+                        </label>
+
+
+                        <input asp-for="Title"
+                               class="form-control-edulearn"
+                               placeholder="Ví dụ: ASP.NET Core MVC cho người mới" />
+
+
+                        <span asp-validation-for="Title">
+                        </span>
+
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+
+                        <label asp-for="ShortDescription"
+                               class="form-label">
+
+                            Mô tả ngắn
+
+                        </label>
+
+
+                        <textarea asp-for="ShortDescription"
+                                  class="form-control-edulearn"
+                                  placeholder="Tóm tắt ngắn nội dung khóa học..."></textarea>
+
+
+                        <span asp-validation-for="ShortDescription">
+                        </span>
+
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+
+                        <label asp-for="Description"
+                               class="form-label">
+
+                            Mô tả chi tiết
+
+                        </label>
+
+
+                        <textarea asp-for="Description"
+                                  class="form-control-edulearn description-area"
+                                  placeholder="Giới thiệu mục tiêu, nội dung và đối tượng phù hợp..."></textarea>
+
+
+                        <span asp-validation-for="Description">
+                        </span>
+
+
+                    </div>
+
+
+                </section>
+
+
+
+                <!-- =====================================
+                     PHÂN LOẠI
+                ====================================== -->
+
+                <section class="create-card-section">
+
+
+                    <h2 class="section-title">
+
+                        Phân loại khóa học
+
+                    </h2>
+
+
+                    <p class="section-description">
+
+                        Chọn danh mục và cấp độ
+                        phù hợp với nội dung khóa học.
+
+                    </p>
+
+
+                    <div class="form-grid">
+
+
+                        <div class="form-group">
+
+
+                            <label asp-for="CategoryId"
+                                   class="form-label">
+
+                                Danh mục
+                                <span class="required-mark">
+                                    *
+                                </span>
+
+                            </label>
+
+
+                            <select asp-for="CategoryId"
+                                    class="form-control-edulearn">
+
+
+                                <option value="0">
+
+                                    -- Chọn danh mục --
+
+                                </option>
+
+
+                                @foreach (var category in
+                                    Model.Categories)
+                                {
+                                    <option value="@category.Id">
+
+                                        @category.Name
+
+                                    </option>
+                                }
+
+
+                            </select>
+
+
+                            <span asp-validation-for="CategoryId">
+                            </span>
+
+
+                        </div>
+
+
+
+                        <div class="form-group">
+
+
+                            <label asp-for="Level"
+                                   class="form-label">
+
+                                Cấp độ
+                                <span class="required-mark">
+                                    *
+                                </span>
+
+                            </label>
+
+
+                            <select asp-for="Level"
+                                    class="form-control-edulearn">
+
+                                <option value="Beginner">
+                                    Cơ bản
+                                </option>
+
+                                <option value="Intermediate">
+                                    Trung cấp
+                                </option>
+
+                                <option value="Advanced">
+                                    Nâng cao
+                                </option>
+
+                            </select>
+
+
+                            <span asp-validation-for="Level">
+                            </span>
+
+
+                        </div>
+
+
+                    </div>
+
+
+                </section>
+
+
+
+                <!-- =====================================
+                     GIÁ
+                ====================================== -->
+
+                <section class="create-card-section">
+
+
+                    <h2 class="section-title">
+
+                        Giá khóa học
+
+                    </h2>
+
+
+                    <p class="section-description">
+
+                        Nhập 0 nếu đây là khóa học miễn phí.
+                        Giá khuyến mãi có thể để trống.
+
+                    </p>
+
+
+                    <div class="form-grid">
+
+
+                        <div class="form-group">
+
+
+                            <label asp-for="Price"
+                                   class="form-label">
+
+                                Giá gốc
+
+                            </label>
+
+
+                            <input asp-for="Price"
+                                   type="number"
+                                   min="0"
+                                   step="1000"
+                                   class="form-control-edulearn" />
+
+
+                            <span asp-validation-for="Price">
+                            </span>
+
+
+                        </div>
+
+
+
+                        <div class="form-group">
+
+
+                            <label asp-for="DiscountPrice"
+                                   class="form-label">
+
+                                Giá khuyến mãi
+
+                            </label>
+
+
+                            <input asp-for="DiscountPrice"
+                                   type="number"
+                                   min="0"
+                                   step="1000"
+                                   class="form-control-edulearn"
+                                   placeholder="Không bắt buộc" />
+
+
+                            <span asp-validation-for="DiscountPrice">
+                            </span>
+
+
+                        </div>
+
+
+                    </div>
+
+
+                </section>
+
+
+
+                <!-- =====================================
+                     MEDIA
+                ====================================== -->
+
+                <section class="create-card-section">
+
+
+                    <h2 class="section-title">
+
+                        Hình ảnh & video
+
+                    </h2>
+
+
+                    <p class="section-description">
+
+                        Giai đoạn hiện tại sử dụng đường dẫn URL.
+                        Phần upload file trực tiếp
+                        mình sẽ xử lý sau.
+
+                    </p>
+
+
+                    <div class="form-group">
+
+
+                        <label asp-for="ThumbnailUrl"
+                               class="form-label">
+
+                            URL ảnh đại diện
+
+                        </label>
+
+
+                        <input asp-for="ThumbnailUrl"
+                               class="form-control-edulearn"
+                               placeholder="https://..." />
+
+
+                        <span asp-validation-for="ThumbnailUrl">
+                        </span>
+
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+
+                        <label asp-for="VideoPreviewUrl"
+                               class="form-label">
+
+                            URL video giới thiệu
+
+                        </label>
+
+
+                        <input asp-for="VideoPreviewUrl"
+                               class="form-control-edulearn"
+                               placeholder="https://..." />
+
+
+                        <span asp-validation-for="VideoPreviewUrl">
+                        </span>
+
+
+                    </div>
+
+
+                    <div class="draft-note">
+
+
+                        <div class="draft-note-icon">
+
+                            D
+
+                        </div>
+
+
+                        <div>
+
+
+                            <div class="draft-note-title">
+
+                                Khóa học sẽ được lưu dưới dạng Bản nháp
+
+                            </div>
+
+
+                            <p class="draft-note-text">
+
+                                Khóa học chưa xuất hiện công khai
+                                cho học viên cho đến khi
+                                được xuất bản.
+
+                            </p>
+
+
+                        </div>
+
+
+                    </div>
+
+
+                </section>
+
+
+
+                <!-- =====================================
+                     ACTION
+                ====================================== -->
+
+                <div class="form-actions">
+
+
+                    <a asp-controller="InstructorCourses"
+                       asp-action="Index"
+                       class="cancel-button">
+
+                        Hủy
+
+                    </a>
+
+
+                    <button type="submit"
+                            class="submit-button">
+
+                        Tạo khóa học
+
+                    </button>
+
+
+                </div>
+
+
+            </div>
+
+
+        </form>
+
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+}

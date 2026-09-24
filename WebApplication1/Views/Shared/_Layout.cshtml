@@ -26,6 +26,10 @@
         currentController == "LessonQuestions";
 
 
+    bool isInstructorCoursesPage =
+        currentController == "InstructorCourses";
+
+
     bool isAuthenticated =
         User.Identity?.IsAuthenticated == true;
 
@@ -1324,10 +1328,9 @@
                             @if (isInstructor)
                             {
 
-                                <a asp-controller="Home"
+                                <a asp-controller="InstructorCourses"
                                    asp-action="Index"
-                                   asp-fragment="instructor-tools"
-                                   class="account-menu-item">
+                                   class="account-menu-item @(isInstructorCoursesPage ? "active" : "")">
 
                                     <span class="account-menu-icon">
                                         ▣
