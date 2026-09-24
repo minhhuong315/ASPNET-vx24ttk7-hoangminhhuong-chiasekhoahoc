@@ -138,7 +138,8 @@
             color: #0d6efd;
         }
 
-    .publish-form {
+    .publish-form,
+    .delete-form {
         margin: 0;
     }
 
@@ -147,14 +148,10 @@
         min-height: 38px;
         padding: 0 13px;
         border-radius: 8px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
         font-family: inherit;
         font-size: 10px;
         font-weight: 800;
         cursor: pointer;
-        white-space: nowrap;
     }
 
     .publish-button {
@@ -180,10 +177,6 @@
         color: #a15c00;
     }
 
-        .unpublish-button:hover {
-            background: #fff1cf;
-        }
-
     .publish-requirement {
         margin-top: 14px;
         padding: 12px 14px;
@@ -203,7 +196,6 @@
         margin: 0;
         color: #8992a3;
         font-size: 10px;
-        line-height: 1.6;
     }
 
     .requirement-ok {
@@ -346,7 +338,6 @@
     }
 
     .module-count {
-        margin-right: 3px;
         color: #8992a3;
         font-size: 10px;
         font-weight: 600;
@@ -362,9 +353,11 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        font-family: inherit;
         font-size: 9px;
         font-weight: 800;
         text-decoration: none;
+        cursor: pointer;
     }
 
         .small-action:hover {
@@ -377,20 +370,22 @@
             color: #7451d8;
         }
 
-            .small-action.purple:hover {
-                background: #f5f1ff;
-                color: #6544c4;
-            }
-
         .small-action.primary {
             border-color: #0d6efd;
             background: #0d6efd;
             color: #ffffff;
         }
 
-            .small-action.primary:hover {
-                background: #0b5ed7;
-                color: #ffffff;
+        .small-action.danger {
+            border-color: #f2c7cc;
+            background: #fffafa;
+            color: #c92a3a;
+        }
+
+            .small-action.danger:hover {
+                border-color: #dc3545;
+                background: #fff1f2;
+                color: #b42332;
             }
 
     .lesson-list {
@@ -446,6 +441,8 @@
     .lesson-right {
         display: flex;
         align-items: center;
+        flex-wrap: wrap;
+        justify-content: flex-end;
         gap: 8px;
     }
 
@@ -509,6 +506,7 @@
 
         .lesson-right {
             grid-column: 2;
+            justify-content: flex-start;
         }
     }
 
@@ -532,9 +530,7 @@
         @if (TempData["InstructorCourseSuccess"] != null)
         {
             <div class="message success">
-
                 @TempData["InstructorCourseSuccess"]
-
             </div>
         }
 
@@ -542,9 +538,7 @@
         @if (TempData["InstructorCourseError"] != null)
         {
             <div class="message error">
-
                 @TempData["InstructorCourseError"]
-
             </div>
         }
 
@@ -552,12 +546,9 @@
         @if (TempData["InstructorCourseInfo"] != null)
         {
             <div class="message info">
-
                 @TempData["InstructorCourseInfo"]
-
             </div>
         }
-
 
 
         <section class="manage-header">
@@ -568,16 +559,13 @@
 
                 <div>
 
-
                     <div class="manage-eyebrow">
                         Quản lý nội dung
                     </div>
 
-
                     <h1 class="manage-title">
                         @Model.Title
                     </h1>
-
 
                     <p class="manage-description">
 
@@ -587,9 +575,7 @@
 
                     </p>
 
-
                 </div>
-
 
 
                 <div class="header-actions">
@@ -615,7 +601,6 @@
 
                             @Html.AntiForgeryToken()
 
-
                             <button type="submit"
                                     class="unpublish-button"
                                     onclick="return confirm('Chuyển khóa học này về trạng thái Bản nháp?');">
@@ -636,7 +621,6 @@
 
                             @Html.AntiForgeryToken()
 
-
                             <button type="submit"
                                     class="publish-button"
                                     disabled="@(!canPublish)">
@@ -655,7 +639,6 @@
             </div>
 
 
-
             <div class="manage-summary">
 
 
@@ -663,16 +646,13 @@
                     @Model.Category.Name
                 </span>
 
-
                 <span class="summary-badge">
                     @totalModules module
                 </span>
 
-
                 <span class="summary-badge">
                     @totalLessons bài học
                 </span>
-
 
                 <span class="summary-badge">
                     @Model.Duration phút
@@ -696,16 +676,13 @@
             </div>
 
 
-
             @if (!Model.IsPublished)
             {
                 <div class="publish-requirement">
 
 
                     <div class="publish-requirement-title">
-
                         Điều kiện xuất bản
-
                     </div>
 
 
@@ -753,7 +730,6 @@
         </section>
 
 
-
         <div class="content-section-header">
 
 
@@ -789,7 +765,6 @@
         </div>
 
 
-
         @if (Model.Modules != null &&
              Model.Modules.Any())
         {
@@ -814,7 +789,6 @@
 
                             <div>
 
-
                                 <div class="module-title">
                                     @module.Title
                                 </div>
@@ -828,12 +802,10 @@
                                     </div>
                                 }
 
-
                             </div>
 
 
                         </div>
-
 
 
                         <div class="module-actions">
@@ -864,11 +836,32 @@
                             </a>
 
 
+                            @if (!Model.IsPublished)
+                            {
+                                <form asp-controller="InstructorContentDelete"
+                                      asp-action="DeleteModule"
+                                      asp-route-id="@module.Id"
+                                      method="post"
+                                      class="delete-form">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <button type="submit"
+                                            class="small-action danger"
+                                            onclick="return confirm('Bạn chắc chắn muốn xóa module này? Các bài học chưa có hoạt động học tập bên trong cũng sẽ bị xóa.');">
+
+                                        Xóa module
+
+                                    </button>
+
+                                </form>
+                            }
+
+
                         </div>
 
 
                     </div>
-
 
 
                     <div class="lesson-list">
@@ -931,14 +924,11 @@
                                     </div>
 
 
-
                                     <div class="lesson-right">
 
 
                                         <span class="lesson-duration">
-
                                             @lesson.Duration phút
-
                                         </span>
 
 
@@ -950,6 +940,28 @@
                                             Sửa bài học
 
                                         </a>
+
+
+                                        @if (!Model.IsPublished)
+                                        {
+                                            <form asp-controller="InstructorContentDelete"
+                                                  asp-action="DeleteLesson"
+                                                  asp-route-id="@lesson.Id"
+                                                  method="post"
+                                                  class="delete-form">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <button type="submit"
+                                                        class="small-action danger"
+                                                        onclick="return confirm('Bạn chắc chắn muốn xóa bài học này?');">
+
+                                                    Xóa
+
+                                                </button>
+
+                                            </form>
+                                        }
 
 
                                     </div>
