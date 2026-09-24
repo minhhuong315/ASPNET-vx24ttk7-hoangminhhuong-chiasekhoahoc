@@ -1,0 +1,741 @@
+﻿@model OnlineLearningPlatform.Models.Course
+
+@{
+    ViewData["Title"] =
+        "Quản lý nội dung - " +
+        Model.Title;
+
+    int totalLessons =
+        Model.Modules?
+            .Sum(m =>
+                m.Lessons.Count)
+        ?? 0;
+}
+
+<style>
+
+    .manage-course-page {
+        min-height: 80vh;
+
+        padding: 42px 0 75px;
+
+        background: #f8fafc;
+    }
+
+
+    .manage-container {
+        max-width: 1050px;
+
+        margin: 0 auto;
+
+        padding: 0 20px;
+    }
+
+
+    /* =========================================
+       BACK
+    ========================================= */
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+
+        margin-bottom: 20px;
+
+        color: #697386;
+
+        font-size: 11px;
+        font-weight: 700;
+
+        text-decoration: none;
+    }
+
+
+    .back-link:hover {
+        color: #0d6efd;
+    }
+
+
+    /* =========================================
+       HEADER
+    ========================================= */
+
+    .manage-header {
+        margin-bottom: 25px;
+
+        padding: 24px;
+
+        border: 1px solid #e3e8ef;
+        border-radius: 16px;
+
+        background: #ffffff;
+    }
+
+
+    .manage-eyebrow {
+        margin-bottom: 6px;
+
+        color: #0d6efd;
+
+        font-size: 11px;
+        font-weight: 800;
+
+        text-transform: uppercase;
+    }
+
+
+    .manage-title {
+        margin: 0 0 9px;
+
+        color: #172033;
+
+        font-size: 27px;
+        font-weight: 800;
+        line-height: 1.4;
+    }
+
+
+    .manage-description {
+        margin: 0 0 17px;
+
+        color: #7b8595;
+
+        font-size: 13px;
+        line-height: 1.7;
+    }
+
+
+    .manage-summary {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+
+        gap: 8px;
+    }
+
+
+    .summary-badge {
+        padding: 6px 10px;
+
+        border-radius: 20px;
+
+        background: #f3f5f8;
+        color: #657083;
+
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+
+    .summary-badge.published {
+        background: #eaf8ef;
+        color: #198754;
+    }
+
+
+    .summary-badge.draft {
+        background: #fff5e5;
+        color: #b56a00;
+    }
+
+
+    /* =========================================
+       SECTION
+    ========================================= */
+
+    .content-section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 15px;
+
+        margin-bottom: 14px;
+    }
+
+
+    .content-section-title {
+        margin: 0;
+
+        color: #172033;
+
+        font-size: 19px;
+        font-weight: 800;
+    }
+
+
+    .content-section-count {
+        color: #8b95a5;
+
+        font-size: 11px;
+    }
+
+
+    /* =========================================
+       MODULE
+    ========================================= */
+
+    .manage-module {
+        overflow: hidden;
+
+        margin-bottom: 14px;
+
+        border: 1px solid #e2e7ee;
+        border-radius: 13px;
+
+        background: #ffffff;
+    }
+
+
+    .module-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 15px;
+
+        padding: 16px 18px;
+
+        background: #f9fbfd;
+
+        border-bottom: 1px solid #edf0f4;
+    }
+
+
+    .module-left {
+        display: flex;
+        align-items: center;
+
+        gap: 12px;
+    }
+
+
+    .module-order {
+        width: 34px;
+        height: 34px;
+
+        flex: 0 0 34px;
+
+        border-radius: 9px;
+
+        background: #edf4ff;
+        color: #0d6efd;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+
+    .module-title {
+        color: #273142;
+
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+
+    .module-description {
+        margin-top: 2px;
+
+        color: #8a94a3;
+
+        font-size: 10px;
+    }
+
+
+    .module-count {
+        color: #8992a3;
+
+        font-size: 10px;
+        font-weight: 600;
+
+        white-space: nowrap;
+    }
+
+
+    /* =========================================
+       LESSON
+    ========================================= */
+
+    .lesson-list {
+        padding: 5px 18px;
+    }
+
+
+    .lesson-row {
+        display: grid;
+
+        grid-template-columns:
+            36px
+            minmax(0, 1fr)
+            auto;
+
+        gap: 10px;
+
+        align-items: center;
+
+        padding: 12px 0;
+
+        border-bottom: 1px solid #edf0f4;
+    }
+
+
+    .lesson-row:last-child {
+        border-bottom: none;
+    }
+
+
+    .lesson-order {
+        width: 27px;
+        height: 27px;
+
+        border-radius: 7px;
+
+        background: #f2f4f7;
+        color: #697386;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 9px;
+        font-weight: 800;
+    }
+
+
+    .lesson-title {
+        color: #465164;
+
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+
+    .lesson-meta {
+        margin-top: 3px;
+
+        color: #98a2b3;
+
+        font-size: 9px;
+    }
+
+
+    .lesson-duration {
+        padding: 5px 8px;
+
+        border-radius: 20px;
+
+        background: #f3f5f8;
+        color: #778294;
+
+        font-size: 9px;
+        font-weight: 700;
+
+        white-space: nowrap;
+    }
+
+
+    /* =========================================
+       EMPTY
+    ========================================= */
+
+    .empty-module {
+        padding: 25px;
+
+        border: 1px dashed #d9e0e8;
+        border-radius: 12px;
+
+        background: #ffffff;
+        color: #8992a3;
+
+        font-size: 12px;
+
+        text-align: center;
+    }
+
+
+    .empty-lessons {
+        padding: 17px 0;
+
+        color: #98a2b3;
+
+        font-size: 11px;
+
+        text-align: center;
+    }
+
+
+    /* =========================================
+       NEXT STEP BOX
+    ========================================= */
+
+    .development-note {
+        margin-top: 22px;
+
+        padding: 16px 18px;
+
+        border: 1px solid #cfe0fb;
+        border-radius: 11px;
+
+        background: #f3f8ff;
+    }
+
+
+    .development-note-title {
+        margin-bottom: 4px;
+
+        color: #0d6efd;
+
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+
+    .development-note-text {
+        margin: 0;
+
+        color: #667085;
+
+        font-size: 11px;
+        line-height: 1.6;
+    }
+
+
+    @@media (max-width: 650px) {
+
+        .module-header {
+            align-items: flex-start;
+
+            flex-direction: column;
+        }
+
+
+        .lesson-row {
+            grid-template-columns:
+                32px
+                1fr;
+        }
+
+
+        .lesson-duration {
+            grid-column: 2;
+            justify-self: start;
+        }
+
+    }
+
+</style>
+
+
+<div class="manage-course-page">
+
+    <div class="manage-container">
+
+
+        <a asp-controller="InstructorCourses"
+           asp-action="Index"
+           class="back-link">
+
+            ← Quay lại khóa học phụ trách
+
+        </a>
+
+
+
+        <!-- =====================================
+             COURSE HEADER
+        ====================================== -->
+
+        <section class="manage-header">
+
+
+            <div class="manage-eyebrow">
+
+                Quản lý nội dung
+
+            </div>
+
+
+            <h1 class="manage-title">
+
+                @Model.Title
+
+            </h1>
+
+
+            <p class="manage-description">
+
+                Theo dõi cấu trúc module và bài học
+                hiện có trong khóa học.
+
+            </p>
+
+
+
+            <div class="manage-summary">
+
+
+                <span class="summary-badge">
+
+                    @Model.Category.Name
+
+                </span>
+
+
+                <span class="summary-badge">
+
+                    @Model.Modules.Count module
+
+                </span>
+
+
+                <span class="summary-badge">
+
+                    @totalLessons bài học
+
+                </span>
+
+
+                @if (Model.IsPublished)
+                {
+                    <span class="summary-badge published">
+
+                        Đã xuất bản
+
+                    </span>
+                }
+                else
+                {
+                    <span class="summary-badge draft">
+
+                        Bản nháp
+
+                    </span>
+                }
+
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =====================================
+             CONTENT
+        ====================================== -->
+
+        <div class="content-section-header">
+
+
+            <h2 class="content-section-title">
+
+                Cấu trúc khóa học
+
+            </h2>
+
+
+            <div class="content-section-count">
+
+                @Model.Modules.Count module ·
+                @totalLessons bài học
+
+            </div>
+
+
+        </div>
+
+
+
+        @if (Model.Modules != null &&
+             Model.Modules.Any())
+        {
+            foreach (var module in
+                Model.Modules
+                    .OrderBy(m =>
+                        m.DisplayOrder))
+            {
+                <section class="manage-module">
+
+
+                    <div class="module-header">
+
+
+                        <div class="module-left">
+
+
+                            <div class="module-order">
+
+                                @module.DisplayOrder
+
+                            </div>
+
+
+                            <div>
+
+
+                                <div class="module-title">
+
+                                    @module.Title
+
+                                </div>
+
+
+                                @if (!string.IsNullOrWhiteSpace(
+                                    module.Description))
+                                {
+                                    <div class="module-description">
+
+                                        @module.Description
+
+                                    </div>
+                                }
+
+
+                            </div>
+
+
+                        </div>
+
+
+                        <div class="module-count">
+
+                            @module.Lessons.Count bài học
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <div class="lesson-list">
+
+
+                        @if (module.Lessons.Any())
+                        {
+                            foreach (var lesson in
+                                module.Lessons
+                                    .OrderBy(l =>
+                                        l.DisplayOrder))
+                            {
+                                <div class="lesson-row">
+
+
+                                    <div class="lesson-order">
+
+                                        @lesson.DisplayOrder
+
+                                    </div>
+
+
+                                    <div>
+
+
+                                        <div class="lesson-title">
+
+                                            @lesson.Title
+
+                                        </div>
+
+
+                                        <div class="lesson-meta">
+
+
+                                            @if (!string.IsNullOrWhiteSpace(
+                                                lesson.VideoUrl))
+                                            {
+                                                <span>
+                                                    Có video
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span>
+                                                    Chưa có video
+                                                </span>
+                                            }
+
+
+                                            ·
+
+
+                                            @(lesson.IsFree
+                                                ? "Xem thử miễn phí"
+                                                : "Nội dung khóa học")
+
+
+                                        </div>
+
+
+                                    </div>
+
+
+                                    <div class="lesson-duration">
+
+                                        @lesson.Duration phút
+
+                                    </div>
+
+
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="empty-lessons">
+
+                                Module này chưa có bài học.
+
+                            </div>
+                        }
+
+
+                    </div>
+
+
+                </section>
+            }
+        }
+        else
+        {
+            <div class="empty-module">
+
+                Khóa học hiện chưa có module nào.
+
+            </div>
+        }
+
+
+
+        <div class="development-note">
+
+
+            <div class="development-note-title">
+
+                Bước tiếp theo
+
+            </div>
+
+
+            <p class="development-note-text">
+
+                Sau khi xác nhận trang quản lý này
+                hiển thị đúng dữ liệu,
+                mình sẽ bổ sung chức năng
+                tạo/sửa thông tin khóa học,
+                module và bài học ngay tại đây.
+
+            </p>
+
+
+        </div>
+
+
+    </div>
+
+</div>
