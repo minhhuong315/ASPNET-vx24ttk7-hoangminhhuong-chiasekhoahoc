@@ -16,403 +16,386 @@
 
     .manage-course-page {
         min-height: 80vh;
-
         padding: 42px 0 75px;
-
         background: #f8fafc;
     }
 
-
     .manage-container {
         max-width: 1050px;
-
         margin: 0 auto;
-
         padding: 0 20px;
     }
 
-
-    /* =========================================
-       BACK
-    ========================================= */
-
     .back-link {
         display: inline-flex;
-        align-items: center;
-
         margin-bottom: 20px;
-
         color: #697386;
-
         font-size: 11px;
         font-weight: 700;
-
         text-decoration: none;
     }
-
 
     .back-link:hover {
         color: #0d6efd;
     }
 
-
-    /* =========================================
-       HEADER
-    ========================================= */
+    .success-message {
+        margin-bottom: 20px;
+        padding: 13px 15px;
+        border: 1px solid #bce4c9;
+        border-radius: 10px;
+        background: #effaf3;
+        color: #16723a;
+        font-size: 12px;
+        font-weight: 700;
+    }
 
     .manage-header {
         margin-bottom: 25px;
-
         padding: 24px;
-
         border: 1px solid #e3e8ef;
         border-radius: 16px;
-
         background: #ffffff;
     }
 
+    .manage-header-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 20px;
+    }
 
     .manage-eyebrow {
         margin-bottom: 6px;
-
         color: #0d6efd;
-
         font-size: 11px;
         font-weight: 800;
-
         text-transform: uppercase;
     }
 
-
     .manage-title {
         margin: 0 0 9px;
-
         color: #172033;
-
         font-size: 27px;
         font-weight: 800;
-        line-height: 1.4;
     }
-
 
     .manage-description {
         margin: 0 0 17px;
-
         color: #7b8595;
-
         font-size: 13px;
         line-height: 1.7;
     }
 
+    .edit-course-button {
+        min-height: 38px;
+        padding: 0 13px;
+        border: 1px solid #dce3ec;
+        border-radius: 8px;
+        background: #ffffff;
+        color: #596579;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 800;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .edit-course-button:hover {
+        border-color: #aac9f8;
+        color: #0d6efd;
+    }
 
     .manage-summary {
         display: flex;
-        align-items: center;
         flex-wrap: wrap;
-
         gap: 8px;
     }
 
-
     .summary-badge {
         padding: 6px 10px;
-
         border-radius: 20px;
-
         background: #f3f5f8;
         color: #657083;
-
         font-size: 10px;
         font-weight: 700;
     }
-
 
     .summary-badge.published {
         background: #eaf8ef;
         color: #198754;
     }
 
-
     .summary-badge.draft {
         background: #fff5e5;
         color: #b56a00;
     }
 
-
-    /* =========================================
-       SECTION
-    ========================================= */
-
     .content-section-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-
         gap: 15px;
-
         margin-bottom: 14px;
     }
 
-
     .content-section-title {
         margin: 0;
-
         color: #172033;
-
         font-size: 19px;
         font-weight: 800;
     }
 
+    .content-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
 
     .content-section-count {
         color: #8b95a5;
-
         font-size: 11px;
     }
 
+    .add-module-button {
+        min-height: 38px;
+        padding: 0 13px;
+        border-radius: 8px;
+        background: #0d6efd;
+        color: #ffffff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 800;
+        text-decoration: none;
+    }
 
-    /* =========================================
-       MODULE
-    ========================================= */
+    .add-module-button:hover {
+        background: #0b5ed7;
+        color: #ffffff;
+    }
 
     .manage-module {
         overflow: hidden;
-
-        margin-bottom: 14px;
-
+        margin-bottom: 15px;
         border: 1px solid #e2e7ee;
         border-radius: 13px;
-
         background: #ffffff;
     }
-
 
     .module-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-
         gap: 15px;
-
         padding: 16px 18px;
-
         background: #f9fbfd;
-
         border-bottom: 1px solid #edf0f4;
     }
-
 
     .module-left {
         display: flex;
         align-items: center;
-
         gap: 12px;
+        min-width: 0;
     }
-
 
     .module-order {
         width: 34px;
         height: 34px;
-
         flex: 0 0 34px;
-
         border-radius: 9px;
-
         background: #edf4ff;
         color: #0d6efd;
-
         display: flex;
         align-items: center;
         justify-content: center;
-
         font-size: 11px;
         font-weight: 800;
     }
 
-
     .module-title {
         color: #273142;
-
         font-size: 13px;
         font-weight: 800;
     }
 
-
     .module-description {
         margin-top: 2px;
-
         color: #8a94a3;
-
         font-size: 10px;
     }
 
+    .module-actions {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px;
+    }
 
     .module-count {
+        margin-right: 3px;
         color: #8992a3;
-
         font-size: 10px;
         font-weight: 600;
-
-        white-space: nowrap;
     }
 
+    .small-action {
+        min-height: 31px;
+        padding: 0 10px;
+        border: 1px solid #dce3ec;
+        border-radius: 7px;
+        background: #ffffff;
+        color: #596579;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 9px;
+        font-weight: 800;
+        text-decoration: none;
+    }
 
-    /* =========================================
-       LESSON
-    ========================================= */
+    .small-action:hover {
+        border-color: #aac9f8;
+        color: #0d6efd;
+    }
+
+    .small-action.purple {
+        border-color: #ded7f7;
+        color: #7451d8;
+    }
+
+    .small-action.purple:hover {
+        background: #f5f1ff;
+        color: #6544c4;
+    }
+
+    .small-action.primary {
+        border-color: #0d6efd;
+        background: #0d6efd;
+        color: #ffffff;
+    }
+
+    .small-action.primary:hover {
+        background: #0b5ed7;
+        color: #ffffff;
+    }
 
     .lesson-list {
         padding: 5px 18px;
     }
 
-
     .lesson-row {
         display: grid;
-
         grid-template-columns:
             36px
             minmax(0, 1fr)
             auto;
-
-        gap: 10px;
-
+        gap: 12px;
         align-items: center;
-
-        padding: 12px 0;
-
+        padding: 13px 0;
         border-bottom: 1px solid #edf0f4;
     }
-
 
     .lesson-row:last-child {
         border-bottom: none;
     }
 
-
     .lesson-order {
         width: 27px;
         height: 27px;
-
         border-radius: 7px;
-
         background: #f2f4f7;
         color: #697386;
-
         display: flex;
         align-items: center;
         justify-content: center;
-
         font-size: 9px;
         font-weight: 800;
     }
-
 
     .lesson-title {
         color: #465164;
-
         font-size: 12px;
         font-weight: 700;
     }
 
-
     .lesson-meta {
-        margin-top: 3px;
-
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-top: 4px;
         color: #98a2b3;
-
         font-size: 9px;
     }
 
+    .lesson-free {
+        color: #198754;
+        font-weight: 700;
+    }
+
+    .lesson-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
 
     .lesson-duration {
         padding: 5px 8px;
-
         border-radius: 20px;
-
         background: #f3f5f8;
         color: #778294;
-
         font-size: 9px;
         font-weight: 700;
-
         white-space: nowrap;
     }
 
-
-    /* =========================================
-       EMPTY
-    ========================================= */
+    .empty-lessons {
+        padding: 18px 0;
+        color: #98a2b3;
+        font-size: 11px;
+        text-align: center;
+    }
 
     .empty-module {
-        padding: 25px;
-
+        padding: 35px 25px;
         border: 1px dashed #d9e0e8;
         border-radius: 12px;
-
         background: #ffffff;
-        color: #8992a3;
-
-        font-size: 12px;
-
         text-align: center;
     }
 
-
-    .empty-lessons {
-        padding: 17px 0;
-
-        color: #98a2b3;
-
-        font-size: 11px;
-
-        text-align: center;
-    }
-
-
-    /* =========================================
-       NEXT STEP BOX
-    ========================================= */
-
-    .development-note {
-        margin-top: 22px;
-
-        padding: 16px 18px;
-
-        border: 1px solid #cfe0fb;
-        border-radius: 11px;
-
-        background: #f3f8ff;
-    }
-
-
-    .development-note-title {
-        margin-bottom: 4px;
-
-        color: #0d6efd;
-
-        font-size: 11px;
+    .empty-module-title {
+        margin-bottom: 7px;
+        color: #475467;
+        font-size: 13px;
         font-weight: 800;
     }
 
-
-    .development-note-text {
-        margin: 0;
-
-        color: #667085;
-
+    .empty-module-text {
+        margin-bottom: 16px;
+        color: #8992a3;
         font-size: 11px;
-        line-height: 1.6;
     }
 
+    @@media (max-width: 720px) {
 
-    @@media (max-width: 650px) {
-
+        .manage-header-top,
+        .content-section-header,
         .module-header {
             align-items: flex-start;
-
             flex-direction: column;
         }
 
+        .content-header-actions,
+        .module-actions {
+            align-items: flex-start;
+            justify-content: flex-start;
+        }
 
         .lesson-row {
             grid-template-columns:
@@ -420,12 +403,9 @@
                 1fr;
         }
 
-
-        .lesson-duration {
+        .lesson-right {
             grid-column: 2;
-            justify-self: start;
         }
-
     }
 
 </style>
@@ -445,75 +425,92 @@
         </a>
 
 
+        @if (TempData["InstructorCourseSuccess"] != null)
+        {
+            <div class="success-message">
 
-        <!-- =====================================
-             COURSE HEADER
-        ====================================== -->
+                @TempData["InstructorCourseSuccess"]
+
+            </div>
+        }
+
 
         <section class="manage-header">
 
 
-            <div class="manage-eyebrow">
+            <div class="manage-header-top">
 
-                Quản lý nội dung
+
+                <div>
+
+
+                    <div class="manage-eyebrow">
+                        Quản lý nội dung
+                    </div>
+
+
+                    <h1 class="manage-title">
+                        @Model.Title
+                    </h1>
+
+
+                    <p class="manage-description">
+
+                        Quản lý cấu trúc module
+                        và các bài học trong khóa học.
+
+                    </p>
+
+
+                </div>
+
+
+                <a asp-controller="InstructorCourses"
+                   asp-action="Edit"
+                   asp-route-id="@Model.Id"
+                   class="edit-course-button">
+
+                    Sửa thông tin khóa học
+
+                </a>
+
 
             </div>
-
-
-            <h1 class="manage-title">
-
-                @Model.Title
-
-            </h1>
-
-
-            <p class="manage-description">
-
-                Theo dõi cấu trúc module và bài học
-                hiện có trong khóa học.
-
-            </p>
-
 
 
             <div class="manage-summary">
 
 
                 <span class="summary-badge">
-
                     @Model.Category.Name
-
                 </span>
 
 
                 <span class="summary-badge">
-
                     @Model.Modules.Count module
-
                 </span>
 
 
                 <span class="summary-badge">
-
                     @totalLessons bài học
+                </span>
 
+
+                <span class="summary-badge">
+                    @Model.Duration phút
                 </span>
 
 
                 @if (Model.IsPublished)
                 {
                     <span class="summary-badge published">
-
                         Đã xuất bản
-
                     </span>
                 }
                 else
                 {
                     <span class="summary-badge draft">
-
                         Bản nháp
-
                     </span>
                 }
 
@@ -525,24 +522,34 @@
 
 
 
-        <!-- =====================================
-             CONTENT
-        ====================================== -->
-
         <div class="content-section-header">
 
 
             <h2 class="content-section-title">
-
                 Cấu trúc khóa học
-
             </h2>
 
 
-            <div class="content-section-count">
+            <div class="content-header-actions">
 
-                @Model.Modules.Count module ·
-                @totalLessons bài học
+
+                <div class="content-section-count">
+
+                    @Model.Modules.Count module ·
+                    @totalLessons bài học
+
+                </div>
+
+
+                <a asp-controller="InstructorCourses"
+                   asp-action="CreateModule"
+                   asp-route-courseId="@Model.Id"
+                   class="add-module-button">
+
+                    + Thêm module
+
+                </a>
+
 
             </div>
 
@@ -569,9 +576,7 @@
 
 
                             <div class="module-order">
-
                                 @module.DisplayOrder
-
                             </div>
 
 
@@ -579,9 +584,7 @@
 
 
                                 <div class="module-title">
-
                                     @module.Title
-
                                 </div>
 
 
@@ -589,9 +592,7 @@
                                     module.Description))
                                 {
                                     <div class="module-description">
-
                                         @module.Description
-
                                     </div>
                                 }
 
@@ -602,9 +603,35 @@
                         </div>
 
 
-                        <div class="module-count">
+                        <div class="module-actions">
 
-                            @module.Lessons.Count bài học
+
+                            <div class="module-count">
+
+                                @module.Lessons.Count bài học
+
+                            </div>
+
+
+                            <a asp-controller="InstructorCourses"
+                               asp-action="EditModule"
+                               asp-route-id="@module.Id"
+                               class="small-action purple">
+
+                                Sửa module
+
+                            </a>
+
+
+                            <a asp-controller="InstructorCourses"
+                               asp-action="CreateLesson"
+                               asp-route-moduleId="@module.Id"
+                               class="small-action primary">
+
+                                + Thêm bài học
+
+                            </a>
+
 
                         </div>
 
@@ -627,9 +654,7 @@
 
 
                                     <div class="lesson-order">
-
                                         @lesson.DisplayOrder
-
                                     </div>
 
 
@@ -637,9 +662,7 @@
 
 
                                         <div class="lesson-title">
-
                                             @lesson.Title
-
                                         </div>
 
 
@@ -661,12 +684,14 @@
                                             }
 
 
-                                            ·
+                                            @if (lesson.IsFree)
+                                            {
+                                                <span>·</span>
 
-
-                                            @(lesson.IsFree
-                                                ? "Xem thử miễn phí"
-                                                : "Nội dung khóa học")
+                                                <span class="lesson-free">
+                                                    Xem thử miễn phí
+                                                </span>
+                                            }
 
 
                                         </div>
@@ -675,9 +700,25 @@
                                     </div>
 
 
-                                    <div class="lesson-duration">
+                                    <div class="lesson-right">
 
-                                        @lesson.Duration phút
+
+                                        <span class="lesson-duration">
+
+                                            @lesson.Duration phút
+
+                                        </span>
+
+
+                                        <a asp-controller="InstructorCourses"
+                                           asp-action="EditLesson"
+                                           asp-route-id="@lesson.Id"
+                                           class="small-action">
+
+                                            Sửa bài học
+
+                                        </a>
+
 
                                     </div>
 
@@ -705,35 +746,32 @@
         {
             <div class="empty-module">
 
-                Khóa học hiện chưa có module nào.
+
+                <div class="empty-module-title">
+                    Khóa học chưa có module
+                </div>
+
+
+                <div class="empty-module-text">
+
+                    Tạo module đầu tiên
+                    để bắt đầu xây dựng nội dung khóa học.
+
+                </div>
+
+
+                <a asp-controller="InstructorCourses"
+                   asp-action="CreateModule"
+                   asp-route-courseId="@Model.Id"
+                   class="add-module-button">
+
+                    + Thêm module đầu tiên
+
+                </a>
+
 
             </div>
         }
-
-
-
-        <div class="development-note">
-
-
-            <div class="development-note-title">
-
-                Bước tiếp theo
-
-            </div>
-
-
-            <p class="development-note-text">
-
-                Sau khi xác nhận trang quản lý này
-                hiển thị đúng dữ liệu,
-                mình sẽ bổ sung chức năng
-                tạo/sửa thông tin khóa học,
-                module và bài học ngay tại đây.
-
-            </p>
-
-
-        </div>
 
 
     </div>

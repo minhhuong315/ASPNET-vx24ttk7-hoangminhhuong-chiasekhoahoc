@@ -1,0 +1,317 @@
+﻿@model OnlineLearningPlatform.ViewModels.InstructorModuleEditViewModel
+
+@{
+    ViewData["Title"] = "Sửa module";
+}
+
+<style>
+
+    .module-form-page {
+        min-height: 80vh;
+        padding: 45px 0 75px;
+        background: #f8fafc;
+    }
+
+    .module-form-container {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .back-link {
+        display: inline-flex;
+        margin-bottom: 20px;
+        color: #697386;
+        font-size: 12px;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .back-link:hover {
+        color: #0d6efd;
+    }
+
+    .page-eyebrow {
+        margin-bottom: 6px;
+        color: #7451d8;
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+    .page-title {
+        margin: 0 0 7px;
+        color: #172033;
+        font-size: 30px;
+        font-weight: 800;
+    }
+
+    .course-name {
+        margin-bottom: 24px;
+        color: #7a8494;
+        font-size: 13px;
+    }
+
+    .form-card {
+        overflow: hidden;
+        border: 1px solid #e1e7ee;
+        border-radius: 15px;
+        background: #ffffff;
+    }
+
+    .form-body {
+        padding: 25px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 7px;
+        color: #465164;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .form-control-edulearn {
+        width: 100%;
+        min-height: 44px;
+        padding: 10px 12px;
+        border: 1px solid #dce2ea;
+        border-radius: 9px;
+        background: #ffffff;
+        color: #273142;
+        font: inherit;
+        font-size: 13px;
+        outline: none;
+    }
+
+    .form-control-edulearn:focus {
+        border-color: #aa99ec;
+        box-shadow:
+            0 0 0 3px
+            rgba(116, 81, 216, .08);
+    }
+
+    textarea.form-control-edulearn {
+        min-height: 130px;
+        resize: vertical;
+    }
+
+    .field-validation-error {
+        display: block;
+        margin-top: 5px;
+        color: #dc3545;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 19px 25px;
+        border-top: 1px solid #edf0f4;
+        background: #fbfcfe;
+    }
+
+    .cancel-button,
+    .save-button {
+        min-height: 42px;
+        padding: 0 18px;
+        border-radius: 9px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+    .cancel-button {
+        border: 1px solid #dce2ea;
+        background: #ffffff;
+        color: #667085;
+    }
+
+    .save-button {
+        border: 1px solid #7451d8;
+        background: #7451d8;
+        color: #ffffff;
+        cursor: pointer;
+    }
+
+    .save-button:hover {
+        background: #6444c3;
+    }
+
+</style>
+
+
+<div class="module-form-page">
+
+    <div class="module-form-container">
+
+
+        <a asp-controller="InstructorCourses"
+           asp-action="Manage"
+           asp-route-id="@Model.CourseId"
+           class="back-link">
+
+            ← Quay lại quản lý nội dung
+
+        </a>
+
+
+        <div class="page-eyebrow">
+            Module
+        </div>
+
+
+        <h1 class="page-title">
+            Sửa module
+        </h1>
+
+
+        <div class="course-name">
+
+            Khóa học:
+            <strong>
+                @Model.CourseTitle
+            </strong>
+
+        </div>
+
+
+        <form asp-controller="InstructorCourses"
+              asp-action="EditModule"
+              method="post">
+
+
+            @Html.AntiForgeryToken()
+
+
+            <input asp-for="Id"
+                   type="hidden" />
+
+            <input asp-for="CourseId"
+                   type="hidden" />
+
+
+            <div asp-validation-summary="ModelOnly">
+            </div>
+
+
+            <div class="form-card">
+
+
+                <div class="form-body">
+
+
+                    <div class="form-group">
+
+                        <label asp-for="Title"
+                               class="form-label">
+
+                            Tên module
+
+                        </label>
+
+
+                        <input asp-for="Title"
+                               class="form-control-edulearn" />
+
+
+                        <span asp-validation-for="Title">
+                        </span>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label asp-for="Description"
+                               class="form-label">
+
+                            Mô tả
+
+                        </label>
+
+
+                        <textarea asp-for="Description"
+                                  class="form-control-edulearn"></textarea>
+
+
+                        <span asp-validation-for="Description">
+                        </span>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label asp-for="DisplayOrder"
+                               class="form-label">
+
+                            Thứ tự hiển thị
+
+                        </label>
+
+
+                        <input asp-for="DisplayOrder"
+                               type="number"
+                               min="1"
+                               class="form-control-edulearn" />
+
+
+                        <span asp-validation-for="DisplayOrder">
+                        </span>
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="form-actions">
+
+
+                    <a asp-controller="InstructorCourses"
+                       asp-action="Manage"
+                       asp-route-id="@Model.CourseId"
+                       class="cancel-button">
+
+                        Hủy
+
+                    </a>
+
+
+                    <button type="submit"
+                            class="save-button">
+
+                        Lưu thay đổi
+
+                    </button>
+
+
+                </div>
+
+
+            </div>
+
+
+        </form>
+
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+}

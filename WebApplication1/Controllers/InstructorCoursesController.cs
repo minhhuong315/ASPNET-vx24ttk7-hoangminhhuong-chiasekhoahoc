@@ -28,7 +28,7 @@ namespace OnlineLearningPlatform.Controllers
 
 
         // =========================================
-        // KHÓA HỌC ĐANG PHỤ TRÁCH
+        // DANH SÁCH KHÓA HỌC
         // =========================================
 
         [HttpGet]
@@ -36,7 +36,6 @@ namespace OnlineLearningPlatform.Controllers
         {
             var userId =
                 _userManager.GetUserId(User);
-
 
             if (string.IsNullOrWhiteSpace(userId))
             {
@@ -141,7 +140,7 @@ namespace OnlineLearningPlatform.Controllers
 
 
         // =========================================
-        // TẠO KHÓA HỌC - GET
+        // CREATE COURSE - GET
         // =========================================
 
         [HttpGet]
@@ -166,7 +165,7 @@ namespace OnlineLearningPlatform.Controllers
 
 
         // =========================================
-        // TẠO KHÓA HỌC - POST
+        // CREATE COURSE - POST
         // =========================================
 
         [HttpPost]
@@ -184,85 +183,26 @@ namespace OnlineLearningPlatform.Controllers
             }
 
 
-            // -------------------------------------
-            // KIỂM TRA LEVEL
-            // -------------------------------------
+            await ValidateCourseInputAsync(
+                model.CategoryId,
+                model.Level,
+                model.Price,
+                model.DiscountPrice);
 
-            string[] allowedLevels =
-            {
-                "Beginner",
-                "Intermediate",
-                "Advanced"
-            };
-
-
-            if (!allowedLevels.Contains(
-                model.Level))
-            {
-                ModelState.AddModelError(
-                    nameof(model.Level),
-                    "Cấp độ khóa học không hợp lệ.");
-            }
-
-
-            // -------------------------------------
-            // KIỂM TRA CATEGORY
-            // -------------------------------------
-
-            bool categoryExists =
-                await _context.Categories
-                    .AnyAsync(c =>
-                        c.Id == model.CategoryId);
-
-
-            if (!categoryExists)
-            {
-                ModelState.AddModelError(
-                    nameof(model.CategoryId),
-                    "Danh mục đã chọn không tồn tại.");
-            }
-
-
-            // -------------------------------------
-            // KIỂM TRA GIÁ KHUYẾN MÃI
-            // -------------------------------------
-
-            if (model.DiscountPrice.HasValue &&
-                model.DiscountPrice.Value > 0 &&
-                model.DiscountPrice.Value >= model.Price)
-            {
-                ModelState.AddModelError(
-                    nameof(model.DiscountPrice),
-                    "Giá khuyến mãi phải nhỏ hơn giá khóa học.");
-            }
-
-
-            // -------------------------------------
-            // VALIDATION KHÔNG THÀNH CÔNG
-            // -------------------------------------
 
             if (!ModelState.IsValid)
             {
                 model.Categories =
                     await GetCategoryOptionsAsync();
 
-
                 return View(model);
             }
 
-
-            // -------------------------------------
-            // SLUG DUY NHẤT
-            // -------------------------------------
 
             var slug =
                 await BuildUniqueSlugAsync(
                     model.Title);
 
-
-            // -------------------------------------
-            // TẠO COURSE
-            // -------------------------------------
 
             var course =
                 new Course
@@ -274,16 +214,12 @@ namespace OnlineLearningPlatform.Controllers
                         slug,
 
                     ShortDescription =
-                        string.IsNullOrWhiteSpace(
-                            model.ShortDescription)
-                            ? null
-                            : model.ShortDescription.Trim(),
+                        CleanNullable(
+                            model.ShortDescription),
 
                     Description =
-                        string.IsNullOrWhiteSpace(
-                            model.Description)
-                            ? null
-                            : model.Description.Trim(),
+                        CleanNullable(
+                            model.Description),
 
                     Price =
                         model.Price,
@@ -292,16 +228,12 @@ namespace OnlineLearningPlatform.Controllers
                         model.DiscountPrice,
 
                     ThumbnailUrl =
-                        string.IsNullOrWhiteSpace(
-                            model.ThumbnailUrl)
-                            ? null
-                            : model.ThumbnailUrl.Trim(),
+                        CleanNullable(
+                            model.ThumbnailUrl),
 
                     VideoPreviewUrl =
-                        string.IsNullOrWhiteSpace(
-                            model.VideoPreviewUrl)
-                            ? null
-                            : model.VideoPreviewUrl.Trim(),
+                        CleanNullable(
+                            model.VideoPreviewUrl),
 
                     Level =
                         model.Level,
@@ -347,7 +279,7 @@ namespace OnlineLearningPlatform.Controllers
 
 
             TempData["InstructorCourseSuccess"] =
-                "Khóa học đã được tạo và lưu ở trạng thái Bản nháp.";
+                "Khóa học đã được tạo thành công.";
 
 
             return RedirectToAction(
@@ -360,7 +292,180 @@ namespace OnlineLearningPlatform.Controllers
 
 
         // =========================================
-        // QUẢN LÝ NỘI DUNG MỘT KHÓA HỌC
+        // EDIT COURSE - GET
+        // =========================================
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(
+            int id)
+        {
+            var userId =
+                _userManager.GetUserId(User);
+
+
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Challenge();
+            }
+
+
+            var course =
+                await _context.Courses
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(c =>
+                        c.Id == id &&
+                        c.InstructorId == userId);
+
+
+            if (course == null)
+            {
+                return NotFound();
+            }
+
+
+            var model =
+                new InstructorCourseEditViewModel
+                {
+                    Id =
+                        course.Id,
+
+                    Title =
+                        course.Title,
+
+                    ShortDescription =
+                        course.ShortDescription,
+
+                    Description =
+                        course.Description,
+
+                    CategoryId =
+                        course.CategoryId,
+
+                    Level =
+                        course.Level,
+
+                    Price =
+                        course.Price,
+
+                    DiscountPrice =
+                        course.DiscountPrice,
+
+                    ThumbnailUrl =
+                        course.ThumbnailUrl,
+
+                    VideoPreviewUrl =
+                        course.VideoPreviewUrl,
+
+                    Categories =
+                        await GetCategoryOptionsAsync()
+                };
+
+
+            return View(model);
+        }
+
+
+        // =========================================
+        // EDIT COURSE - POST
+        // =========================================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(
+            InstructorCourseEditViewModel model)
+        {
+            var userId =
+                _userManager.GetUserId(User);
+
+
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Challenge();
+            }
+
+
+            var course =
+                await _context.Courses
+                    .FirstOrDefaultAsync(c =>
+                        c.Id == model.Id &&
+                        c.InstructorId == userId);
+
+
+            if (course == null)
+            {
+                return NotFound();
+            }
+
+
+            await ValidateCourseInputAsync(
+                model.CategoryId,
+                model.Level,
+                model.Price,
+                model.DiscountPrice);
+
+
+            if (!ModelState.IsValid)
+            {
+                model.Categories =
+                    await GetCategoryOptionsAsync();
+
+                return View(model);
+            }
+
+
+            course.Title =
+                model.Title.Trim();
+
+            course.ShortDescription =
+                CleanNullable(
+                    model.ShortDescription);
+
+            course.Description =
+                CleanNullable(
+                    model.Description);
+
+            course.CategoryId =
+                model.CategoryId;
+
+            course.Level =
+                model.Level;
+
+            course.Price =
+                model.Price;
+
+            course.DiscountPrice =
+                model.DiscountPrice;
+
+            course.ThumbnailUrl =
+                CleanNullable(
+                    model.ThumbnailUrl);
+
+            course.VideoPreviewUrl =
+                CleanNullable(
+                    model.VideoPreviewUrl);
+
+            course.UpdatedAt =
+                DateTime.UtcNow;
+
+
+            await _context.SaveChangesAsync();
+
+
+            TempData["InstructorCourseSuccess"] =
+                "Thông tin khóa học đã được cập nhật.";
+
+
+            return RedirectToAction(
+                nameof(Manage),
+                new
+                {
+                    id = course.Id
+                });
+        }
+
+
+        // =========================================
+        // MANAGE COURSE
         // =========================================
 
         [HttpGet]
@@ -406,7 +511,711 @@ namespace OnlineLearningPlatform.Controllers
 
 
         // =========================================
-        // CATEGORY OPTIONS
+        // CREATE MODULE - GET
+        // =========================================
+
+        [HttpGet]
+        public async Task<IActionResult> CreateModule(
+            int courseId)
+        {
+            var userId =
+                _userManager.GetUserId(User);
+
+
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Challenge();
+            }
+
+
+            var course =
+                await _context.Courses
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(c =>
+                        c.Id == courseId &&
+                        c.InstructorId == userId);
+
+
+            if (course == null)
+            {
+                return NotFound();
+            }
+
+
+            var model =
+                new InstructorModuleCreateViewModel
+                {
+                    CourseId =
+                        course.Id,
+
+                    CourseTitle =
+                        course.Title
+                };
+
+
+            return View(model);
+        }
+
+
+        // =========================================
+        // CREATE MODULE - POST
+        // =========================================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateModule(
+            InstructorModuleCreateViewModel model)
+        {
+            var userId =
+                _userManager.GetUserId(User);
+
+
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Challenge();
+            }
+
+
+            var course =
+                await _context.Courses
+                    .FirstOrDefaultAsync(c =>
+                        c.Id == model.CourseId &&
+                        c.InstructorId == userId);
+
+
+            if (course == null)
+            {
+                return NotFound();
+            }
+
+
+            model.CourseTitle =
+                course.Title;
+
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+
+            int currentMaxOrder =
+                await _context.Modules
+                    .Where(m =>
+                        m.CourseId == course.Id)
+                    .Select(m =>
+                        (int?)m.DisplayOrder)
+                    .MaxAsync()
+                ?? 0;
+
+
+            var module =
+                new Module
+                {
+                    CourseId =
+                        course.Id,
+
+                    Title =
+                        model.Title.Trim(),
+
+                    Description =
+                        CleanNullable(
+                            model.Description),
+
+                    DisplayOrder =
+                        currentMaxOrder + 1,
+
+                    CreatedAt =
+                        DateTime.UtcNow
+                };
+
+
+            _context.Modules.Add(module);
+
+            course.UpdatedAt =
+                DateTime.UtcNow;
+
+
+            await _context.SaveChangesAsync();
+
+
+            TempData["InstructorCourseSuccess"] =
+                "Module mới đã được thêm vào khóa học.";
+
+
+            return RedirectToAction(
+                nameof(Manage),
+                new
+                {
+                    id = course.Id
+                });
+        }
+
+
+        // =========================================
+        // EDIT MODULE - GET
+        // =========================================
+
+        [HttpGet]
+        public async Task<IActionResult> EditModule(
+            int id)
+        {
+            var userId =
+                _userManager.GetUserId(User);
+
+
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Challenge();
+            }
+
+
+            var module =
+                await _context.Modules
+                    .AsNoTracking()
+                    .Include(m =>
+                        m.Course)
+                    .FirstOrDefaultAsync(m =>
+                        m.Id == id &&
+                        m.Course.InstructorId == userId);
+
+
+            if (module == null)
+            {
+                return NotFound();
+            }
+
+
+            var model =
+                new InstructorModuleEditViewModel
+                {
+                    Id =
+                        module.Id,
+
+                    CourseId =
+                        module.CourseId,
+
+                    CourseTitle =
+                        module.Course.Title,
+
+                    Title =
+                        module.Title,
+
+                    Description =
+                        module.Description,
+
+                    DisplayOrder =
+                        module.DisplayOrder
+                };
+
+
+            return View(model);
+        }
+
+
+        // =========================================
+        // EDIT MODULE - POST
+        // =========================================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditModule(
+            InstructorModuleEditViewModel model)
+        {
+            var userId =
+                _userManager.GetUserId(User);
+
+
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Challenge();
+            }
+
+
+            var module =
+                await _context.Modules
+                    .Include(m =>
+                        m.Course)
+                    .FirstOrDefaultAsync(m =>
+                        m.Id == model.Id &&
+                        m.CourseId == model.CourseId &&
+                        m.Course.InstructorId == userId);
+
+
+            if (module == null)
+            {
+                return NotFound();
+            }
+
+
+            model.CourseTitle =
+                module.Course.Title;
+
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+
+            module.Title =
+                model.Title.Trim();
+
+            module.Description =
+                CleanNullable(
+                    model.Description);
+
+            module.DisplayOrder =
+                model.DisplayOrder;
+
+            module.Course.UpdatedAt =
+                DateTime.UtcNow;
+
+
+            await _context.SaveChangesAsync();
+
+
+            TempData["InstructorCourseSuccess"] =
+                "Module đã được cập nhật.";
+
+
+            return RedirectToAction(
+                nameof(Manage),
+                new
+                {
+                    id = module.CourseId
+                });
+        }
+
+
+        // =========================================
+        // CREATE LESSON - GET
+        // =========================================
+
+        [HttpGet]
+        public async Task<IActionResult> CreateLesson(
+            int moduleId)
+        {
+            var userId =
+                _userManager.GetUserId(User);
+
+
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Challenge();
+            }
+
+
+            var module =
+                await _context.Modules
+                    .AsNoTracking()
+                    .Include(m =>
+                        m.Course)
+                    .FirstOrDefaultAsync(m =>
+                        m.Id == moduleId &&
+                        m.Course.InstructorId == userId);
+
+
+            if (module == null)
+            {
+                return NotFound();
+            }
+
+
+            var model =
+                new InstructorLessonCreateViewModel
+                {
+                    ModuleId =
+                        module.Id,
+
+                    CourseId =
+                        module.CourseId,
+
+                    CourseTitle =
+                        module.Course.Title,
+
+                    ModuleTitle =
+                        module.Title,
+
+                    Duration =
+                        0,
+
+                    IsFree =
+                        false
+                };
+
+
+            return View(model);
+        }
+
+
+        // =========================================
+        // CREATE LESSON - POST
+        // =========================================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateLesson(
+            InstructorLessonCreateViewModel model)
+        {
+            var userId =
+                _userManager.GetUserId(User);
+
+
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Challenge();
+            }
+
+
+            var module =
+                await _context.Modules
+                    .Include(m =>
+                        m.Course)
+                    .FirstOrDefaultAsync(m =>
+                        m.Id == model.ModuleId &&
+                        m.Course.InstructorId == userId);
+
+
+            if (module == null)
+            {
+                return NotFound();
+            }
+
+
+            model.CourseId =
+                module.CourseId;
+
+            model.CourseTitle =
+                module.Course.Title;
+
+            model.ModuleTitle =
+                module.Title;
+
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+
+            int currentMaxOrder =
+                await _context.Lessons
+                    .Where(l =>
+                        l.ModuleId == module.Id)
+                    .Select(l =>
+                        (int?)l.DisplayOrder)
+                    .MaxAsync()
+                ?? 0;
+
+
+            var lesson =
+                new Lesson
+                {
+                    ModuleId =
+                        module.Id,
+
+                    Title =
+                        model.Title.Trim(),
+
+                    Content =
+                        CleanNullable(
+                            model.Content),
+
+                    VideoUrl =
+                        CleanNullable(
+                            model.VideoUrl),
+
+                    Duration =
+                        model.Duration,
+
+                    DisplayOrder =
+                        currentMaxOrder + 1,
+
+                    IsFree =
+                        model.IsFree,
+
+                    CreatedAt =
+                        DateTime.UtcNow
+                };
+
+
+            _context.Lessons.Add(lesson);
+
+
+            await _context.SaveChangesAsync();
+
+
+            await RecalculateCourseDurationAsync(
+                module.Course);
+
+
+            TempData["InstructorCourseSuccess"] =
+                "Bài học mới đã được thêm vào module.";
+
+
+            return RedirectToAction(
+                nameof(Manage),
+                new
+                {
+                    id = module.CourseId
+                });
+        }
+
+
+        // =========================================
+        // EDIT LESSON - GET
+        // =========================================
+
+        [HttpGet]
+        public async Task<IActionResult> EditLesson(
+            int id)
+        {
+            var userId =
+                _userManager.GetUserId(User);
+
+
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Challenge();
+            }
+
+
+            var lesson =
+                await _context.Lessons
+                    .AsNoTracking()
+                    .Include(l =>
+                        l.Module)
+                        .ThenInclude(m =>
+                            m.Course)
+                    .FirstOrDefaultAsync(l =>
+                        l.Id == id &&
+                        l.Module.Course.InstructorId == userId);
+
+
+            if (lesson == null)
+            {
+                return NotFound();
+            }
+
+
+            var model =
+                new InstructorLessonEditViewModel
+                {
+                    Id =
+                        lesson.Id,
+
+                    ModuleId =
+                        lesson.ModuleId,
+
+                    CourseId =
+                        lesson.Module.CourseId,
+
+                    CourseTitle =
+                        lesson.Module.Course.Title,
+
+                    ModuleTitle =
+                        lesson.Module.Title,
+
+                    Title =
+                        lesson.Title,
+
+                    Content =
+                        lesson.Content,
+
+                    VideoUrl =
+                        lesson.VideoUrl,
+
+                    Duration =
+                        lesson.Duration,
+
+                    DisplayOrder =
+                        lesson.DisplayOrder,
+
+                    IsFree =
+                        lesson.IsFree
+                };
+
+
+            return View(model);
+        }
+
+
+        // =========================================
+        // EDIT LESSON - POST
+        // =========================================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditLesson(
+            InstructorLessonEditViewModel model)
+        {
+            var userId =
+                _userManager.GetUserId(User);
+
+
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Challenge();
+            }
+
+
+            var lesson =
+                await _context.Lessons
+                    .Include(l =>
+                        l.Module)
+                        .ThenInclude(m =>
+                            m.Course)
+                    .FirstOrDefaultAsync(l =>
+                        l.Id == model.Id &&
+                        l.ModuleId == model.ModuleId &&
+                        l.Module.Course.InstructorId == userId);
+
+
+            if (lesson == null)
+            {
+                return NotFound();
+            }
+
+
+            model.CourseId =
+                lesson.Module.CourseId;
+
+            model.CourseTitle =
+                lesson.Module.Course.Title;
+
+            model.ModuleTitle =
+                lesson.Module.Title;
+
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+
+            lesson.Title =
+                model.Title.Trim();
+
+            lesson.Content =
+                CleanNullable(
+                    model.Content);
+
+            lesson.VideoUrl =
+                CleanNullable(
+                    model.VideoUrl);
+
+            lesson.Duration =
+                model.Duration;
+
+            lesson.DisplayOrder =
+                model.DisplayOrder;
+
+            lesson.IsFree =
+                model.IsFree;
+
+
+            await _context.SaveChangesAsync();
+
+
+            await RecalculateCourseDurationAsync(
+                lesson.Module.Course);
+
+
+            TempData["InstructorCourseSuccess"] =
+                "Bài học đã được cập nhật.";
+
+
+            return RedirectToAction(
+                nameof(Manage),
+                new
+                {
+                    id = lesson.Module.CourseId
+                });
+        }
+
+
+        // =========================================
+        // TÍNH LẠI THỜI LƯỢNG KHÓA HỌC
+        // =========================================
+
+        private async Task RecalculateCourseDurationAsync(
+            Course course)
+        {
+            int totalDuration =
+                await _context.Lessons
+                    .Where(l =>
+                        l.Module.CourseId == course.Id)
+                    .Select(l =>
+                        (int?)l.Duration)
+                    .SumAsync()
+                ?? 0;
+
+
+            course.Duration =
+                totalDuration;
+
+            course.UpdatedAt =
+                DateTime.UtcNow;
+
+
+            await _context.SaveChangesAsync();
+        }
+
+
+        // =========================================
+        // COURSE VALIDATION
+        // =========================================
+
+        private async Task ValidateCourseInputAsync(
+            int categoryId,
+            string level,
+            decimal price,
+            decimal? discountPrice)
+        {
+            string[] allowedLevels =
+            {
+                "Beginner",
+                "Intermediate",
+                "Advanced"
+            };
+
+
+            if (!allowedLevels.Contains(level))
+            {
+                ModelState.AddModelError(
+                    "Level",
+                    "Cấp độ khóa học không hợp lệ.");
+            }
+
+
+            bool categoryExists =
+                await _context.Categories
+                    .AnyAsync(c =>
+                        c.Id == categoryId);
+
+
+            if (!categoryExists)
+            {
+                ModelState.AddModelError(
+                    "CategoryId",
+                    "Danh mục đã chọn không tồn tại.");
+            }
+
+
+            if (discountPrice.HasValue &&
+                discountPrice.Value > 0 &&
+                discountPrice.Value >= price)
+            {
+                ModelState.AddModelError(
+                    "DiscountPrice",
+                    "Giá khuyến mãi phải nhỏ hơn giá gốc.");
+            }
+        }
+
+
+        // =========================================
+        // CATEGORY
         // =========================================
 
         private async Task<
@@ -433,7 +1242,20 @@ namespace OnlineLearningPlatform.Controllers
 
 
         // =========================================
-        // SLUG DUY NHẤT
+        // CLEAN STRING
+        // =========================================
+
+        private static string? CleanNullable(
+            string? value)
+        {
+            return string.IsNullOrWhiteSpace(value)
+                ? null
+                : value.Trim();
+        }
+
+
+        // =========================================
+        // UNIQUE SLUG
         // =========================================
 
         private async Task<string> BuildUniqueSlugAsync(
@@ -473,7 +1295,7 @@ namespace OnlineLearningPlatform.Controllers
 
 
         // =========================================
-        // TẠO SLUG TIẾNG VIỆT
+        // GENERATE SLUG
         // =========================================
 
         private static string GenerateSlug(
@@ -502,13 +1324,13 @@ namespace OnlineLearningPlatform.Controllers
 
             foreach (char character in normalized)
             {
-                var unicodeCategory =
+                var category =
                     CharUnicodeInfo
                         .GetUnicodeCategory(
                             character);
 
 
-                if (unicodeCategory !=
+                if (category !=
                     UnicodeCategory.NonSpacingMark)
                 {
                     builder.Append(character);
