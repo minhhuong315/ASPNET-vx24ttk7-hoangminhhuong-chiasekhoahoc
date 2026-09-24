@@ -20,93 +20,266 @@ namespace OnlineLearningPlatform.Controllers
             _userManager = userManager;
         }
 
-        // =========================
+        // =====================================================
         // DANH SÁCH KHÓA HỌC
-        // =========================
+        // =====================================================
+
         public async Task<IActionResult> Index(
             string? search,
-            int? categoryId)
+            int? categoryId,
+            string? level)
         {
-            var coursesQuery = _context.Courses
-                .Include(c => c.Category)
-                .Include(c => c.Instructor)
-                .Where(c => c.IsPublished)
-                .AsQueryable();
+            // =====================================
+            // 1. CHUẨN HÓA TỪ KHÓA TÌM KIẾM
+            // =====================================
+
+            search = search?.Trim();
+
+
+            // =====================================
+            // 2. CHUẨN HÓA CẤP ĐỘ
+            //
+            // URL:
+            // beginner
+            // intermediate
+            // advanced
+            //
+            // DATABASE:
+            // Beginner
+            // Intermediate
+            // Advanced
+            // =====================================
+
+            string? normalizedLevel = null;
+
+
+            if (!string.IsNullOrWhiteSpace(level))
+            {
+                switch (level.Trim().ToLower())
+                {
+                    case "beginner":
+                        normalizedLevel = "Beginner";
+                        break;
+
+                    case "intermediate":
+                        normalizedLevel = "Intermediate";
+                        break;
+
+                    case "advanced":
+                        normalizedLevel = "Advanced";
+                        break;
+                }
+            }
+
+
+            // =====================================
+            // 3. QUERY KHÓA HỌC
+            // =====================================
+
+            var coursesQuery =
+                _context.Courses
+                    .AsNoTracking()
+                    .Include(c => c.Category)
+                    .Include(c => c.Instructor)
+                    .Where(c => c.IsPublished)
+                    .AsQueryable();
+
+
+            // =====================================
+            // 4. TÌM KIẾM
+            // =====================================
 
             if (!string.IsNullOrWhiteSpace(search))
             {
-                search = search.Trim();
-
-                coursesQuery = coursesQuery.Where(c =>
-                    c.Title.Contains(search) ||
-                    (c.ShortDescription != null &&
-                     c.ShortDescription.Contains(search)));
+                coursesQuery =
+                    coursesQuery.Where(c =>
+                        c.Title.Contains(search) ||
+                        (
+                            c.ShortDescription != null &&
+                            c.ShortDescription.Contains(search)
+                        ));
             }
+
+
+            // =====================================
+            // 5. LỌC DANH MỤC
+            // =====================================
 
             if (categoryId.HasValue)
             {
-                coursesQuery = coursesQuery.Where(c =>
-                    c.CategoryId == categoryId.Value);
+                coursesQuery =
+                    coursesQuery.Where(c =>
+                        c.CategoryId ==
+                        categoryId.Value);
             }
 
-            var courses = await coursesQuery
-                .OrderByDescending(c => c.IsFeatured)
-                .ThenByDescending(c => c.PublishedAt)
-                .ToListAsync();
 
-            ViewBag.Categories = await _context.Categories
-                .Where(c => c.IsActive)
-                .OrderBy(c => c.DisplayOrder)
-                .ToListAsync();
+            // =====================================
+            // 6. LỌC CẤP ĐỘ
+            // =====================================
 
-            ViewBag.Search = search;
-            ViewBag.CategoryId = categoryId;
+            if (!string.IsNullOrWhiteSpace(
+                normalizedLevel))
+            {
+                coursesQuery =
+                    coursesQuery.Where(c =>
+                        c.Level ==
+                        normalizedLevel);
+            }
+
+
+            // =====================================
+            // 7. DANH SÁCH KHÓA HỌC
+            // =====================================
+
+            var courses =
+                await coursesQuery
+                    .OrderByDescending(c =>
+                        c.IsFeatured)
+                    .ThenByDescending(c =>
+                        c.PublishedAt)
+                    .ThenBy(c =>
+                        c.Title)
+                    .ToListAsync();
+
+
+            // =====================================
+            // 8. DANH MỤC
+            // =====================================
+
+            ViewBag.Categories =
+                await _context.Categories
+                    .AsNoTracking()
+                    .Where(c => c.IsActive)
+                    .OrderBy(c =>
+                        c.DisplayOrder)
+                    .ThenBy(c =>
+                        c.Name)
+                    .ToListAsync();
+
+
+            // =====================================
+            // 9. GIỮ TRẠNG THÁI FILTER
+            // =====================================
+
+            ViewBag.Search =
+                search;
+
+            ViewBag.CategoryId =
+                categoryId;
+
+            ViewBag.Level =
+                level?.Trim().ToLower();
+
+            ViewBag.NormalizedLevel =
+                normalizedLevel;
+
+
+            // =====================================
+            // 10. TIÊU ĐỀ THEO CẤP ĐỘ
+            // =====================================
+
+            ViewBag.PageTitle =
+                normalizedLevel switch
+                {
+                    "Beginner" =>
+                        "Khóa học cơ bản",
+
+                    "Intermediate" =>
+                        "Khóa học trung cấp",
+
+                    "Advanced" =>
+                        "Khóa học nâng cao",
+
+                    _ =>
+                        "Tất cả khóa học"
+                };
+
+
+            ViewBag.PageDescription =
+                normalizedLevel switch
+                {
+                    "Beginner" =>
+                        "Các khóa học dành cho người mới bắt đầu và xây dựng kiến thức nền tảng.",
+
+                    "Intermediate" =>
+                        "Các khóa học dành cho người đã có kiến thức nền tảng và muốn phát triển kỹ năng.",
+
+                    "Advanced" =>
+                        "Các khóa học chuyên sâu dành cho người muốn nâng cao kiến thức và kỹ năng.",
+
+                    _ =>
+                        "Khám phá các khóa học Công nghệ thông tin trên EduLearn."
+                };
+
 
             return View(courses);
         }
 
-        // =========================
+
+        // =====================================================
         // CHI TIẾT KHÓA HỌC
-        // =========================
-        public async Task<IActionResult> Details(string slug)
+        // =====================================================
+
+        public async Task<IActionResult> Details(
+            string slug)
         {
             if (string.IsNullOrWhiteSpace(slug))
             {
                 return NotFound();
             }
 
-            var course = await _context.Courses
-                .Include(c => c.Category)
-                .Include(c => c.Instructor)
-                .Include(c => c.Modules
-                    .OrderBy(m => m.DisplayOrder))
-                    .ThenInclude(m => m.Lessons
-                        .OrderBy(l => l.DisplayOrder))
-                .Include(c => c.Reviews
-                    .Where(r => r.IsApproved))
-                    .ThenInclude(r => r.User)
-                .FirstOrDefaultAsync(c =>
-                    c.Slug == slug &&
-                    c.IsPublished);
+
+            var course =
+                await _context.Courses
+                    .Include(c => c.Category)
+                    .Include(c => c.Instructor)
+                    .Include(c => c.Modules
+                        .OrderBy(m =>
+                            m.DisplayOrder))
+                        .ThenInclude(m =>
+                            m.Lessons
+                                .OrderBy(l =>
+                                    l.DisplayOrder))
+                    .Include(c => c.Reviews
+                        .Where(r =>
+                            r.IsApproved))
+                        .ThenInclude(r =>
+                            r.User)
+                    .FirstOrDefaultAsync(c =>
+                        c.Slug == slug &&
+                        c.IsPublished);
+
 
             if (course == null)
             {
                 return NotFound();
             }
 
-            ViewBag.IsEnrolled = false;
-            ViewBag.EnrollmentProgress = 0m;
+
+            ViewBag.IsEnrolled =
+                false;
+
+            ViewBag.EnrollmentProgress =
+                0m;
+
 
             if (User.Identity?.IsAuthenticated == true)
             {
-                var userId = _userManager.GetUserId(User);
+                var userId =
+                    _userManager.GetUserId(User);
+
 
                 if (!string.IsNullOrWhiteSpace(userId))
                 {
-                    var enrollment = await _context.Enrollments
-                        .FirstOrDefaultAsync(e =>
-                            e.UserId == userId &&
-                            e.CourseId == course.Id);
+                    var enrollment =
+                        await _context.Enrollments
+                            .FirstOrDefaultAsync(e =>
+                                e.UserId ==
+                                userId &&
+                                e.CourseId ==
+                                course.Id);
+
 
                     if (enrollment != null)
                     {
@@ -116,104 +289,161 @@ namespace OnlineLearningPlatform.Controllers
                                 course.Id,
                                 enrollment);
 
-                        ViewBag.IsEnrolled = true;
-                        ViewBag.EnrollmentProgress = progress;
+
+                        ViewBag.IsEnrolled =
+                            true;
+
+                        ViewBag.EnrollmentProgress =
+                            progress;
                     }
                 }
             }
 
+
             course.ViewCount++;
 
+
             await _context.SaveChangesAsync();
+
 
             return View(course);
         }
 
-        // =========================
+
+        // =====================================================
         // ĐĂNG KÝ KHÓA HỌC
-        // =========================
+        // =====================================================
+
         [HttpPost]
         [Authorize(Roles = "Student")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Enroll(int courseId)
+        public async Task<IActionResult> Enroll(
+            int courseId)
         {
-            var userId = _userManager.GetUserId(User);
+            var userId =
+                _userManager.GetUserId(User);
+
 
             if (string.IsNullOrWhiteSpace(userId))
             {
                 return Challenge();
             }
 
-            var course = await _context.Courses
-                .FirstOrDefaultAsync(c =>
-                    c.Id == courseId &&
-                    c.IsPublished);
+
+            var course =
+                await _context.Courses
+                    .FirstOrDefaultAsync(c =>
+                        c.Id == courseId &&
+                        c.IsPublished);
+
 
             if (course == null)
             {
                 return NotFound();
             }
 
+
             var alreadyEnrolled =
-                await _context.Enrollments.AnyAsync(e =>
-                    e.UserId == userId &&
-                    e.CourseId == courseId);
+                await _context.Enrollments
+                    .AnyAsync(e =>
+                        e.UserId ==
+                        userId &&
+                        e.CourseId ==
+                        courseId);
+
 
             if (alreadyEnrolled)
             {
                 TempData["InfoMessage"] =
                     "Bạn đã đăng ký khóa học này.";
 
+
                 return RedirectToAction(
                     "Details",
-                    new { slug = course.Slug });
+                    new
+                    {
+                        slug =
+                            course.Slug
+                    });
             }
 
-            var enrollment = new Enrollment
-            {
-                UserId = userId,
-                CourseId = courseId,
-                EnrolledAt = DateTime.UtcNow,
-                Progress = 0,
-                LastAccessedAt = DateTime.UtcNow
-            };
 
-            _context.Enrollments.Add(enrollment);
+            var enrollment =
+                new Enrollment
+                {
+                    UserId =
+                        userId,
+
+                    CourseId =
+                        courseId,
+
+                    EnrolledAt =
+                        DateTime.UtcNow,
+
+                    Progress =
+                        0,
+
+                    LastAccessedAt =
+                        DateTime.UtcNow
+                };
+
+
+            _context.Enrollments.Add(
+                enrollment);
+
 
             course.EnrollmentCount++;
 
+
             await _context.SaveChangesAsync();
+
 
             TempData["SuccessMessage"] =
                 "Đăng ký khóa học thành công!";
 
+
             return RedirectToAction(
                 "Details",
-                new { slug = course.Slug });
+                new
+                {
+                    slug =
+                        course.Slug
+                });
         }
 
-        // =========================
+
+        // =====================================================
         // KHÓA HỌC CỦA TÔI
-        // =========================
+        // =====================================================
+
         [Authorize(Roles = "Student")]
         public async Task<IActionResult> MyCourses()
         {
-            var userId = _userManager.GetUserId(User);
+            var userId =
+                _userManager.GetUserId(User);
+
 
             if (string.IsNullOrWhiteSpace(userId))
             {
                 return Challenge();
             }
 
-            var enrollments = await _context.Enrollments
-                .Where(e => e.UserId == userId)
-                .Include(e => e.Course)
-                    .ThenInclude(c => c.Category)
-                .Include(e => e.Course)
-                    .ThenInclude(c => c.Instructor)
-                .OrderByDescending(e =>
-                    e.LastAccessedAt ?? e.EnrolledAt)
-                .ToListAsync();
+
+            var enrollments =
+                await _context.Enrollments
+                    .Where(e =>
+                        e.UserId == userId)
+                    .Include(e => e.Course)
+                        .ThenInclude(c =>
+                            c.Category)
+                    .Include(e => e.Course)
+                        .ThenInclude(c =>
+                            c.Instructor)
+                    .OrderByDescending(e =>
+                        e.LastAccessedAt ??
+                        e.EnrolledAt)
+                    .ToListAsync();
+
 
             foreach (var enrollment in enrollments)
             {
@@ -223,96 +453,124 @@ namespace OnlineLearningPlatform.Controllers
                     enrollment);
             }
 
+
             await _context.SaveChangesAsync();
+
 
             return View(enrollments);
         }
 
-        // =========================
+
+        // =====================================================
         // TRANG HỌC
-        // =========================
+        // =====================================================
+
         [Authorize(Roles = "Student")]
         public async Task<IActionResult> Learn(
             int courseId,
             int? lessonId)
         {
-            var userId = _userManager.GetUserId(User);
+            var userId =
+                _userManager.GetUserId(User);
+
 
             if (string.IsNullOrWhiteSpace(userId))
             {
                 return Challenge();
             }
 
-            var enrollment = await _context.Enrollments
-                .FirstOrDefaultAsync(e =>
-                    e.UserId == userId &&
-                    e.CourseId == courseId);
+
+            var enrollment =
+                await _context.Enrollments
+                    .FirstOrDefaultAsync(e =>
+                        e.UserId == userId &&
+                        e.CourseId == courseId);
+
 
             if (enrollment == null)
             {
                 return Forbid();
             }
 
-            var course = await _context.Courses
-                .Include(c => c.Category)
-                .Include(c => c.Instructor)
-                .Include(c => c.Modules
-                    .OrderBy(m => m.DisplayOrder))
-                    .ThenInclude(m => m.Lessons
-                        .OrderBy(l => l.DisplayOrder))
-                .FirstOrDefaultAsync(c =>
-                    c.Id == courseId &&
-                    c.IsPublished);
+
+            var course =
+                await _context.Courses
+                    .Include(c => c.Category)
+                    .Include(c => c.Instructor)
+                    .Include(c => c.Modules
+                        .OrderBy(m =>
+                            m.DisplayOrder))
+                        .ThenInclude(m =>
+                            m.Lessons
+                                .OrderBy(l =>
+                                    l.DisplayOrder))
+                    .FirstOrDefaultAsync(c =>
+                        c.Id == courseId &&
+                        c.IsPublished);
+
 
             if (course == null)
             {
                 return NotFound();
             }
 
-            var lessons = GetOrderedLessons(course);
+
+            var lessons =
+                GetOrderedLessons(
+                    course);
+
 
             if (!lessons.Any())
             {
                 TempData["InfoMessage"] =
                     "Khóa học chưa có bài học.";
 
+
                 return RedirectToAction(
                     "Details",
-                    new { slug = course.Slug });
+                    new
+                    {
+                        slug =
+                            course.Slug
+                    });
             }
 
-            var lessonIds = lessons
-                .Select(l => l.Id)
-                .ToList();
+
+            var lessonIds =
+                lessons
+                    .Select(l => l.Id)
+                    .ToList();
+
 
             var completedLessonIds =
                 await _context.LessonProgresses
                     .Where(p =>
                         p.UserId == userId &&
-                        lessonIds.Contains(p.LessonId) &&
+                        lessonIds.Contains(
+                            p.LessonId) &&
                         p.IsCompleted)
-                    .Select(p => p.LessonId)
+                    .Select(p =>
+                        p.LessonId)
                     .ToListAsync();
 
-            /*
-             * QUY TẮC MỞ KHÓA:
-             *
-             * - Các bài đã hoàn thành luôn được mở.
-             * - Chỉ bài CHƯA HOÀN THÀNH đầu tiên được mở.
-             * - Các bài phía sau bị khóa.
-             */
 
             var firstIncompleteIndex =
                 lessons.FindIndex(l =>
-                    !completedLessonIds.Contains(l.Id));
+                    !completedLessonIds.Contains(
+                        l.Id));
+
 
             var unlockedLessonIds =
-                new List<int>(completedLessonIds);
+                new List<int>(
+                    completedLessonIds);
+
 
             if (firstIncompleteIndex >= 0)
             {
                 var nextAvailableLesson =
-                    lessons[firstIncompleteIndex];
+                    lessons[
+                        firstIncompleteIndex];
+
 
                 if (!unlockedLessonIds.Contains(
                     nextAvailableLesson.Id))
@@ -322,47 +580,50 @@ namespace OnlineLearningPlatform.Controllers
                 }
             }
 
+
             Lesson currentLesson;
 
-            // Không truyền lessonId:
-            // mở bài tiếp theo cần học.
+
             if (!lessonId.HasValue)
             {
                 if (firstIncompleteIndex >= 0)
                 {
                     currentLesson =
-                        lessons[firstIncompleteIndex];
+                        lessons[
+                            firstIncompleteIndex];
                 }
                 else
                 {
-                    // Đã hoàn thành toàn bộ:
-                    // mở lại bài đầu tiên.
-                    currentLesson = lessons.First();
+                    currentLesson =
+                        lessons.First();
                 }
             }
             else
             {
                 var requestedLesson =
                     lessons.FirstOrDefault(l =>
-                        l.Id == lessonId.Value);
+                        l.Id ==
+                        lessonId.Value);
 
-                // Lesson không thuộc khóa học.
+
                 if (requestedLesson == null)
                 {
                     return NotFound();
                 }
 
-                // Lesson chưa được mở khóa.
+
                 if (!unlockedLessonIds.Contains(
                     requestedLesson.Id))
                 {
                     TempData["LearningInfoMessage"] =
                         "Hãy hoàn thành bài học trước để mở khóa bài này.";
 
+
                     if (firstIncompleteIndex >= 0)
                     {
                         currentLesson =
-                            lessons[firstIncompleteIndex];
+                            lessons[
+                                firstIncompleteIndex];
                     }
                     else
                     {
@@ -377,16 +638,20 @@ namespace OnlineLearningPlatform.Controllers
                 }
             }
 
+
             var progress =
                 await RecalculateEnrollmentProgressAsync(
                     userId,
                     courseId,
                     enrollment);
 
+
             enrollment.LastAccessedAt =
                 DateTime.UtcNow;
 
+
             await _context.SaveChangesAsync();
+
 
             ViewBag.CurrentLesson =
                 currentLesson;
@@ -400,12 +665,15 @@ namespace OnlineLearningPlatform.Controllers
             ViewBag.EnrollmentProgress =
                 progress;
 
+
             return View(course);
         }
 
-        // =========================
+
+        // =====================================================
         // HOÀN THÀNH BÀI HỌC
-        // =========================
+        // =====================================================
+
         [HttpPost]
         [Authorize(Roles = "Student")]
         [ValidateAntiForgeryToken]
@@ -415,23 +683,29 @@ namespace OnlineLearningPlatform.Controllers
             var userId =
                 _userManager.GetUserId(User);
 
+
             if (string.IsNullOrWhiteSpace(userId))
             {
                 return Challenge();
             }
 
-            var lesson = await _context.Lessons
-                .Include(l => l.Module)
-                .FirstOrDefaultAsync(l =>
-                    l.Id == lessonId);
+
+            var lesson =
+                await _context.Lessons
+                    .Include(l => l.Module)
+                    .FirstOrDefaultAsync(l =>
+                        l.Id == lessonId);
+
 
             if (lesson == null)
             {
                 return NotFound();
             }
 
+
             var courseId =
                 lesson.Module.CourseId;
+
 
             var enrollment =
                 await _context.Enrollments
@@ -439,62 +713,83 @@ namespace OnlineLearningPlatform.Controllers
                         e.UserId == userId &&
                         e.CourseId == courseId);
 
+
             if (enrollment == null)
             {
                 return Forbid();
             }
 
-            var course = await _context.Courses
-                .Include(c => c.Modules
-                    .OrderBy(m => m.DisplayOrder))
-                    .ThenInclude(m => m.Lessons
-                        .OrderBy(l => l.DisplayOrder))
-                .FirstOrDefaultAsync(c =>
-                    c.Id == courseId);
+
+            var course =
+                await _context.Courses
+                    .Include(c => c.Modules
+                        .OrderBy(m =>
+                            m.DisplayOrder))
+                        .ThenInclude(m =>
+                            m.Lessons
+                                .OrderBy(l =>
+                                    l.DisplayOrder))
+                    .FirstOrDefaultAsync(c =>
+                        c.Id ==
+                        courseId);
+
 
             if (course == null)
             {
                 return NotFound();
             }
 
+
             var lessons =
-                GetOrderedLessons(course);
+                GetOrderedLessons(
+                    course);
+
 
             var lessonIds =
-                lessons.Select(l => l.Id).ToList();
+                lessons
+                    .Select(l => l.Id)
+                    .ToList();
+
 
             var completedLessonIds =
                 await _context.LessonProgresses
                     .Where(p =>
                         p.UserId == userId &&
-                        lessonIds.Contains(p.LessonId) &&
+                        lessonIds.Contains(
+                            p.LessonId) &&
                         p.IsCompleted)
-                    .Select(p => p.LessonId)
+                    .Select(p =>
+                        p.LessonId)
                     .ToListAsync();
+
 
             var targetIndex =
                 lessons.FindIndex(l =>
                     l.Id == lessonId);
+
 
             if (targetIndex < 0)
             {
                 return NotFound();
             }
 
+
             var firstIncompleteIndex =
                 lessons.FindIndex(l =>
-                    !completedLessonIds.Contains(l.Id));
+                    !completedLessonIds.Contains(
+                        l.Id));
 
-            /*
-             * Nếu bài chưa hoàn thành thì nó chỉ
-             * được phép là bài chưa hoàn thành đầu tiên.
-             */
+
             var lessonAlreadyCompleted =
-                completedLessonIds.Contains(lessonId);
+                completedLessonIds.Contains(
+                    lessonId);
+
 
             var lessonIsCurrentUnlockedLesson =
                 firstIncompleteIndex >= 0 &&
-                targetIndex == firstIncompleteIndex;
+                targetIndex ==
+                firstIncompleteIndex;
+
 
             if (!lessonAlreadyCompleted &&
                 !lessonIsCurrentUnlockedLesson)
@@ -502,48 +797,66 @@ namespace OnlineLearningPlatform.Controllers
                 TempData["LearningInfoMessage"] =
                     "Bạn chưa thể hoàn thành bài học này.";
 
+
                 var availableLessonId =
                     firstIncompleteIndex >= 0
-                        ? lessons[firstIncompleteIndex].Id
+                        ? lessons[
+                            firstIncompleteIndex]
+                            .Id
                         : lessons.First().Id;
+
 
                 return RedirectToAction(
                     "Learn",
                     new
                     {
                         courseId,
-                        lessonId = availableLessonId
+                        lessonId =
+                            availableLessonId
                     });
             }
+
 
             var lessonProgress =
                 await _context.LessonProgresses
                     .FirstOrDefaultAsync(p =>
                         p.UserId == userId &&
-                        p.LessonId == lessonId);
+                        p.LessonId ==
+                        lessonId);
+
 
             if (lessonProgress == null)
             {
                 lessonProgress =
                     new LessonProgress
                     {
-                        UserId = userId,
-                        LessonId = lessonId,
-                        IsCompleted = true,
+                        UserId =
+                            userId,
+
+                        LessonId =
+                            lessonId,
+
+                        IsCompleted =
+                            true,
+
                         WatchedDuration =
                             lesson.Duration,
+
                         CompletedAt =
                             DateTime.UtcNow,
+
                         LastWatchedAt =
                             DateTime.UtcNow
                     };
+
 
                 _context.LessonProgresses.Add(
                     lessonProgress);
             }
             else
             {
-                lessonProgress.IsCompleted = true;
+                lessonProgress.IsCompleted =
+                    true;
 
                 lessonProgress.WatchedDuration =
                     lesson.Duration;
@@ -555,7 +868,9 @@ namespace OnlineLearningPlatform.Controllers
                     DateTime.UtcNow;
             }
 
+
             await _context.SaveChangesAsync();
+
 
             var progress =
                 await RecalculateEnrollmentProgressAsync(
@@ -563,21 +878,24 @@ namespace OnlineLearningPlatform.Controllers
                     courseId,
                     enrollment);
 
+
             enrollment.LastAccessedAt =
                 DateTime.UtcNow;
 
+
             await _context.SaveChangesAsync();
 
-            /*
-             * Sau khi hoàn thành:
-             * tự động chuyển sang bài kế tiếp.
-             */
+
             int nextLessonId;
 
-            if (targetIndex + 1 < lessons.Count)
+
+            if (targetIndex + 1 <
+                lessons.Count)
             {
                 nextLessonId =
-                    lessons[targetIndex + 1].Id;
+                    lessons[
+                        targetIndex + 1]
+                        .Id;
             }
             else
             {
@@ -585,37 +903,47 @@ namespace OnlineLearningPlatform.Controllers
                     lessonId;
             }
 
+
             TempData["LearningSuccessMessage"] =
                 progress >= 100
                     ? "Chúc mừng! Bạn đã hoàn thành khóa học."
                     : "Đã hoàn thành bài học. Bài tiếp theo đã được mở khóa.";
+
 
             return RedirectToAction(
                 "Learn",
                 new
                 {
                     courseId,
-                    lessonId = nextLessonId
+                    lessonId =
+                        nextLessonId
                 });
         }
 
-        // =========================
+
+        // =====================================================
         // LẤY DANH SÁCH BÀI THEO THỨ TỰ
-        // =========================
+        // =====================================================
+
         private static List<Lesson>
-            GetOrderedLessons(Course course)
+            GetOrderedLessons(
+                Course course)
         {
             return course.Modules
-                .OrderBy(m => m.DisplayOrder)
+                .OrderBy(m =>
+                    m.DisplayOrder)
                 .SelectMany(m =>
-                    m.Lessons.OrderBy(
-                        l => l.DisplayOrder))
+                    m.Lessons
+                        .OrderBy(l =>
+                            l.DisplayOrder))
                 .ToList();
         }
 
-        // =========================
+
+        // =====================================================
         // TÍNH LẠI TIẾN ĐỘ
-        // =========================
+        // =====================================================
+
         private async Task<decimal>
             RecalculateEnrollmentProgressAsync(
                 string userId,
@@ -627,37 +955,49 @@ namespace OnlineLearningPlatform.Controllers
                     .Where(l =>
                         l.Module.CourseId ==
                         courseId)
-                    .Select(l => l.Id)
+                    .Select(l =>
+                        l.Id)
                     .ToListAsync();
+
 
             var totalLessons =
                 lessonIds.Count;
 
-            var completedLessons = 0;
+
+            var completedLessons =
+                0;
+
 
             if (totalLessons > 0)
             {
                 completedLessons =
                     await _context.LessonProgresses
                         .CountAsync(p =>
-                            p.UserId == userId &&
+                            p.UserId ==
+                            userId &&
                             p.IsCompleted &&
                             lessonIds.Contains(
                                 p.LessonId));
             }
 
-            decimal progress = 0m;
+
+            decimal progress =
+                0m;
+
 
             if (totalLessons > 0)
             {
                 progress =
                     Math.Round(
-                        (decimal)completedLessons /
+                        (decimal)
+                        completedLessons /
                         totalLessons *
                         100m,
                         0,
-                        MidpointRounding.AwayFromZero);
+                        MidpointRounding
+                            .AwayFromZero);
             }
+
 
             enrollment.Progress =
                 Math.Clamp(
@@ -665,15 +1005,19 @@ namespace OnlineLearningPlatform.Controllers
                     0m,
                     100m);
 
-            if (enrollment.Progress >= 100m)
+
+            if (enrollment.Progress >=
+                100m)
             {
                 enrollment.CompletedAt ??=
                     DateTime.UtcNow;
             }
             else
             {
-                enrollment.CompletedAt = null;
+                enrollment.CompletedAt =
+                    null;
             }
+
 
             return enrollment.Progress;
         }

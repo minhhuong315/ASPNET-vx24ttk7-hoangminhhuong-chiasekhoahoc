@@ -2,73 +2,46 @@
 
 @functions {
 
-    string GetTimeAgo(DateTime createdAt)
+    string GetTimeText(DateTime createdAt)
     {
-        var time =
-            DateTime.UtcNow - createdAt;
+        var localTime =
+            createdAt.ToLocalTime();
+
+        var difference =
+            DateTime.Now - localTime;
 
 
-        if (time.TotalMinutes < 1)
+        if (difference.TotalMinutes < 1)
         {
             return "Vừa xong";
         }
 
 
-        if (time.TotalMinutes < 60)
+        if (difference.TotalMinutes < 60)
         {
             return
-                $"{Math.Floor(time.TotalMinutes)} phút trước";
+                $"{Math.Max(1, (int)difference.TotalMinutes)} phút trước";
         }
 
 
-        if (time.TotalHours < 24)
+        if (difference.TotalHours < 24)
         {
             return
-                $"{Math.Floor(time.TotalHours)} giờ trước";
+                $"{Math.Max(1, (int)difference.TotalHours)} giờ trước";
         }
 
 
-        if (time.TotalDays < 7)
+        if (difference.TotalDays < 7)
         {
             return
-                $"{Math.Floor(time.TotalDays)} ngày trước";
+                $"{Math.Max(1, (int)difference.TotalDays)} ngày trước";
         }
 
 
-        return createdAt
-            .ToLocalTime()
-            .ToString("dd/MM/yyyy");
-    }
-
-
-    string GetNotificationIcon(
-        string type)
-    {
-        return type switch
-        {
-            "NewQuestion" => "?",
-            "QuestionAnswered" => "✓",
-            "CourseUpdated" => "↻",
-            "NewLesson" => "▶",
-            _ => "i"
-        };
-    }
-
-
-    string GetNotificationIconClass(
-        string type)
-    {
-        return type switch
-        {
-            "NewQuestion" => "question",
-            "QuestionAnswered" => "answer",
-            "CourseUpdated" => "course",
-            "NewLesson" => "lesson",
-            _ => "system"
-        };
+        return localTime.ToString(
+            "dd/MM/yyyy HH:mm");
     }
 }
-
 
 <style>
 
@@ -76,73 +49,62 @@
        WRAPPER
     ========================================= */
 
-    .notification-wrapper {
+    .notification-shell {
         position: relative;
 
-        width: 44px;
-        height: 44px;
-
-        display: flex;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
+
+        white-space: normal;
     }
 
 
     /* =========================================
-       CHUÔNG
-       CHỈ HIỆN ICON - KHÔNG BORDER / BACKGROUND
+       NÚT CHUÔNG
     ========================================= */
 
-    .notification-bell-button {
-        width: 44px;
-        height: 44px;
-
-        padding: 0;
-
+    .notification-trigger {
         position: relative;
 
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        width: 42px;
+        height: 42px;
+
+        margin: 0;
+        padding: 0;
 
         border: none;
+        border-radius: 10px;
 
         background: transparent;
-
         color: #0d6efd;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
 
         cursor: pointer;
 
-        border-radius: 8px;
-
         transition:
-            color .2s ease,
-            background .2s ease;
+            background .18s ease;
     }
 
 
-    .notification-bell-button:hover,
-    .notification-bell-button:focus {
-        color: #0b5ed7;
-
-        background: #f5f9ff;
-
-        outline: none;
+    .notification-trigger:hover {
+        background: #f2f7ff;
     }
 
 
-    .notification-bell-svg {
-        width: 23px;
-        height: 23px;
+    .notification-bell-icon {
+        width: 22px;
+        height: 22px;
 
         display: block;
-
-        stroke: currentColor;
     }
 
 
     /* =========================================
-       BADGE SỐ THÔNG BÁO
+       BADGE SỐ CHƯA ĐỌC
     ========================================= */
 
     .notification-count {
@@ -151,21 +113,15 @@
         top: 1px;
         right: 0;
 
-        min-width: 18px;
-        height: 18px;
+        min-width: 17px;
+        height: 17px;
 
-        padding:
-            0
-            5px;
+        padding: 0 4px;
 
-        border:
-            2px solid
-            #ffffff;
-
-        border-radius: 999px;
+        border: 2px solid #ffffff;
+        border-radius: 20px;
 
         background: #ef4444;
-
         color: #ffffff;
 
         display: flex;
@@ -184,29 +140,79 @@
     ========================================= */
 
     .notification-dropdown {
-        width: 380px;
+        position: absolute;
 
-        max-width:
-            calc(100vw - 32px);
+        top: calc(100% + 11px);
+        right: -8px;
 
-        padding: 0;
+        z-index: 1500;
 
-        margin-top:
-            12px !important;
-
-        border:
-            1px solid
-            #e6eaf0;
-
-        border-radius: 16px;
-
-        background: #ffffff;
+        width: 390px;
+        max-width: calc(100vw - 24px);
 
         overflow: hidden;
 
+        border: 1px solid #e4e9f0;
+        border-radius: 14px;
+
+        background: #ffffff;
+
         box-shadow:
-            0 18px 50px
-            rgba(16, 24, 40, .14);
+            0 18px 45px
+            rgba(31, 42, 64, .16);
+
+        opacity: 0;
+
+        visibility: hidden;
+
+        pointer-events: none;
+
+        transform:
+            translateY(7px);
+
+        transition:
+            opacity .16s ease,
+            visibility .16s ease,
+            transform .16s ease;
+
+        white-space: normal;
+    }
+
+
+    .notification-shell.open
+    .notification-dropdown {
+        opacity: 1;
+
+        visibility: visible;
+
+        pointer-events: auto;
+
+        transform:
+            translateY(0);
+    }
+
+
+    .notification-dropdown::before {
+        content: "";
+
+        position: absolute;
+
+        top: -7px;
+        right: 21px;
+
+        width: 14px;
+        height: 14px;
+
+        border-top:
+            1px solid #e4e9f0;
+
+        border-left:
+            1px solid #e4e9f0;
+
+        background: #ffffff;
+
+        transform:
+            rotate(45deg);
     }
 
 
@@ -215,73 +221,77 @@
     ========================================= */
 
     .notification-header {
-        min-height: 68px;
-
-        padding:
-            16px
-            18px;
+        padding: 17px 18px 14px;
 
         border-bottom:
-            1px solid
-            #edf0f4;
+            1px solid #edf0f4;
 
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-
-        gap: 15px;
+        white-space: normal;
     }
 
 
-    .notification-header-title {
+    .notification-title {
+        margin-bottom: 3px;
+
         color: #172033;
 
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 800;
+
+        white-space: normal;
     }
 
 
-    .notification-header-count {
-        margin-top: 2px;
-
-        color: #8992a3;
+    .notification-subtitle {
+        color: #8b95a5;
 
         font-size: 11px;
+
+        white-space: normal;
     }
 
 
     /* =========================================
-       DANH SÁCH
+       LIST
     ========================================= */
 
     .notification-list {
-        max-height: 390px;
+        max-height: 370px;
 
         overflow-y: auto;
+
+        white-space: normal;
     }
 
+
+    /* =========================================
+       ITEM
+    ========================================= */
 
     .notification-item {
         position: relative;
 
-        display: flex;
+        display: grid;
+
+        grid-template-columns:
+            34px
+            minmax(0, 1fr);
 
         gap: 12px;
 
-        padding:
-            15px
-            18px;
+        padding: 15px 18px;
 
         border-bottom:
-            1px solid
-            #f0f2f5;
+            1px solid #f0f2f5;
 
-        background: #ffffff;
+        color: inherit;
 
         text-decoration: none;
 
         transition:
-            background .18s ease;
+            background .15s ease;
+
+        white-space: normal;
     }
 
 
@@ -291,31 +301,32 @@
 
 
     .notification-item:hover {
-        background: #f8faff;
+        background: #f7faff;
     }
 
 
     .notification-item.unread {
-        background: #f5f8ff;
+        background: #edf4ff;
     }
 
 
     .notification-item.unread:hover {
-        background: #eef4ff;
+        background: #e6f0ff;
     }
 
 
     /* =========================================
-       ICON LOẠI THÔNG BÁO
+       ICON
     ========================================= */
 
-    .notification-type-icon {
-        width: 38px;
-        height: 38px;
+    .notification-icon {
+        width: 34px;
+        height: 34px;
 
-        flex-shrink: 0;
+        border-radius: 10px;
 
-        border-radius: 50%;
+        background: #edf4ff;
+        color: #0d6efd;
 
         display: flex;
         align-items: center;
@@ -323,94 +334,77 @@
 
         font-size: 13px;
         font-weight: 800;
-    }
 
-
-    .notification-type-icon.question {
-        background: #edf4ff;
-        color: #0d6efd;
-    }
-
-
-    .notification-type-icon.answer {
-        background: #eaf8ef;
-        color: #198754;
-    }
-
-
-    .notification-type-icon.course {
-        background: #fff6e8;
-        color: #d97706;
-    }
-
-
-    .notification-type-icon.lesson {
-        background: #f5edff;
-        color: #7c3aed;
-    }
-
-
-    .notification-type-icon.system {
-        background: #f1f3f6;
-        color: #667085;
+        flex-shrink: 0;
     }
 
 
     /* =========================================
-       NỘI DUNG
+       CONTENT
     ========================================= */
 
-    .notification-body {
+    .notification-content {
         min-width: 0;
 
-        flex: 1;
+        white-space: normal;
     }
 
 
-    .notification-title {
-        margin-bottom: 4px;
+    .notification-item-title {
+        margin-bottom: 3px;
 
-        color: #253047;
+        color: #273142;
 
-        font-size: 13px;
-        font-weight: 700;
+        font-size: 12px;
+        font-weight: 800;
 
-        line-height: 1.4;
+        line-height: 1.45;
+
+        white-space: normal;
+
+        overflow-wrap: anywhere;
     }
 
 
     .notification-message {
+        min-width: 0;
+
         color: #667085;
 
-        font-size: 12px;
-
+        font-size: 11px;
         line-height: 1.55;
 
-        display: -webkit-box;
+        white-space: normal;
 
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
+        overflow-wrap: anywhere;
 
-        overflow: hidden;
+        word-break: normal;
     }
 
 
     .notification-time {
-        margin-top: 7px;
+        margin-top: 5px;
 
         color: #98a2b3;
 
         font-size: 10px;
+
+        white-space: normal;
     }
 
 
+    /* =========================================
+       CHẤM XANH CHƯA ĐỌC
+    ========================================= */
+
     .notification-unread-dot {
+        position: absolute;
+
+        top: 19px;
+        right: 15px;
+
         width: 7px;
         height: 7px;
-
-        margin-top: 7px;
-
-        flex-shrink: 0;
 
         border-radius: 50%;
 
@@ -419,60 +413,19 @@
 
 
     /* =========================================
-       EMPTY STATE
+       EMPTY
     ========================================= */
 
     .notification-empty {
-        padding:
-            38px
-            24px;
+        padding: 34px 20px;
+
+        color: #8a94a3;
+
+        font-size: 12px;
 
         text-align: center;
-    }
 
-
-    .notification-empty-icon {
-        width: 48px;
-        height: 48px;
-
-        margin:
-            0
-            auto
-            12px;
-
-        border-radius: 50%;
-
-        background: #edf4ff;
-        color: #0d6efd;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-
-    .notification-empty-icon svg {
-        width: 21px;
-        height: 21px;
-
-        stroke: currentColor;
-    }
-
-
-    .notification-empty-title {
-        color: #344054;
-
-        font-size: 13px;
-        font-weight: 700;
-    }
-
-
-    .notification-empty-text {
-        margin-top: 4px;
-
-        color: #98a2b3;
-
-        font-size: 11px;
+        white-space: normal;
     }
 
 
@@ -481,34 +434,31 @@
     ========================================= */
 
     .notification-footer {
-        padding:
-            13px
-            18px;
+        padding: 13px 15px;
 
         border-top:
-            1px solid
-            #edf0f4;
+            1px solid #edf0f4;
 
-        background: #fbfcfe;
+        background: #ffffff;
 
         text-align: center;
+
+        white-space: normal;
     }
 
 
-    .notification-view-all {
+    .notification-footer-link {
         color: #0d6efd;
 
-        font-size: 12px;
-        font-weight: 700;
+        font-size: 11px;
+        font-weight: 800;
 
         text-decoration: none;
     }
 
 
-    .notification-view-all:hover {
+    .notification-footer-link:hover {
         color: #0b5ed7;
-
-        text-decoration: underline;
     }
 
 
@@ -516,11 +466,19 @@
        MOBILE
     ========================================= */
 
-    @@media (max-width: 500px) {
+    @@media (max-width: 600px) {
 
         .notification-dropdown {
+            position: fixed;
+
+            top: 76px;
+            right: 12px;
+
             width:
-                calc(100vw - 24px);
+                min(
+                    390px,
+                    calc(100vw - 24px)
+                );
         }
 
     }
@@ -528,46 +486,39 @@
 </style>
 
 
-<div class="dropdown notification-wrapper">
+<div class="notification-shell"
+     data-notification-shell>
 
 
     <!-- =====================================
-         CHUÔNG THÔNG BÁO
+         CHUÔNG
     ====================================== -->
 
-    <button class="notification-bell-button"
-            type="button"
-            data-bs-toggle="dropdown"
-            data-bs-auto-close="outside"
-            aria-expanded="false"
-            aria-label="Thông báo">
+    <button type="button"
+            class="notification-trigger"
+            data-notification-trigger
+            aria-label="Thông báo"
+            aria-expanded="false">
 
 
-        <svg class="notification-bell-svg"
+        <svg class="notification-bell-icon"
              viewBox="0 0 24 24"
              fill="none"
-             xmlns="http://www.w3.org/2000/svg"
-             aria-hidden="true">
-
+             xmlns="http://www.w3.org/2000/svg">
 
             <path d="M18 8A6 6 0 0 0 6 8C6 15 3 15 3 17H21C21 15 18 15 18 8Z"
+                  stroke="currentColor"
                   stroke-width="1.8"
                   stroke-linecap="round"
                   stroke-linejoin="round" />
 
-
             <path d="M10 21H14"
+                  stroke="currentColor"
                   stroke-width="1.8"
                   stroke-linecap="round" />
 
-
         </svg>
 
-
-        <!--
-            CHỈ HIỆN BADGE ĐỎ
-            KHI CÓ THÔNG BÁO CHƯA ĐỌC
-        -->
 
         @if (Model.UnreadCount > 0)
         {
@@ -589,37 +540,40 @@
          DROPDOWN
     ====================================== -->
 
-    <div class="dropdown-menu dropdown-menu-end notification-dropdown">
+    <div class="notification-dropdown"
+         data-notification-dropdown>
 
+
+        <!-- HEADER -->
 
         <div class="notification-header">
 
 
-            <div>
+            <div class="notification-title">
+
+                Thông báo
+
+            </div>
 
 
-                <div class="notification-header-title">
-
-                    Thông báo
-
-                </div>
+            <div class="notification-subtitle">
 
 
                 @if (Model.UnreadCount > 0)
                 {
-                    <div class="notification-header-count">
+                    <span>
 
                         @Model.UnreadCount thông báo chưa đọc
 
-                    </div>
+                    </span>
                 }
                 else
                 {
-                    <div class="notification-header-count">
+                    <span>
 
-                        Không có thông báo mới
+                        Bạn không có thông báo chưa đọc
 
-                    </div>
+                    </span>
                 }
 
 
@@ -630,192 +584,121 @@
 
 
 
-        @if (Model.Notifications.Any())
-        {
-            <div class="notification-list">
+        <!-- LIST -->
+
+        <div class="notification-list">
 
 
-                @foreach (var notification in
-                    Model.Notifications)
+            @if (Model.Notifications != null &&
+                 Model.Notifications.Any())
+            {
+                foreach (var notification
+                    in Model.Notifications)
                 {
-                    var itemClass =
+                    string itemClass =
                         notification.IsRead
-                            ? ""
-                            : "unread";
+                            ? "notification-item"
+                            : "notification-item unread";
 
 
-                    var iconClass =
-                        GetNotificationIconClass(
-                            notification.Type);
+                    string iconText =
+                        notification.Type ==
+                        "QuestionAnswered"
+                            ? "✓"
+                            : notification.Type ==
+                              "NewQuestion"
+                                ? "?"
+                                : "i";
 
 
-                    var icon =
-                        GetNotificationIcon(
-                            notification.Type);
+                    /*
+                     * QUAN TRỌNG:
+                     *
+                     * Không redirect thẳng
+                     * notification.RelatedUrl nữa.
+                     *
+                     * Phải đi qua
+                     * Notifications/Open
+                     * để:
+                     *
+                     * - đánh dấu đã đọc
+                     * - giảm badge
+                     * - xử lý notification cũ
+                     * - chuyển đúng câu hỏi
+                     */
+                    <a asp-controller="Notifications"
+                       asp-action="Open"
+                       asp-route-id="@notification.Id"
+                       class="@itemClass">
 
 
+                        <div class="notification-icon">
 
-                    @if (!string.IsNullOrWhiteSpace(
-                        notification.RelatedUrl))
-                    {
-                        <a href="@notification.RelatedUrl"
-                           class="notification-item @itemClass">
+                            @iconText
 
-
-                            <div class="notification-type-icon @iconClass">
-
-                                @icon
-
-                            </div>
+                        </div>
 
 
-                            <div class="notification-body">
+                        <div class="notification-content">
 
 
-                                <div class="notification-title">
+                            <div class="notification-item-title">
 
-                                    @notification.Title
-
-                                </div>
-
-
-                                <div class="notification-message">
-
-                                    @notification.Message
-
-                                </div>
-
-
-                                <div class="notification-time">
-
-                                    @GetTimeAgo(
-                                        notification.CreatedAt)
-
-                                </div>
-
+                                @notification.Title
 
                             </div>
 
 
-                            @if (!notification.IsRead)
-                            {
-                                <span class="notification-unread-dot">
-                                </span>
-                            }
+                            <div class="notification-message">
 
-
-                        </a>
-                    }
-                    else
-                    {
-                        <div class="notification-item @itemClass">
-
-
-                            <div class="notification-type-icon @iconClass">
-
-                                @icon
+                                @notification.Message
 
                             </div>
 
 
-                            <div class="notification-body">
+                            <div class="notification-time">
 
-
-                                <div class="notification-title">
-
-                                    @notification.Title
-
-                                </div>
-
-
-                                <div class="notification-message">
-
-                                    @notification.Message
-
-                                </div>
-
-
-                                <div class="notification-time">
-
-                                    @GetTimeAgo(
-                                        notification.CreatedAt)
-
-                                </div>
-
+                                @GetTimeText(
+                                    notification.CreatedAt)
 
                             </div>
-
-
-                            @if (!notification.IsRead)
-                            {
-                                <span class="notification-unread-dot">
-                                </span>
-                            }
 
 
                         </div>
-                    }
+
+
+                        @if (!notification.IsRead)
+                        {
+                            <span class="notification-unread-dot">
+                            </span>
+                        }
+
+
+                    </a>
                 }
+            }
+            else
+            {
+                <div class="notification-empty">
 
-
-            </div>
-        }
-        else
-        {
-            <div class="notification-empty">
-
-
-                <div class="notification-empty-icon">
-
-
-                    <svg viewBox="0 0 24 24"
-                         fill="none"
-                         xmlns="http://www.w3.org/2000/svg"
-                         aria-hidden="true">
-
-
-                        <path d="M18 8A6 6 0 0 0 6 8C6 15 3 15 3 17H21C21 15 18 15 18 8Z"
-                              stroke-width="1.8"
-                              stroke-linecap="round"
-                              stroke-linejoin="round" />
-
-
-                        <path d="M10 21H14"
-                              stroke-width="1.8"
-                              stroke-linecap="round" />
-
-
-                    </svg>
-
+                    Chưa có thông báo nào.
 
                 </div>
+            }
 
 
-                <div class="notification-empty-title">
-
-                    Chưa có thông báo
-
-                </div>
+        </div>
 
 
-                <div class="notification-empty-text">
 
-                    Các cập nhật mới sẽ xuất hiện tại đây.
-
-                </div>
-
-
-            </div>
-        }
-
-
+        <!-- FOOTER -->
 
         <div class="notification-footer">
 
 
             <a asp-controller="Notifications"
                asp-action="Index"
-               class="notification-view-all">
+               class="notification-footer-link">
 
                 Xem tất cả thông báo
 
@@ -829,3 +712,131 @@
 
 
 </div>
+
+
+
+<script>
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            const shells =
+                document.querySelectorAll(
+                    "[data-notification-shell]"
+                );
+
+
+            shells.forEach(
+                function (shell) {
+
+                    const trigger =
+                        shell.querySelector(
+                            "[data-notification-trigger]"
+                        );
+
+
+                    const dropdown =
+                        shell.querySelector(
+                            "[data-notification-dropdown]"
+                        );
+
+
+                    if (!trigger ||
+                        !dropdown) {
+                        return;
+                    }
+
+
+                    /*
+                     * CLICK CHUÔNG
+                     */
+                    trigger.addEventListener(
+                        "click",
+                        function (event) {
+
+                            event.stopPropagation();
+
+
+                            /*
+                             * Đóng account dropdown
+                             * nếu đang mở.
+                             */
+                            document
+                                .querySelectorAll(
+                                    "[data-dropdown].open"
+                                )
+                                .forEach(
+                                    function (otherDropdown) {
+
+                                        otherDropdown
+                                            .classList
+                                            .remove(
+                                                "open"
+                                            );
+
+                                    }
+                                );
+
+
+                            const isOpen =
+                                shell.classList.toggle(
+                                    "open"
+                                );
+
+
+                            trigger.setAttribute(
+                                "aria-expanded",
+                                isOpen
+                                    ? "true"
+                                    : "false"
+                            );
+
+                        }
+                    );
+
+
+                    /*
+                     * CLICK BÊN TRONG DROPDOWN
+                     *
+                     * Link vẫn hoạt động,
+                     * nhưng document click
+                     * không đóng trước.
+                     */
+                    dropdown.addEventListener(
+                        "click",
+                        function (event) {
+
+                            event.stopPropagation();
+
+                        }
+                    );
+
+
+                    /*
+                     * CLICK RA NGOÀI
+                     */
+                    document.addEventListener(
+                        "click",
+                        function () {
+
+                            shell.classList.remove(
+                                "open"
+                            );
+
+
+                            trigger.setAttribute(
+                                "aria-expanded",
+                                "false"
+                            );
+
+                        }
+                    );
+
+                }
+            );
+
+        }
+    );
+
+</script>

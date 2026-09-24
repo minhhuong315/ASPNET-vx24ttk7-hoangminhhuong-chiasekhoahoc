@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OnlineLearningPlatform.Data;
 using OnlineLearningPlatform.Models;
+using OnlineLearningPlatform.ViewModels;
 
 namespace OnlineLearningPlatform.Controllers
 {
@@ -23,9 +24,185 @@ namespace OnlineLearningPlatform.Controllers
         }
 
 
-        // =========================================
+        // =====================================================
+        // INSTRUCTOR / ADMIN
+        // DANH SÁCH CÂU HỎI
+        // =====================================================
+
+        [HttpGet]
+        [Authorize(Roles = "Instructor,Admin")]
+        public async Task<IActionResult> Index(
+            int? selectedQuestionId)
+        {
+            var userId =
+                _userManager.GetUserId(User);
+
+
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Challenge();
+            }
+
+
+            var query =
+                _context.LessonQuestions
+                    .AsNoTracking()
+                    .Include(q => q.User)
+                    .Include(q => q.Lesson)
+                        .ThenInclude(l => l.Module)
+                            .ThenInclude(m => m.Course)
+                    .Include(q => q.Answers)
+                        .ThenInclude(a => a.User)
+                    .AsQueryable();
+
+
+            if (User.IsInRole("Instructor"))
+            {
+                query =
+                    query.Where(q =>
+                        q.Lesson.Module.Course.InstructorId ==
+                        userId);
+            }
+
+
+            var questions =
+                await query
+                    .OrderBy(q => q.IsResolved)
+                    .ThenByDescending(q => q.CreatedAt)
+                    .ToListAsync();
+
+
+            var model =
+                new InstructorQuestionsViewModel
+                {
+                    Questions =
+                        questions,
+
+                    TotalQuestions =
+                        questions.Count,
+
+                    UnansweredQuestions =
+                        questions.Count(q =>
+                            !q.IsResolved),
+
+                    AnsweredQuestions =
+                        questions.Count(q =>
+                            q.IsResolved),
+
+                    SelectedQuestionId =
+                        selectedQuestionId
+                };
+
+
+            return View(model);
+        }
+
+
+        // =====================================================
+        // STUDENT
+        // CÂU HỎI CỦA TÔI
+        // =====================================================
+
+        [HttpGet]
+        [Authorize(Roles = "Student")]
+        public async Task<IActionResult> MyQuestions(
+            string? filter,
+            int? selectedQuestionId)
+        {
+            var userId =
+                _userManager.GetUserId(User);
+
+
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Challenge();
+            }
+
+
+            filter =
+                filter?
+                    .Trim()
+                    .ToLowerInvariant();
+
+
+            if (filter != "waiting" &&
+                filter != "answered")
+            {
+                filter =
+                    "all";
+            }
+
+
+            var allQuestions =
+                await _context.LessonQuestions
+                    .AsNoTracking()
+                    .Where(q =>
+                        q.UserId == userId)
+                    .Include(q => q.User)
+                    .Include(q => q.Lesson)
+                        .ThenInclude(l => l.Module)
+                            .ThenInclude(m => m.Course)
+                    .Include(q => q.Answers)
+                        .ThenInclude(a => a.User)
+                    .OrderByDescending(q =>
+                        q.CreatedAt)
+                    .ToListAsync();
+
+
+            IEnumerable<LessonQuestion>
+                filteredQuestions =
+                    allQuestions;
+
+
+            if (filter == "waiting")
+            {
+                filteredQuestions =
+                    filteredQuestions.Where(q =>
+                        !q.IsResolved);
+            }
+
+
+            if (filter == "answered")
+            {
+                filteredQuestions =
+                    filteredQuestions.Where(q =>
+                        q.IsResolved);
+            }
+
+
+            var model =
+                new StudentQuestionsViewModel
+                {
+                    Questions =
+                        filteredQuestions
+                            .ToList(),
+
+                    TotalQuestions =
+                        allQuestions.Count,
+
+                    WaitingQuestions =
+                        allQuestions.Count(q =>
+                            !q.IsResolved),
+
+                    AnsweredQuestions =
+                        allQuestions.Count(q =>
+                            q.IsResolved),
+
+                    Filter =
+                        filter,
+
+                    SelectedQuestionId =
+                        selectedQuestionId
+                };
+
+
+            return View(model);
+        }
+
+
+        // =====================================================
         // STUDENT ĐẶT CÂU HỎI
-        // =========================================
+        // =====================================================
 
         [HttpPost]
         [Authorize(Roles = "Student")]
@@ -34,10 +211,6 @@ namespace OnlineLearningPlatform.Controllers
             int lessonId,
             string? content)
         {
-            // =====================================
-            // 1. LẤY STUDENT ĐANG ĐĂNG NHẬP
-            // =====================================
-
             var userId =
                 _userManager.GetUserId(User);
 
@@ -58,13 +231,10 @@ namespace OnlineLearningPlatform.Controllers
             }
 
 
-            // =====================================
-            // 2. LẤY BÀI HỌC
-            // =====================================
-
             var lesson =
                 await _context.Lessons
                     .Include(l => l.Module)
+                        .ThenInclude(m => m.Course)
                     .FirstOrDefaultAsync(l =>
                         l.Id == lessonId);
 
@@ -75,22 +245,16 @@ namespace OnlineLearningPlatform.Controllers
             }
 
 
+            var course =
+                lesson.Module.Course;
+
+
             var courseId =
-                lesson.Module.CourseId;
+                course.Id;
 
-
-            // =====================================
-            // 3. LẤY GIẢNG VIÊN PHỤ TRÁCH KHÓA HỌC
-            // =====================================
 
             var instructorId =
-                await _context.Courses
-                    .AsNoTracking()
-                    .Where(c =>
-                        c.Id == courseId)
-                    .Select(c =>
-                        c.InstructorId)
-                    .FirstOrDefaultAsync();
+                course.InstructorId;
 
 
             if (string.IsNullOrWhiteSpace(
@@ -100,25 +264,21 @@ namespace OnlineLearningPlatform.Controllers
             }
 
 
-            // =====================================
-            // 4. KIỂM TRA STUDENT ĐÃ ĐĂNG KÝ
-            // =====================================
-
-            var enrollment =
+            var enrollmentExists =
                 await _context.Enrollments
-                    .FirstOrDefaultAsync(e =>
+                    .AnyAsync(e =>
                         e.UserId == userId &&
                         e.CourseId == courseId);
 
 
-            if (enrollment == null)
+            if (!enrollmentExists)
             {
                 return Forbid();
             }
 
 
             // =====================================
-            // 5. KIỂM TRA BÀI ĐÃ MỞ KHÓA
+            // KIỂM TRA BÀI HỌC ĐÃ MỞ
             // =====================================
 
             var lessonIds =
@@ -147,6 +307,10 @@ namespace OnlineLearningPlatform.Controllers
                     .ToListAsync();
 
 
+            var completedLessonSet =
+                completedLessonIds.ToHashSet();
+
+
             var targetIndex =
                 lessonIds.IndexOf(
                     lessonId);
@@ -160,12 +324,12 @@ namespace OnlineLearningPlatform.Controllers
 
             var firstIncompleteIndex =
                 lessonIds.FindIndex(id =>
-                    !completedLessonIds.Contains(
+                    !completedLessonSet.Contains(
                         id));
 
 
             bool lessonAlreadyCompleted =
-                completedLessonIds.Contains(
+                completedLessonSet.Contains(
                     lessonId);
 
 
@@ -207,7 +371,7 @@ namespace OnlineLearningPlatform.Controllers
 
 
             // =====================================
-            // 6. KIỂM TRA NỘI DUNG CÂU HỎI
+            // KIỂM TRA NỘI DUNG
             // =====================================
 
             content =
@@ -250,22 +414,26 @@ namespace OnlineLearningPlatform.Controllers
 
 
             // =====================================
-            // 7. TẠO CÂU HỎI
+            // TẠO QUESTION
             // =====================================
 
             var question =
                 new LessonQuestion
                 {
-                    LessonId = lessonId,
+                    LessonId =
+                        lessonId,
 
-                    UserId = userId,
+                    UserId =
+                        userId,
 
-                    Content = content,
+                    Content =
+                        content,
 
                     CreatedAt =
                         DateTime.UtcNow,
 
-                    IsResolved = false
+                    IsResolved =
+                        false
                 };
 
 
@@ -273,19 +441,12 @@ namespace OnlineLearningPlatform.Controllers
                 question);
 
 
-            // =====================================
-            // 8. TẠO THÔNG BÁO CHO GIẢNG VIÊN
-            // =====================================
+            await _context.SaveChangesAsync();
 
-            /*
-             * Ưu tiên hiển thị FullName.
-             *
-             * Nếu chưa có FullName:
-             * dùng Email.
-             *
-             * Nếu cả hai đều không có:
-             * hiển thị "Học viên".
-             */
+
+            // =====================================
+            // NOTIFICATION CHO INSTRUCTOR
+            // =====================================
 
             var studentDisplayName =
                 !string.IsNullOrWhiteSpace(
@@ -297,17 +458,19 @@ namespace OnlineLearningPlatform.Controllers
                         : "Học viên";
 
 
-            /*
-             * Chỉ tạo notification nếu
-             * người đặt câu hỏi không phải
-             * chính giảng viên.
-             *
-             * Thực tế Ask chỉ cho Student,
-             * nhưng kiểm tra thêm để an toàn.
-             */
-
             if (instructorId != userId)
             {
+                var relatedUrl =
+                    Url.Action(
+                        "Index",
+                        "LessonQuestions",
+                        new
+                        {
+                            selectedQuestionId =
+                                question.Id
+                        });
+
+
                 var notification =
                     new Notification
                     {
@@ -323,19 +486,14 @@ namespace OnlineLearningPlatform.Controllers
                         Type =
                             "NewQuestion",
 
-                        /*
-                         * Tạm thời chưa đặt RelatedUrl.
-                         *
-                         * Bước sau mình sẽ làm trang
-                         * Hỏi đáp dành cho Instructor,
-                         * lúc đó notification sẽ trỏ
-                         * thẳng tới câu hỏi.
-                         */
-                        RelatedUrl = null,
+                        RelatedUrl =
+                            relatedUrl,
 
-                        IsRead = false,
+                        IsRead =
+                            false,
 
-                        ReadAt = null,
+                        ReadAt =
+                            null,
 
                         CreatedAt =
                             DateTime.UtcNow
@@ -344,20 +502,11 @@ namespace OnlineLearningPlatform.Controllers
 
                 _context.Notifications.Add(
                     notification);
+
+
+                await _context.SaveChangesAsync();
             }
 
-
-            // =====================================
-            // 9. LƯU QUESTION + NOTIFICATION
-            //    TRONG CÙNG MỘT LẦN SAVE
-            // =====================================
-
-            await _context.SaveChangesAsync();
-
-
-            // =====================================
-            // 10. THÔNG BÁO CHO STUDENT
-            // =====================================
 
             TempData["LearningSuccessMessage"] =
                 "Câu hỏi của bạn đã được gửi.";
@@ -370,6 +519,656 @@ namespace OnlineLearningPlatform.Controllers
                 {
                     courseId,
                     lessonId
+                });
+        }
+
+
+        // =====================================================
+        // STUDENT SỬA QUESTION
+        // =====================================================
+
+        [HttpPost]
+        [Authorize(Roles = "Student")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditQuestion(
+            int questionId,
+            string? content,
+            bool returnToMyQuestions = false)
+        {
+            var userId =
+                _userManager.GetUserId(User);
+
+
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Challenge();
+            }
+
+
+            var question =
+                await _context.LessonQuestions
+                    .Include(q => q.Lesson)
+                        .ThenInclude(l => l.Module)
+                    .FirstOrDefaultAsync(q =>
+                        q.Id == questionId);
+
+
+            if (question == null)
+            {
+                return NotFound();
+            }
+
+
+            if (question.UserId != userId)
+            {
+                return Forbid();
+            }
+
+
+            content =
+                content?.Trim();
+
+
+            if (string.IsNullOrWhiteSpace(
+                content))
+            {
+                if (returnToMyQuestions)
+                {
+                    TempData[
+                        "MyQuestionInfoMessage"] =
+                        "Vui lòng nhập nội dung câu hỏi.";
+
+
+                    return RedirectToAction(
+                        "MyQuestions",
+                        new
+                        {
+                            selectedQuestionId =
+                                question.Id
+                        });
+                }
+
+
+                TempData["LearningInfoMessage"] =
+                    "Vui lòng nhập nội dung câu hỏi.";
+
+
+                return RedirectToAction(
+                    "Learn",
+                    "Courses",
+                    new
+                    {
+                        courseId =
+                            question
+                                .Lesson
+                                .Module
+                                .CourseId,
+
+                        lessonId =
+                            question.LessonId
+                    });
+            }
+
+
+            if (content.Length > 2000)
+            {
+                if (returnToMyQuestions)
+                {
+                    TempData[
+                        "MyQuestionInfoMessage"] =
+                        "Câu hỏi không được vượt quá 2000 ký tự.";
+
+
+                    return RedirectToAction(
+                        "MyQuestions",
+                        new
+                        {
+                            selectedQuestionId =
+                                question.Id
+                        });
+                }
+
+
+                TempData["LearningInfoMessage"] =
+                    "Câu hỏi không được vượt quá 2000 ký tự.";
+
+
+                return RedirectToAction(
+                    "Learn",
+                    "Courses",
+                    new
+                    {
+                        courseId =
+                            question
+                                .Lesson
+                                .Module
+                                .CourseId,
+
+                        lessonId =
+                            question.LessonId
+                    });
+            }
+
+
+            question.Content =
+                content;
+
+
+            await _context.SaveChangesAsync();
+
+
+            if (returnToMyQuestions)
+            {
+                TempData[
+                    "MyQuestionSuccessMessage"] =
+                    "Câu hỏi đã được cập nhật.";
+
+
+                return RedirectToAction(
+                    "MyQuestions",
+                    new
+                    {
+                        selectedQuestionId =
+                            question.Id
+                    });
+            }
+
+
+            TempData["LearningSuccessMessage"] =
+                "Câu hỏi đã được cập nhật.";
+
+
+            return RedirectToAction(
+                "Learn",
+                "Courses",
+                new
+                {
+                    courseId =
+                        question
+                            .Lesson
+                            .Module
+                            .CourseId,
+
+                    lessonId =
+                        question.LessonId
+                });
+        }
+
+
+        // =====================================================
+        // STUDENT XÓA QUESTION
+        // =====================================================
+
+        [HttpPost]
+        [Authorize(Roles = "Student")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteQuestion(
+            int questionId,
+            bool returnToMyQuestions = false)
+        {
+            var userId =
+                _userManager.GetUserId(User);
+
+
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Challenge();
+            }
+
+
+            var question =
+                await _context.LessonQuestions
+                    .Include(q => q.Answers)
+                    .Include(q => q.Lesson)
+                        .ThenInclude(l => l.Module)
+                    .FirstOrDefaultAsync(q =>
+                        q.Id == questionId);
+
+
+            if (question == null)
+            {
+                return NotFound();
+            }
+
+
+            if (question.UserId != userId)
+            {
+                return Forbid();
+            }
+
+
+            var courseId =
+                question
+                    .Lesson
+                    .Module
+                    .CourseId;
+
+
+            var lessonId =
+                question.LessonId;
+
+
+            if (question.Answers.Any())
+            {
+                _context.LessonAnswers.RemoveRange(
+                    question.Answers);
+            }
+
+
+            _context.LessonQuestions.Remove(
+                question);
+
+
+            await _context.SaveChangesAsync();
+
+
+            if (returnToMyQuestions)
+            {
+                TempData[
+                    "MyQuestionSuccessMessage"] =
+                    "Câu hỏi đã được xóa.";
+
+
+                return RedirectToAction(
+                    "MyQuestions");
+            }
+
+
+            TempData["LearningSuccessMessage"] =
+                "Câu hỏi đã được xóa.";
+
+
+            return RedirectToAction(
+                "Learn",
+                "Courses",
+                new
+                {
+                    courseId,
+                    lessonId
+                });
+        }
+
+
+        // =====================================================
+        // INSTRUCTOR / ADMIN TRẢ LỜI
+        // =====================================================
+
+        [HttpPost]
+        [Authorize(Roles = "Instructor,Admin")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Answer(
+            int questionId,
+            string? content)
+        {
+            var userId =
+                _userManager.GetUserId(User);
+
+
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Challenge();
+            }
+
+
+            var question =
+                await _context.LessonQuestions
+                    .Include(q => q.User)
+                    .Include(q => q.Lesson)
+                        .ThenInclude(l => l.Module)
+                            .ThenInclude(m => m.Course)
+                    .FirstOrDefaultAsync(q =>
+                        q.Id == questionId);
+
+
+            if (question == null)
+            {
+                return NotFound();
+            }
+
+
+            var course =
+                question
+                    .Lesson
+                    .Module
+                    .Course;
+
+
+            if (User.IsInRole("Instructor") &&
+                course.InstructorId != userId)
+            {
+                return Forbid();
+            }
+
+
+            content =
+                content?.Trim();
+
+
+            if (string.IsNullOrWhiteSpace(
+                content))
+            {
+                TempData["QuestionInfoMessage"] =
+                    "Vui lòng nhập nội dung phản hồi.";
+
+
+                return RedirectToAction(
+                    "Index",
+                    new
+                    {
+                        selectedQuestionId =
+                            questionId
+                    });
+            }
+
+
+            if (content.Length > 2000)
+            {
+                TempData["QuestionInfoMessage"] =
+                    "Phản hồi không được vượt quá 2000 ký tự.";
+
+
+                return RedirectToAction(
+                    "Index",
+                    new
+                    {
+                        selectedQuestionId =
+                            questionId
+                    });
+            }
+
+
+            var answer =
+                new LessonAnswer
+                {
+                    QuestionId =
+                        question.Id,
+
+                    UserId =
+                        userId,
+
+                    Content =
+                        content,
+
+                    CreatedAt =
+                        DateTime.UtcNow
+                };
+
+
+            _context.LessonAnswers.Add(
+                answer);
+
+
+            question.IsResolved =
+                true;
+
+
+            // =====================================
+            // QUAN TRỌNG:
+            // NOTIFICATION STUDENT TRỎ VỀ
+            // "CÂU HỎI CỦA TÔI"
+            // =====================================
+
+            var relatedUrl =
+                Url.Action(
+                    "MyQuestions",
+                    "LessonQuestions",
+                    new
+                    {
+                        selectedQuestionId =
+                            question.Id
+                    });
+
+
+            var notification =
+                new Notification
+                {
+                    UserId =
+                        question.UserId,
+
+                    Title =
+                        "Câu hỏi đã được trả lời",
+
+                    Message =
+                        $"Giảng viên đã trả lời câu hỏi của bạn trong bài \"{question.Lesson.Title}\".",
+
+                    Type =
+                        "QuestionAnswered",
+
+                    RelatedUrl =
+                        relatedUrl,
+
+                    IsRead =
+                        false,
+
+                    ReadAt =
+                        null,
+
+                    CreatedAt =
+                        DateTime.UtcNow
+                };
+
+
+            _context.Notifications.Add(
+                notification);
+
+
+            await _context.SaveChangesAsync();
+
+
+            TempData["QuestionSuccessMessage"] =
+                "Phản hồi đã được gửi cho học viên.";
+
+
+            return RedirectToAction(
+                "Index",
+                new
+                {
+                    selectedQuestionId =
+                        question.Id
+                });
+        }
+
+
+        // =====================================================
+        // INSTRUCTOR / ADMIN SỬA PHẢN HỒI
+        // =====================================================
+
+        [HttpPost]
+        [Authorize(Roles = "Instructor,Admin")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditAnswer(
+            int answerId,
+            string? content)
+        {
+            var userId =
+                _userManager.GetUserId(User);
+
+
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Challenge();
+            }
+
+
+            var answer =
+                await _context.LessonAnswers
+                    .Include(a => a.Question)
+                        .ThenInclude(q => q.Lesson)
+                            .ThenInclude(l => l.Module)
+                                .ThenInclude(m => m.Course)
+                    .FirstOrDefaultAsync(a =>
+                        a.Id == answerId);
+
+
+            if (answer == null)
+            {
+                return NotFound();
+            }
+
+
+            var course =
+                answer
+                    .Question
+                    .Lesson
+                    .Module
+                    .Course;
+
+
+            if (User.IsInRole("Instructor"))
+            {
+                if (course.InstructorId != userId ||
+                    answer.UserId != userId)
+                {
+                    return Forbid();
+                }
+            }
+
+
+            content =
+                content?.Trim();
+
+
+            if (string.IsNullOrWhiteSpace(
+                content))
+            {
+                TempData["QuestionInfoMessage"] =
+                    "Vui lòng nhập nội dung phản hồi.";
+
+
+                return RedirectToAction(
+                    "Index",
+                    new
+                    {
+                        selectedQuestionId =
+                            answer.QuestionId
+                    });
+            }
+
+
+            if (content.Length > 2000)
+            {
+                TempData["QuestionInfoMessage"] =
+                    "Phản hồi không được vượt quá 2000 ký tự.";
+
+
+                return RedirectToAction(
+                    "Index",
+                    new
+                    {
+                        selectedQuestionId =
+                            answer.QuestionId
+                    });
+            }
+
+
+            answer.Content =
+                content;
+
+
+            await _context.SaveChangesAsync();
+
+
+            TempData["QuestionSuccessMessage"] =
+                "Phản hồi đã được cập nhật.";
+
+
+            return RedirectToAction(
+                "Index",
+                new
+                {
+                    selectedQuestionId =
+                        answer.QuestionId
+                });
+        }
+
+
+        // =====================================================
+        // INSTRUCTOR / ADMIN XÓA PHẢN HỒI
+        // =====================================================
+
+        [HttpPost]
+        [Authorize(Roles = "Instructor,Admin")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteAnswer(
+            int answerId)
+        {
+            var userId =
+                _userManager.GetUserId(User);
+
+
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Challenge();
+            }
+
+
+            var answer =
+                await _context.LessonAnswers
+                    .Include(a => a.Question)
+                        .ThenInclude(q => q.Answers)
+                    .Include(a => a.Question)
+                        .ThenInclude(q => q.Lesson)
+                            .ThenInclude(l => l.Module)
+                                .ThenInclude(m => m.Course)
+                    .FirstOrDefaultAsync(a =>
+                        a.Id == answerId);
+
+
+            if (answer == null)
+            {
+                return NotFound();
+            }
+
+
+            var question =
+                answer.Question;
+
+
+            var course =
+                question
+                    .Lesson
+                    .Module
+                    .Course;
+
+
+            if (User.IsInRole("Instructor"))
+            {
+                if (course.InstructorId != userId ||
+                    answer.UserId != userId)
+                {
+                    return Forbid();
+                }
+            }
+
+
+            bool hasOtherAnswers =
+                question.Answers.Any(a =>
+                    a.Id != answer.Id);
+
+
+            _context.LessonAnswers.Remove(
+                answer);
+
+
+            question.IsResolved =
+                hasOtherAnswers;
+
+
+            await _context.SaveChangesAsync();
+
+
+            TempData["QuestionSuccessMessage"] =
+                hasOtherAnswers
+                    ? "Phản hồi đã được xóa."
+                    : "Phản hồi đã được xóa. Câu hỏi đã chuyển về trạng thái chưa trả lời.";
+
+
+            return RedirectToAction(
+                "Index",
+                new
+                {
+                    selectedQuestionId =
+                        question.Id
                 });
         }
     }

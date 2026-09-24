@@ -1,0 +1,1397 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using OnlineLearningPlatform.Models
+
+@inject UserManager<ApplicationUser> UserManager
+
+@model OnlineLearningPlatform.ViewModels.InstructorQuestionsViewModel
+
+@{
+    ViewData["Title"] = "Hỏi đáp học viên";
+
+    var currentUserId =
+        UserManager.GetUserId(User);
+
+    bool isAdmin =
+        User.IsInRole("Admin");
+}
+
+<style>
+
+    .questions-page {
+        min-height: 80vh;
+
+        padding: 42px 0 75px;
+
+        background: #f8fafc;
+    }
+
+
+    .questions-container {
+        max-width: 1100px;
+
+        margin: 0 auto;
+
+        padding: 0 20px;
+    }
+
+
+    /* =========================================
+       HEADER
+    ========================================= */
+
+    .questions-eyebrow {
+        margin-bottom: 6px;
+
+        color: #0d6efd;
+
+        font-size: 12px;
+        font-weight: 800;
+
+        text-transform: uppercase;
+        letter-spacing: .4px;
+    }
+
+
+    .questions-title {
+        margin: 0;
+
+        color: #172033;
+
+        font-size: 32px;
+        font-weight: 800;
+    }
+
+
+    .questions-description {
+        max-width: 720px;
+
+        margin: 7px 0 26px;
+
+        color: #7a8494;
+
+        line-height: 1.7;
+    }
+
+
+    /* =========================================
+       STATS
+    ========================================= */
+
+    .questions-stats {
+        display: grid;
+
+        grid-template-columns:
+            repeat(3, 1fr);
+
+        gap: 15px;
+
+        margin-bottom: 28px;
+    }
+
+
+    .stat-card {
+        padding: 20px;
+
+        border: 1px solid #e3e8ef;
+        border-radius: 14px;
+
+        background: #ffffff;
+    }
+
+
+    .stat-label {
+        margin-bottom: 7px;
+
+        color: #7e8898;
+
+        font-size: 12px;
+    }
+
+
+    .stat-value {
+        color: #172033;
+
+        font-size: 27px;
+        font-weight: 800;
+    }
+
+
+    .stat-value.waiting {
+        color: #d47700;
+    }
+
+
+    .stat-value.answered {
+        color: #198754;
+    }
+
+
+    /* =========================================
+       LIST HEADER
+    ========================================= */
+
+    .list-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 15px;
+
+        margin-bottom: 13px;
+    }
+
+
+    .list-title {
+        margin: 0;
+
+        color: #172033;
+
+        font-size: 18px;
+        font-weight: 800;
+    }
+
+
+    .list-count {
+        color: #8b95a5;
+
+        font-size: 11px;
+    }
+
+
+    /* =========================================
+       QUESTION
+    ========================================= */
+
+    .question-card {
+        margin-bottom: 17px;
+
+        padding: 21px;
+
+        border: 1px solid #e1e7ef;
+        border-radius: 15px;
+
+        background: #ffffff;
+
+        scroll-margin-top: 105px;
+
+        transition:
+            border-color .2s ease,
+            box-shadow .2s ease;
+    }
+
+
+    .question-card.selected {
+        border-color: #69a3ff;
+
+        box-shadow:
+            0 0 0 3px
+            rgba(13, 110, 253, .10);
+    }
+
+
+    .question-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+
+        gap: 15px;
+
+        margin-bottom: 15px;
+    }
+
+
+    .student-info {
+        display: flex;
+        align-items: center;
+
+        gap: 11px;
+    }
+
+
+    .student-avatar {
+        width: 42px;
+        height: 42px;
+
+        flex: 0 0 42px;
+
+        border-radius: 11px;
+
+        background: #eaf2ff;
+        color: #0d6efd;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 14px;
+        font-weight: 800;
+    }
+
+
+    .student-name {
+        margin-bottom: 2px;
+
+        color: #273142;
+
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+
+    .question-date {
+        color: #98a2b3;
+
+        font-size: 10px;
+    }
+
+
+    .question-status {
+        padding: 6px 10px;
+
+        border-radius: 20px;
+
+        font-size: 10px;
+        font-weight: 800;
+
+        white-space: nowrap;
+    }
+
+
+    .question-status.waiting {
+        background: #fff4df;
+        color: #bd6800;
+    }
+
+
+    .question-status.answered {
+        background: #eaf8ef;
+        color: #198754;
+    }
+
+
+    /* =========================================
+       META
+    ========================================= */
+
+    .question-meta {
+        display: flex;
+        flex-wrap: wrap;
+
+        gap: 8px;
+
+        margin-bottom: 13px;
+    }
+
+
+    .question-meta-item {
+        padding: 6px 9px;
+
+        border-radius: 8px;
+
+        background: #f3f5f8;
+        color: #626d7e;
+
+        font-size: 11px;
+    }
+
+
+    .question-meta-item strong {
+        color: #273142;
+    }
+
+
+    .question-content {
+        padding: 14px 16px;
+
+        border-radius: 10px;
+
+        background: #f8fafc;
+        color: #445064;
+
+        font-size: 13px;
+        line-height: 1.7;
+
+        white-space: pre-wrap;
+    }
+
+
+    /* =========================================
+       ANSWERS
+    ========================================= */
+
+    .answers-block {
+        margin-top: 17px;
+    }
+
+
+    .answers-title {
+        margin-bottom: 10px;
+
+        color: #273142;
+
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+
+    .answer-card {
+        margin-top: 9px;
+
+        padding: 15px 16px;
+
+        border-left: 3px solid #0d6efd;
+        border-radius: 0 10px 10px 0;
+
+        background: #f4f8ff;
+    }
+
+
+    .answer-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 14px;
+
+        margin-bottom: 8px;
+    }
+
+
+    .answer-author-row {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+
+        gap: 8px;
+    }
+
+
+    .answer-author {
+        color: #273142;
+
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+
+    .answer-label {
+        padding: 3px 7px;
+
+        border-radius: 20px;
+
+        background: #e3efff;
+        color: #0d6efd;
+
+        font-size: 9px;
+        font-weight: 800;
+    }
+
+
+    .answer-date {
+        color: #98a2b3;
+
+        font-size: 10px;
+    }
+
+
+    .answer-content {
+        color: #536075;
+
+        font-size: 12px;
+        line-height: 1.7;
+
+        white-space: pre-wrap;
+    }
+
+
+    /* =========================================
+       SỬA / XÓA
+    ========================================= */
+
+    .answer-actions {
+        display: flex;
+        align-items: center;
+
+        gap: 7px;
+
+        flex: 0 0 auto;
+    }
+
+
+    .answer-action-form {
+        display: inline-flex;
+
+        margin: 0;
+        padding: 0;
+    }
+
+
+    .answer-action-button {
+        height: 32px;
+        min-width: 43px;
+
+        margin: 0;
+        padding: 0 10px;
+
+        border: 1px solid #d7dee8;
+        border-radius: 7px;
+
+        background: #ffffff;
+        color: #5b6678;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        font-family: inherit;
+
+        font-size: 10px;
+        font-weight: 700;
+
+        line-height: 1;
+
+        cursor: pointer;
+    }
+
+
+    .answer-action-button:hover {
+        border-color: #a9c8f7;
+
+        color: #0d6efd;
+    }
+
+
+    .answer-action-button.delete {
+        border-color: #efc5ca;
+
+        color: #dc3545;
+    }
+
+
+    /* =========================================
+       EDIT
+    ========================================= */
+
+    .answer-edit-panel {
+        display: none;
+
+        margin-top: 12px;
+        padding: 13px;
+
+        border: 1px solid #dce4ee;
+        border-radius: 9px;
+
+        background: #ffffff;
+    }
+
+
+    .answer-edit-panel.open {
+        display: block;
+    }
+
+
+    .answer-edit-textarea {
+        width: 100%;
+        min-height: 85px;
+
+        padding: 10px 11px;
+
+        border: 1px solid #d8dfe8;
+        border-radius: 8px;
+
+        outline: none;
+        resize: vertical;
+
+        color: #445064;
+
+        font-size: 12px;
+    }
+
+
+    .answer-edit-footer {
+        display: flex;
+        justify-content: flex-end;
+
+        margin-top: 8px;
+    }
+
+
+    .save-answer-button {
+        min-height: 34px;
+
+        padding: 0 13px;
+
+        border: none;
+        border-radius: 7px;
+
+        background: #0d6efd;
+        color: #ffffff;
+
+        font-size: 10px;
+        font-weight: 800;
+
+        cursor: pointer;
+    }
+
+
+    /* =========================================
+       FORM TRẢ LỜI
+    ========================================= */
+
+    .answer-form {
+        margin-top: 18px;
+
+        padding: 15px;
+
+        border: 1px solid #dfe6ef;
+        border-radius: 11px;
+
+        background: #fafcff;
+    }
+
+
+    .answer-form-title {
+        margin-bottom: 8px;
+
+        color: #273142;
+
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+
+    .answer-textarea {
+        width: 100%;
+        min-height: 95px;
+
+        padding: 11px 12px;
+
+        border: 1px solid #d9e0e9;
+        border-radius: 9px;
+
+        resize: vertical;
+        outline: none;
+
+        font-size: 12px;
+    }
+
+
+    .answer-submit-row {
+        display: flex;
+        justify-content: flex-end;
+
+        margin-top: 9px;
+    }
+
+
+    .answer-submit {
+        min-height: 37px;
+
+        padding: 0 15px;
+
+        border: none;
+        border-radius: 8px;
+
+        background: #0d6efd;
+        color: #ffffff;
+
+        font-size: 11px;
+        font-weight: 800;
+
+        cursor: pointer;
+    }
+
+
+    /* =========================================
+       QUESTION FOOTER
+       Đồng nhất với trang Student
+    ========================================= */
+
+    .question-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+
+        gap: 10px;
+
+        margin-top: 15px;
+    }
+
+
+    .lesson-link {
+        min-height: 34px;
+
+        padding: 0 12px;
+
+        border: 1px solid #0d6efd;
+        border-radius: 8px;
+
+        background: #0d6efd;
+        color: #ffffff;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 10px;
+        font-weight: 800;
+
+        text-decoration: none;
+    }
+
+
+    .lesson-link:hover {
+        background: #0b5ed7;
+        color: #ffffff;
+    }
+
+
+    /* =========================================
+       EMPTY
+    ========================================= */
+
+    .questions-empty {
+        padding: 55px 20px;
+
+        border: 1px solid #e2e7ee;
+        border-radius: 15px;
+
+        background: #ffffff;
+        color: #8992a3;
+
+        text-align: center;
+    }
+
+
+    /* =========================================
+       TOAST
+    ========================================= */
+
+    .question-toast {
+        position: fixed;
+
+        left: 24px;
+        bottom: 24px;
+
+        z-index: 2000;
+
+        width:
+            min(
+                370px,
+                calc(100vw - 48px)
+            );
+
+        padding: 14px 16px;
+
+        border-radius: 11px;
+
+        background: #ffffff;
+
+        box-shadow:
+            0 12px 35px
+            rgba(31, 42, 64, .17);
+    }
+
+
+    .question-toast.success {
+        border-left: 4px solid #198754;
+    }
+
+
+    .question-toast.info {
+        border-left: 4px solid #0d6efd;
+    }
+
+
+    .toast-title {
+        margin-bottom: 3px;
+
+        color: #273142;
+
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+
+    .toast-text {
+        color: #697386;
+
+        font-size: 12px;
+    }
+
+
+    @@media (max-width: 700px) {
+
+        .questions-stats {
+            grid-template-columns: 1fr;
+        }
+
+
+        .question-header,
+        .answer-header {
+            align-items: flex-start;
+
+            flex-direction: column;
+        }
+
+
+        .question-footer {
+            align-items: flex-start;
+
+            flex-direction: column;
+        }
+
+    }
+
+</style>
+
+
+<div class="questions-page">
+
+    <div class="questions-container">
+
+
+        <div class="questions-eyebrow">
+            Không gian giảng viên
+        </div>
+
+
+        <h1 class="questions-title">
+            Hỏi đáp học viên
+        </h1>
+
+
+        <p class="questions-description">
+
+            Theo dõi các câu hỏi được gửi từ học viên
+            trong những khóa học bạn đang phụ trách
+            và phản hồi trực tiếp theo từng bài học.
+
+        </p>
+
+
+
+        <!-- =====================================
+             STATS
+        ====================================== -->
+
+        <div class="questions-stats">
+
+
+            <div class="stat-card">
+
+                <div class="stat-label">
+                    Tổng câu hỏi
+                </div>
+
+                <div class="stat-value">
+                    @Model.TotalQuestions
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-label">
+                    Chưa trả lời
+                </div>
+
+                <div class="stat-value waiting">
+                    @Model.UnansweredQuestions
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-label">
+                    Đã trả lời
+                </div>
+
+                <div class="stat-value answered">
+                    @Model.AnsweredQuestions
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+
+        <div class="list-header">
+
+            <h2 class="list-title">
+                Danh sách câu hỏi
+            </h2>
+
+            <div class="list-count">
+                @Model.TotalQuestions câu hỏi
+            </div>
+
+        </div>
+
+
+
+        @if (Model.Questions.Any())
+        {
+            foreach (var question in
+                Model.Questions)
+            {
+                bool selected =
+                    Model.SelectedQuestionId.HasValue &&
+                    Model.SelectedQuestionId.Value ==
+                    question.Id;
+
+
+                string questionClass =
+                    selected
+                        ? "question-card selected"
+                        : "question-card";
+
+
+                string studentName =
+                    !string.IsNullOrWhiteSpace(
+                        question.User?.FullName)
+                        ? question.User.FullName
+                        : "Học viên";
+
+
+                string studentInitial =
+                    !string.IsNullOrWhiteSpace(
+                        studentName)
+                        ? studentName
+                            .Substring(0, 1)
+                            .ToUpper()
+                        : "H";
+
+
+                <article id="question-@question.Id"
+                         class="@questionClass">
+
+
+                    <!-- =================================
+                         QUESTION HEADER
+                    ================================== -->
+
+                    <div class="question-header">
+
+
+                        <div class="student-info">
+
+
+                            <div class="student-avatar">
+
+                                @studentInitial
+
+                            </div>
+
+
+                            <div>
+
+                                <div class="student-name">
+
+                                    @studentName
+
+                                </div>
+
+
+                                <div class="question-date">
+
+                                    Đặt câu hỏi lúc
+
+                                    @(question.CreatedAt
+                                        .ToLocalTime()
+                                        .ToString(
+                                            "dd/MM/yyyy HH:mm"))
+
+                                </div>
+
+                            </div>
+
+
+                        </div>
+
+
+
+                        @if (question.IsResolved)
+                        {
+                            <span class="question-status answered">
+
+                                Đã trả lời
+
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="question-status waiting">
+
+                                Chờ phản hồi
+
+                            </span>
+                        }
+
+
+                    </div>
+
+
+
+                    <!-- =================================
+                         COURSE / LESSON
+                    ================================== -->
+
+                    <div class="question-meta">
+
+
+                        <span class="question-meta-item">
+
+                            <strong>
+                                Khóa học:
+                            </strong>
+
+                            @(question.Lesson.Module.Course.Title)
+
+                        </span>
+
+
+                        <span class="question-meta-item">
+
+                            <strong>
+                                Bài học:
+                            </strong>
+
+                            @question.Lesson.Title
+
+                        </span>
+
+
+                    </div>
+
+
+
+                    <!-- =================================
+                         QUESTION CONTENT
+                    ================================== -->
+
+                    <div class="question-content">@question.Content</div>
+
+
+
+                    <!-- =================================
+                         ANSWERS
+                    ================================== -->
+
+                    @if (question.Answers != null &&
+                         question.Answers.Any())
+                    {
+                        <div class="answers-block">
+
+
+                            <div class="answers-title">
+                                Phản hồi
+                            </div>
+
+
+                            @foreach (var answer in
+                                question.Answers
+                                    .OrderBy(a =>
+                                        a.CreatedAt))
+                            {
+                                bool canManageAnswer =
+                                    isAdmin ||
+                                    answer.UserId ==
+                                    currentUserId;
+
+
+                                string answerName =
+                                    !string.IsNullOrWhiteSpace(
+                                        answer.User?.FullName)
+                                        ? answer.User.FullName
+                                        : "Giảng viên";
+
+
+                                <div class="answer-card">
+
+
+                                    <div class="answer-header">
+
+
+                                        <div class="answer-author-row">
+
+
+                                            <span class="answer-author">
+
+                                                @answerName
+
+                                            </span>
+
+
+                                            <span class="answer-label">
+
+                                                PHẢN HỒI
+
+                                            </span>
+
+
+                                            <span class="answer-date">
+
+                                                @(answer.CreatedAt
+                                                    .ToLocalTime()
+                                                    .ToString(
+                                                        "dd/MM/yyyy HH:mm"))
+
+                                            </span>
+
+
+                                        </div>
+
+
+
+                                        @if (canManageAnswer)
+                                        {
+                                            <div class="answer-actions">
+
+
+                                                <button type="button"
+                                                        class="answer-action-button"
+                                                        onclick="toggleAnswerEdit(@answer.Id)">
+
+                                                    Sửa
+
+                                                </button>
+
+
+
+                                                <form asp-controller="LessonQuestions"
+                                                      asp-action="DeleteAnswer"
+                                                      method="post"
+                                                      class="answer-action-form"
+                                                      onsubmit="return confirm('Bạn có chắc muốn xóa phản hồi này?');">
+
+
+                                                    @Html.AntiForgeryToken()
+
+
+                                                    <input type="hidden"
+                                                           name="answerId"
+                                                           value="@answer.Id" />
+
+
+                                                    <button type="submit"
+                                                            class="answer-action-button delete">
+
+                                                        Xóa
+
+                                                    </button>
+
+
+                                                </form>
+
+
+                                            </div>
+                                        }
+
+
+                                    </div>
+
+
+
+                                    <div class="answer-content">@answer.Content</div>
+
+
+
+                                    @if (canManageAnswer)
+                                    {
+                                        <div id="edit-answer-@answer.Id"
+                                             class="answer-edit-panel">
+
+
+                                            <form asp-controller="LessonQuestions"
+                                                  asp-action="EditAnswer"
+                                                  method="post">
+
+
+                                                @Html.AntiForgeryToken()
+
+
+                                                <input type="hidden"
+                                                       name="answerId"
+                                                       value="@answer.Id" />
+
+
+                                                <textarea name="content"
+                                                          maxlength="2000"
+                                                          required
+                                                          class="answer-edit-textarea">@answer.Content</textarea>
+
+
+                                                <div class="answer-edit-footer">
+
+
+                                                    <button type="submit"
+                                                            class="save-answer-button">
+
+                                                        Lưu thay đổi
+
+                                                    </button>
+
+
+                                                </div>
+
+
+                                            </form>
+
+
+                                        </div>
+                                    }
+
+
+                                </div>
+                            }
+
+
+                        </div>
+                    }
+
+
+
+                    <!-- =================================
+                         FORM TRẢ LỜI
+                    ================================== -->
+
+                    @if (!question.IsResolved)
+                    {
+                        <form asp-controller="LessonQuestions"
+                              asp-action="Answer"
+                              method="post"
+                              class="answer-form">
+
+
+                            @Html.AntiForgeryToken()
+
+
+                            <input type="hidden"
+                                   name="questionId"
+                                   value="@question.Id" />
+
+
+                            <div class="answer-form-title">
+
+                                Phản hồi học viên
+
+                            </div>
+
+
+                            <textarea name="content"
+                                      maxlength="2000"
+                                      required
+                                      class="answer-textarea"
+                                      placeholder="Nhập nội dung phản hồi..."></textarea>
+
+
+                            <div class="answer-submit-row">
+
+
+                                <button type="submit"
+                                        class="answer-submit">
+
+                                    Gửi phản hồi
+
+                                </button>
+
+
+                            </div>
+
+
+                        </form>
+                    }
+
+
+
+                    <!-- =================================
+                         LINK ĐẾN BÀI HỌC
+                    ================================== -->
+
+                    <div class="question-footer">
+
+
+                        <a asp-controller="Courses"
+                           asp-action="Details"
+                           asp-route-slug="@question.Lesson.Module.Course.Slug"
+                           asp-fragment="lesson-@question.LessonId"
+                           class="lesson-link">
+
+                            Xem bài học →
+
+                        </a>
+
+
+                    </div>
+
+
+                </article>
+            }
+        }
+        else
+        {
+            <div class="questions-empty">
+
+                Hiện chưa có câu hỏi nào từ học viên.
+
+            </div>
+        }
+
+
+    </div>
+
+</div>
+
+
+
+@if (TempData["QuestionSuccessMessage"] != null)
+{
+    <div id="questionToast"
+         class="question-toast success">
+
+        <div class="toast-title">
+            Thành công
+        </div>
+
+        <div class="toast-text">
+
+            @TempData["QuestionSuccessMessage"]
+
+        </div>
+
+    </div>
+}
+
+
+@if (TempData["QuestionInfoMessage"] != null)
+{
+    <div id="questionToast"
+         class="question-toast info">
+
+        <div class="toast-title">
+            Thông báo
+        </div>
+
+        <div class="toast-text">
+
+            @TempData["QuestionInfoMessage"]
+
+        </div>
+
+    </div>
+}
+
+
+
+<script>
+
+    function toggleAnswerEdit(
+        answerId
+    ) {
+
+        const panel =
+            document.getElementById(
+                "edit-answer-" +
+                answerId
+            );
+
+
+        if (!panel) {
+            return;
+        }
+
+
+        panel.classList.toggle(
+            "open"
+        );
+
+    }
+
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            const selectedQuestionId =
+                "@Model.SelectedQuestionId";
+
+
+            if (selectedQuestionId) {
+
+                const selectedQuestion =
+                    document.getElementById(
+                        "question-" +
+                        selectedQuestionId
+                    );
+
+
+                if (selectedQuestion) {
+
+                    setTimeout(
+                        function () {
+
+                            selectedQuestion
+                                .scrollIntoView({
+                                    behavior:
+                                        "smooth",
+
+                                    block:
+                                        "center"
+                                });
+
+                        },
+                        160
+                    );
+
+                }
+
+            }
+
+
+            const toast =
+                document.getElementById(
+                    "questionToast"
+                );
+
+
+            if (toast) {
+
+                setTimeout(
+                    function () {
+
+                        toast.style.transition =
+                            ".25s ease";
+
+                        toast.style.opacity =
+                            "0";
+
+                        toast.style.transform =
+                            "translateY(10px)";
+
+
+                        setTimeout(
+                            function () {
+
+                                toast.remove();
+
+                            },
+                            250
+                        );
+
+                    },
+                    3500
+                );
+
+            }
+
+        }
+    );
+
+</script>

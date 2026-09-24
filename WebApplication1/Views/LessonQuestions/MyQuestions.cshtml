@@ -1,0 +1,1076 @@
+﻿@model OnlineLearningPlatform.ViewModels.StudentQuestionsViewModel
+
+@{
+    ViewData["Title"] = "Câu hỏi của tôi";
+}
+
+<style>
+
+    .my-questions-page {
+        min-height: 80vh;
+
+        padding: 46px 0 75px;
+
+        background: #f8fafc;
+    }
+
+    .my-questions-container {
+        max-width: 1050px;
+
+        margin: 0 auto;
+
+        padding: 0 20px;
+    }
+
+
+    /* =========================================
+       HEADER
+    ========================================= */
+
+    .my-questions-header {
+        margin-bottom: 25px;
+    }
+
+    .my-questions-eyebrow {
+        margin-bottom: 7px;
+
+        color: #0d6efd;
+
+        font-size: 12px;
+        font-weight: 800;
+
+        text-transform: uppercase;
+        letter-spacing: .5px;
+    }
+
+    .my-questions-title {
+        margin: 0;
+
+        color: #172033;
+
+        font-size: 32px;
+        font-weight: 800;
+    }
+
+    .my-questions-description {
+        margin: 8px 0 0;
+
+        color: #7a8494;
+
+        line-height: 1.7;
+    }
+
+
+    /* =========================================
+       STATS
+    ========================================= */
+
+    .question-stats {
+        display: grid;
+
+        grid-template-columns:
+            repeat(3, 1fr);
+
+        gap: 15px;
+
+        margin-bottom: 24px;
+    }
+
+    .question-stat {
+        padding: 19px 20px;
+
+        border: 1px solid #e5eaf1;
+        border-radius: 14px;
+
+        background: #ffffff;
+    }
+
+    .question-stat-label {
+        margin-bottom: 5px;
+
+        color: #7e8898;
+
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .question-stat-number {
+        color: #172033;
+
+        font-size: 27px;
+        font-weight: 800;
+    }
+
+    .question-stat-number.waiting {
+        color: #c87300;
+    }
+
+    .question-stat-number.answered {
+        color: #198754;
+    }
+
+
+    /* =========================================
+       FILTER
+    ========================================= */
+
+    .question-tabs {
+        display: flex;
+        flex-wrap: wrap;
+
+        gap: 8px;
+
+        margin-bottom: 20px;
+    }
+
+    .question-tab {
+        min-height: 39px;
+
+        padding: 0 14px;
+
+        border: 1px solid #dfe5ed;
+        border-radius: 9px;
+
+        background: #ffffff;
+        color: #5d6879;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 12px;
+        font-weight: 700;
+
+        text-decoration: none;
+    }
+
+    .question-tab:hover {
+        border-color: #bcd3f8;
+
+        color: #0d6efd;
+    }
+
+    .question-tab.active {
+        border-color: #bed6ff;
+
+        background: #edf4ff;
+        color: #0d6efd;
+    }
+
+
+    /* =========================================
+       QUESTION CARD
+    ========================================= */
+
+    .my-question-card {
+        margin-bottom: 17px;
+
+        padding: 22px;
+
+        border: 1px solid #e3e8ef;
+        border-radius: 15px;
+
+        background: #ffffff;
+
+        scroll-margin-top: 100px;
+
+        transition:
+            border-color .2s ease,
+            box-shadow .2s ease;
+    }
+
+    .my-question-card.selected {
+        border-color: #73a9f8;
+
+        box-shadow:
+            0 0 0 3px
+            rgba(13, 110, 253, .10);
+    }
+
+    .question-card-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+
+        gap: 15px;
+    }
+
+    .question-course {
+        color: #273142;
+
+        font-size: 14px;
+        font-weight: 800;
+    }
+
+    .question-lesson {
+        margin-top: 4px;
+
+        color: #7d8796;
+
+        font-size: 12px;
+    }
+
+    .question-date {
+        margin-top: 4px;
+
+        color: #a0a7b3;
+
+        font-size: 11px;
+    }
+
+    .question-status {
+        padding: 6px 10px;
+
+        border-radius: 25px;
+
+        font-size: 10px;
+        font-weight: 800;
+
+        white-space: nowrap;
+    }
+
+    .question-status.waiting {
+        background: #fff5e5;
+        color: #c56b00;
+    }
+
+    .question-status.answered {
+        background: #eaf8ef;
+        color: #198754;
+    }
+
+    .question-content {
+        margin-top: 16px;
+
+        padding: 15px 17px;
+
+        border-radius: 11px;
+
+        background: #f8fafc;
+
+        color: #465164;
+
+        font-size: 13px;
+        line-height: 1.7;
+
+        white-space: pre-wrap;
+    }
+
+
+    /* =========================================
+       ANSWERS
+    ========================================= */
+
+    .answers {
+        margin-top: 16px;
+    }
+
+    .answers-title {
+        margin-bottom: 9px;
+
+        color: #344054;
+
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .answer-card {
+        margin-top: 8px;
+
+        padding: 13px 15px;
+
+        border-left: 3px solid #0d6efd;
+        border-radius: 0 9px 9px 0;
+
+        background: #f4f8ff;
+    }
+
+    .answer-header {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+
+        gap: 8px;
+
+        margin-bottom: 5px;
+    }
+
+    .answer-author {
+        color: #273142;
+
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .answer-badge {
+        padding: 3px 7px;
+
+        border-radius: 20px;
+
+        background: #e3efff;
+        color: #0d6efd;
+
+        font-size: 9px;
+        font-weight: 800;
+    }
+
+    .answer-date {
+        color: #99a2af;
+
+        font-size: 10px;
+    }
+
+    .answer-content {
+        color: #596579;
+
+        font-size: 12px;
+        line-height: 1.7;
+
+        white-space: pre-wrap;
+    }
+
+    .waiting-box {
+        margin-top: 15px;
+
+        padding: 11px 13px;
+
+        border-radius: 9px;
+
+        background: #fff9ef;
+        color: #a86200;
+
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+
+    /* =========================================
+       ACTIONS
+    ========================================= */
+
+    .question-actions {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+
+        gap: 8px;
+
+        margin-top: 15px;
+    }
+
+    .question-action {
+        height: 34px;
+
+        margin: 0;
+
+        padding: 0 11px;
+
+        border: 1px solid #dce3eb;
+        border-radius: 7px;
+
+        background: #ffffff;
+        color: #566273;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        font-family: inherit;
+
+        font-size: 11px;
+        font-weight: 700;
+
+        line-height: 1;
+
+        text-decoration: none;
+
+        cursor: pointer;
+    }
+
+    .question-action:hover {
+        border-color: #bcd3f8;
+
+        color: #0d6efd;
+    }
+
+    .question-action.delete {
+        border-color: #efc9ce;
+
+        color: #dc3545;
+    }
+
+    .question-action.primary {
+        border-color: #0d6efd;
+
+        background: #0d6efd;
+        color: #ffffff;
+    }
+
+    .question-action.primary:hover {
+        background: #0b5ed7;
+        color: #ffffff;
+    }
+
+    .action-form {
+        display: flex;
+
+        margin: 0;
+        padding: 0;
+    }
+
+    .edit-details {
+        margin: 0;
+        padding: 0;
+    }
+
+    .edit-details > summary {
+        list-style: none;
+    }
+
+    .edit-details > summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .edit-panel {
+        width: 100%;
+
+        margin-top: 10px;
+        padding: 14px;
+
+        border: 1px solid #e0e6ee;
+        border-radius: 10px;
+
+        background: #f9fbfd;
+    }
+
+    .edit-textarea {
+        width: 100%;
+        min-height: 90px;
+
+        padding: 11px 12px;
+
+        border: 1px solid #dbe1e8;
+        border-radius: 9px;
+
+        resize: vertical;
+
+        outline: none;
+
+        font-size: 13px;
+    }
+
+    .edit-submit-row {
+        display: flex;
+        justify-content: flex-end;
+
+        margin-top: 9px;
+    }
+
+
+    /* =========================================
+       EMPTY
+    ========================================= */
+
+    .questions-empty {
+        padding: 60px 25px;
+
+        border: 1px solid #e5eaf1;
+        border-radius: 15px;
+
+        background: #ffffff;
+
+        text-align: center;
+    }
+
+    .questions-empty-icon {
+        width: 55px;
+        height: 55px;
+
+        margin: 0 auto 14px;
+
+        border-radius: 15px;
+
+        background: #edf4ff;
+        color: #0d6efd;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-weight: 800;
+    }
+
+    .questions-empty-title {
+        margin-bottom: 5px;
+
+        color: #344054;
+
+        font-weight: 800;
+    }
+
+    .questions-empty-description {
+        color: #8490a2;
+
+        font-size: 13px;
+    }
+
+
+    /* =========================================
+       TOAST
+    ========================================= */
+
+    .my-question-toast {
+        position: fixed;
+
+        left: 24px;
+        bottom: 24px;
+
+        z-index: 2000;
+
+        width: min(
+            370px,
+            calc(100vw - 48px)
+        );
+
+        padding: 14px 16px;
+
+        border-radius: 11px;
+
+        background: #ffffff;
+
+        box-shadow:
+            0 12px 35px
+            rgba(27, 39, 61, .16);
+    }
+
+    .my-question-toast.success {
+        border-left: 4px solid #198754;
+    }
+
+    .my-question-toast.info {
+        border-left: 4px solid #0d6efd;
+    }
+
+    .toast-heading {
+        margin-bottom: 3px;
+
+        color: #273142;
+
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .toast-text {
+        color: #697386;
+
+        font-size: 12px;
+    }
+
+
+    @@media (max-width: 700px) {
+
+        .question-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .question-card-header {
+            flex-direction: column;
+        }
+
+        .my-questions-title {
+            font-size: 27px;
+        }
+    }
+
+</style>
+
+
+<div class="my-questions-page">
+
+    <div class="my-questions-container">
+
+
+        <div class="my-questions-header">
+
+            <div class="my-questions-eyebrow">
+                Học tập
+            </div>
+
+            <h1 class="my-questions-title">
+                Câu hỏi của tôi
+            </h1>
+
+            <p class="my-questions-description">
+
+                Theo dõi những câu hỏi bạn đã gửi
+                và phản hồi từ giảng viên
+                trong các khóa học đang tham gia.
+
+            </p>
+
+        </div>
+
+
+        <!-- STATS -->
+
+        <div class="question-stats">
+
+            <div class="question-stat">
+
+                <div class="question-stat-label">
+                    Tổng câu hỏi
+                </div>
+
+                <div class="question-stat-number">
+                    @Model.TotalQuestions
+                </div>
+
+            </div>
+
+
+            <div class="question-stat">
+
+                <div class="question-stat-label">
+                    Chờ phản hồi
+                </div>
+
+                <div class="question-stat-number waiting">
+                    @Model.WaitingQuestions
+                </div>
+
+            </div>
+
+
+            <div class="question-stat">
+
+                <div class="question-stat-label">
+                    Đã trả lời
+                </div>
+
+                <div class="question-stat-number answered">
+                    @Model.AnsweredQuestions
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- FILTER -->
+
+        <div class="question-tabs">
+
+            <a asp-controller="LessonQuestions"
+               asp-action="MyQuestions"
+               asp-route-filter="all"
+               class="question-tab @(Model.Filter == "all" ? "active" : "")">
+
+                Tất cả
+
+            </a>
+
+
+            <a asp-controller="LessonQuestions"
+               asp-action="MyQuestions"
+               asp-route-filter="waiting"
+               class="question-tab @(Model.Filter == "waiting" ? "active" : "")">
+
+                Chờ phản hồi
+
+            </a>
+
+
+            <a asp-controller="LessonQuestions"
+               asp-action="MyQuestions"
+               asp-route-filter="answered"
+               class="question-tab @(Model.Filter == "answered" ? "active" : "")">
+
+                Đã trả lời
+
+            </a>
+
+        </div>
+
+
+        <!-- LIST -->
+
+        @if (Model.Questions.Any())
+        {
+            @foreach (var question in Model.Questions)
+            {
+                bool isSelected =
+                    Model.SelectedQuestionId.HasValue &&
+                    Model.SelectedQuestionId.Value ==
+                    question.Id;
+
+
+                string cardClass =
+                    isSelected
+                        ? "my-question-card selected"
+                        : "my-question-card";
+
+
+                <div id="question-@question.Id"
+                     class="@cardClass">
+
+
+                    <div class="question-card-header">
+
+                        <div>
+
+                            <div class="question-course">
+
+                                @(question.Lesson.Module.Course.Title)
+
+                            </div>
+
+
+                            <div class="question-lesson">
+
+                                Bài học:
+                                @question.Lesson.Title
+
+                            </div>
+
+
+                            <div class="question-date">
+
+                                @(question.CreatedAt
+                                    .ToLocalTime()
+                                    .ToString(
+                                        "dd/MM/yyyy HH:mm"))
+
+                            </div>
+
+                        </div>
+
+
+                        @if (question.IsResolved)
+                        {
+                            <span class="question-status answered">
+
+                                Đã trả lời
+
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="question-status waiting">
+
+                                Chờ phản hồi
+
+                            </span>
+                        }
+
+                    </div>
+
+
+                    <div class="question-content">@question.Content</div>
+
+
+                    @if (question.Answers != null &&
+                         question.Answers.Any())
+                    {
+                        <div class="answers">
+
+                            <div class="answers-title">
+                                Phản hồi từ giảng viên
+                            </div>
+
+
+                            @foreach (var answer in
+                                question.Answers
+                                    .OrderBy(a =>
+                                        a.CreatedAt))
+                            {
+                                string answerName =
+                                    !string.IsNullOrWhiteSpace(
+                                        answer.User?.FullName)
+                                        ? answer.User.FullName
+                                        : "Giảng viên";
+
+
+                                <div class="answer-card">
+
+                                    <div class="answer-header">
+
+                                        <span class="answer-author">
+                                            @answerName
+                                        </span>
+
+                                        <span class="answer-badge">
+                                            PHẢN HỒI
+                                        </span>
+
+                                        <span class="answer-date">
+
+                                            @(answer.CreatedAt
+                                                .ToLocalTime()
+                                                .ToString(
+                                                    "dd/MM/yyyy HH:mm"))
+
+                                        </span>
+
+                                    </div>
+
+
+                                    <div class="answer-content">@answer.Content</div>
+
+                                </div>
+                            }
+
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="waiting-box">
+
+                            Câu hỏi đang chờ giảng viên phản hồi.
+
+                        </div>
+                    }
+
+
+                    <!-- ACTIONS -->
+
+                    <div class="question-actions">
+
+
+                        <a asp-controller="Courses"
+                           asp-action="Learn"
+                           asp-route-courseId="@question.Lesson.Module.CourseId"
+                           asp-route-lessonId="@question.LessonId"
+                           class="question-action primary">
+
+                            Xem trong bài học
+
+                        </a>
+
+
+                        <details class="edit-details">
+
+                            <summary class="question-action">
+                                Sửa
+                            </summary>
+
+
+                            <div class="edit-panel">
+
+                                <form asp-controller="LessonQuestions"
+                                      asp-action="EditQuestion"
+                                      method="post">
+
+                                    @Html.AntiForgeryToken()
+
+
+                                    <input type="hidden"
+                                           name="questionId"
+                                           value="@question.Id" />
+
+
+                                    <input type="hidden"
+                                           name="returnToMyQuestions"
+                                           value="true" />
+
+
+                                    <textarea name="content"
+                                              class="edit-textarea"
+                                              maxlength="2000"
+                                              required>@question.Content</textarea>
+
+
+                                    <div class="edit-submit-row">
+
+                                        <button type="submit"
+                                                class="question-action primary">
+
+                                            Lưu thay đổi
+
+                                        </button>
+
+                                    </div>
+
+                                </form>
+
+                            </div>
+
+                        </details>
+
+
+                        <form asp-controller="LessonQuestions"
+                              asp-action="DeleteQuestion"
+                              method="post"
+                              class="action-form"
+                              onsubmit="return confirm('Bạn có chắc muốn xóa câu hỏi này? Các phản hồi liên quan cũng sẽ bị xóa.');">
+
+                            @Html.AntiForgeryToken()
+
+
+                            <input type="hidden"
+                                   name="questionId"
+                                   value="@question.Id" />
+
+
+                            <input type="hidden"
+                                   name="returnToMyQuestions"
+                                   value="true" />
+
+
+                            <button type="submit"
+                                    class="question-action delete">
+
+                                Xóa
+
+                            </button>
+
+                        </form>
+
+
+                    </div>
+
+
+                </div>
+            }
+        }
+        else
+        {
+            <div class="questions-empty">
+
+                <div class="questions-empty-icon">
+                    ?
+                </div>
+
+                <div class="questions-empty-title">
+
+                    Chưa có câu hỏi
+
+                </div>
+
+                <div class="questions-empty-description">
+
+                    Khi bạn đặt câu hỏi trong bài học,
+                    câu hỏi sẽ xuất hiện tại đây.
+
+                </div>
+
+            </div>
+        }
+
+
+    </div>
+
+</div>
+
+
+@if (TempData["MyQuestionSuccessMessage"] != null)
+{
+    <div class="my-question-toast success"
+         id="myQuestionToast">
+
+        <div class="toast-heading">
+            Thành công
+        </div>
+
+        <div class="toast-text">
+            @TempData["MyQuestionSuccessMessage"]
+        </div>
+
+    </div>
+}
+
+
+@if (TempData["MyQuestionInfoMessage"] != null)
+{
+    <div class="my-question-toast info"
+         id="myQuestionToast">
+
+        <div class="toast-heading">
+            Thông báo
+        </div>
+
+        <div class="toast-text">
+            @TempData["MyQuestionInfoMessage"]
+        </div>
+
+    </div>
+}
+
+
+<script>
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            const selectedQuestionId =
+                "@Model.SelectedQuestionId";
+
+
+            if (selectedQuestionId) {
+
+                const question =
+                    document.getElementById(
+                        "question-" +
+                        selectedQuestionId
+                    );
+
+
+                if (question) {
+
+                    setTimeout(
+                        function () {
+
+                            question.scrollIntoView({
+                                behavior: "smooth",
+                                block: "center"
+                            });
+
+                        },
+                        180
+                    );
+
+                }
+
+            }
+
+
+            const toast =
+                document.getElementById(
+                    "myQuestionToast"
+                );
+
+
+            if (toast) {
+
+                setTimeout(
+                    function () {
+
+                        toast.style.opacity =
+                            "0";
+
+                        toast.style.transform =
+                            "translateY(10px)";
+
+                        toast.style.transition =
+                            ".25s ease";
+
+
+                        setTimeout(
+                            function () {
+
+                                toast.remove();
+
+                            },
+                            250
+                        );
+
+                    },
+                    3500
+                );
+
+            }
+
+        }
+    );
+
+</script>

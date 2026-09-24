@@ -14,9 +14,7 @@
 
 
     bool isCoursesPage =
-        currentController == "Courses" &&
-        (currentAction == "Index" ||
-         currentAction == "Details");
+        currentController == "Courses";
 
 
     bool isMyCoursesPage =
@@ -24,14 +22,49 @@
         currentAction == "MyCourses";
 
 
+    bool isQuestionsPage =
+        currentController == "LessonQuestions";
+
+
+    bool isAuthenticated =
+        User.Identity?.IsAuthenticated == true;
+
+
+    bool isStudent =
+        isAuthenticated &&
+        User.IsInRole("Student");
+
+
+    bool isInstructor =
+        isAuthenticated &&
+        User.IsInRole("Instructor");
+
+
+    bool isAdmin =
+        isAuthenticated &&
+        User.IsInRole("Admin");
+
+
     // =========================================
-    // USER ĐANG ĐĂNG NHẬP
+    // CẤP ĐỘ ĐANG CHỌN
     // =========================================
 
-    OnlineLearningPlatform.Models.ApplicationUser? currentUser = null;
+    string selectedLevel =
+        Context.Request.Query["level"]
+            .ToString()
+            .Trim()
+            .ToLowerInvariant();
 
 
-    if (User.Identity?.IsAuthenticated == true)
+    // =========================================
+    // USER HIỆN TẠI
+    // =========================================
+
+    OnlineLearningPlatform.Models.ApplicationUser? currentUser =
+        null;
+
+
+    if (isAuthenticated)
     {
         currentUser =
             await UserManager.GetUserAsync(User);
@@ -39,17 +72,29 @@
 
 
     string displayName =
-        !string.IsNullOrWhiteSpace(currentUser?.FullName)
+        !string.IsNullOrWhiteSpace(
+            currentUser?.FullName)
             ? currentUser.FullName
-            : User.Identity?.Name ?? "User";
+            : User.Identity?.Name
+                ?? "User";
 
 
     string firstLetter =
-        !string.IsNullOrWhiteSpace(displayName)
-            ? displayName.Substring(0, 1)
+        !string.IsNullOrWhiteSpace(
+            displayName)
+            ? displayName
+                .Substring(0, 1)
+                .ToUpper()
             : "U";
-}
 
+
+    string roleLabel =
+        isInstructor
+            ? "Giảng viên"
+            : isAdmin
+                ? "Quản trị viên"
+                : "Học viên";
+}
 
 <!DOCTYPE html>
 
@@ -75,349 +120,876 @@
 
     <style>
 
-            html,
-            body {
-                min-height: 100%;
-            }
+        html,
+        body {
+            min-height: 100%;
+        }
 
 
-            body {
-                margin: 0;
-                background: #ffffff;
-                color: #172033;
-            }
+        body {
+            margin: 0;
+
+            background: #ffffff;
+            color: #172033;
+        }
 
 
-            /* =========================================
-                       NAVBAR
-                    ========================================= */
+        /* =========================================
+           NAVBAR
+        ========================================= */
 
-            .edulearn-navbar {
-                position: relative;
-                z-index: 1000;
-                background: #ffffff;
-                border-bottom: 1px solid #e9edf3;
-            }
+        .edulearn-navbar {
+            position: relative;
 
+            z-index: 1000;
+
+            background: #ffffff;
+
+            border-bottom: 1px solid #e9edf3;
+        }
+
+
+        .edulearn-nav-container {
+            max-width: 1180px;
+
+            min-height: 82px;
+
+            margin: 0 auto;
+
+            padding: 0 20px;
+
+            display: flex;
+            align-items: center;
+
+            gap: 32px;
+        }
+
+
+        /* =========================================
+           LOGO
+        ========================================= */
+
+        .edulearn-logo {
+            color: #0d6efd;
+
+            font-size: 25px;
+            font-weight: 800;
+
+            text-decoration: none;
+
+            white-space: nowrap;
+        }
+
+
+        .edulearn-logo:hover {
+            color: #0d6efd;
+        }
+
+
+        /* =========================================
+           MAIN NAV
+        ========================================= */
+
+        .edulearn-nav-links {
+            display: flex;
+            align-items: center;
+
+            gap: 27px;
+
+            flex: 1;
+        }
+
+
+        .edulearn-nav-link {
+            min-height: 42px;
+
+            padding: 0;
+
+            border: none;
+
+            background: transparent;
+            color: #273142;
+
+            display: inline-flex;
+            align-items: center;
+
+            gap: 6px;
+
+            font-family: inherit;
+
+            font-size: 14px;
+            font-weight: 600;
+
+            line-height: 1;
+
+            text-decoration: none;
+
+            white-space: nowrap;
+
+            cursor: pointer;
+
+            transition: color .2s ease;
+        }
+
+
+        .edulearn-nav-link:hover {
+            color: #0d6efd;
+        }
+
+
+        .edulearn-nav-link.active {
+            color: #0d6efd;
+
+            font-weight: 700;
+        }
+
+
+        .nav-chevron {
+            width: 14px;
+            height: 14px;
+
+            transition: transform .2s ease;
+        }
+
+
+        /* =========================================
+           DROPDOWN
+        ========================================= */
+
+        .edulearn-dropdown {
+            position: relative;
+
+            display: flex;
+            align-items: center;
+        }
+
+
+        /*
+         * CẦU NỐI VÔ HÌNH
+         *
+         * Giữ trạng thái hover khi rê chuột
+         * từ nút xuống menu.
+         */
+        .edulearn-dropdown::after {
+            content: "";
+
+            position: absolute;
+
+            top: 100%;
+            left: -12px;
+            right: -12px;
+
+            height: 16px;
+
+            background: transparent;
+        }
+
+
+        .edulearn-dropdown-menu {
+            position: absolute;
+
+            top: calc(100% + 9px);
+            left: -20px;
+
+            z-index: 1200;
+
+            min-width: 245px;
+
+            padding: 9px;
+
+            border: 1px solid #e4e9f0;
+            border-radius: 12px;
+
+            background: #ffffff;
+
+            box-shadow:
+                0 16px 38px
+                rgba(34, 48, 73, .14);
+
+            opacity: 0;
+
+            visibility: hidden;
+
+            pointer-events: none;
+
+            transform: translateY(6px);
+
+            transition:
+                opacity .16s ease,
+                transform .16s ease,
+                visibility .16s ease;
+        }
+
+
+        .edulearn-dropdown-menu::before {
+            content: "";
+
+            position: absolute;
+
+            top: -8px;
+            left: 31px;
+
+            width: 16px;
+            height: 16px;
+
+            background: #ffffff;
+
+            border-left: 1px solid #e4e9f0;
+            border-top: 1px solid #e4e9f0;
+
+            transform: rotate(45deg);
+        }
+
+
+        .edulearn-dropdown:hover
+        > .edulearn-dropdown-menu,
+        .edulearn-dropdown.open
+        > .edulearn-dropdown-menu {
+            opacity: 1;
+
+            visibility: visible;
+
+            pointer-events: auto;
+
+            transform: translateY(0);
+        }
+
+
+        .edulearn-dropdown:hover
+        > .dropdown-trigger
+        .nav-chevron,
+        .edulearn-dropdown.open
+        > .dropdown-trigger
+        .nav-chevron {
+            transform: rotate(180deg);
+        }
+
+
+        /* =========================================
+           DROPDOWN ITEM
+        ========================================= */
+
+        .dropdown-menu-item {
+            position: relative;
+
+            min-height: 44px;
+
+            padding: 0 13px;
+
+            border-radius: 8px;
+
+            color: #4f5969;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 12px;
+
+            font-size: 13px;
+            font-weight: 600;
+
+            text-decoration: none;
+
+            transition:
+                background .15s ease,
+                color .15s ease;
+        }
+
+
+        .dropdown-menu-item:hover {
+            background: #f2f7ff;
+
+            color: #0d6efd;
+        }
+
+
+        .dropdown-menu-item.active {
+            background: #edf4ff;
+
+            color: #0d6efd;
+
+            font-weight: 700;
+        }
+
+
+        .dropdown-menu-divider {
+            height: 1px;
+
+            margin: 7px 6px;
+
+            background: #edf0f4;
+        }
+
+
+        /* =========================================
+           LEVEL DOT
+        ========================================= */
+
+        .level-menu-left {
+            display: flex;
+            align-items: center;
+
+            gap: 9px;
+        }
+
+
+        .level-dot {
+            width: 8px;
+            height: 8px;
+
+            flex: 0 0 8px;
+
+            border-radius: 50%;
+        }
+
+
+        .level-dot.beginner {
+            background: #0d6efd;
+        }
+
+
+        .level-dot.intermediate {
+            background: #7451d8;
+        }
+
+
+        .level-dot.advanced {
+            background: #0b8f82;
+        }
+
+
+        .dropdown-level {
+            color: #a0a8b5;
+
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+
+        .dropdown-menu-item.active
+        .dropdown-level {
+            color: currentColor;
+
+            opacity: .7;
+        }
+
+
+        /* =========================================
+           RIGHT AREA
+        ========================================= */
+
+        .account-area {
+            display: flex;
+            align-items: center;
+
+            gap: 11px;
+
+            white-space: nowrap;
+        }
+
+
+        /* =========================================
+           NOTIFICATION
+        ========================================= */
+
+        .notification-area {
+            width: 44px;
+            height: 44px;
+
+            flex-shrink: 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+
+        /* =========================================
+           ACCOUNT DROPDOWN
+        ========================================= */
+
+        .account-dropdown {
+            position: relative;
+        }
+
+
+        /*
+         * CẦU NỐI CHO MENU TÀI KHOẢN
+         */
+        .account-dropdown::after {
+            content: "";
+
+            position: absolute;
+
+            top: 100%;
+            left: -10px;
+            right: -10px;
+
+            height: 16px;
+
+            background: transparent;
+        }
+
+
+        .account-dropdown-button {
+            height: 44px;
+
+            max-width: 240px;
+
+            padding: 5px 12px 5px 6px;
+
+            border: 1px solid #dfe5ed;
+            border-radius: 10px;
+
+            background: #ffffff;
+            color: #273142;
+
+            display: flex;
+            align-items: center;
+
+            gap: 10px;
+
+            font-family: inherit;
+
+            font-size: 13px;
+            font-weight: 600;
+
+            cursor: pointer;
+
+            transition:
+                border-color .2s ease,
+                background .2s ease;
+        }
+
+
+        .account-dropdown-button:hover {
+            border-color: #bfd4f7;
+
+            background: #fbfdff;
+        }
+
+
+        .account-avatar {
+            width: 32px;
+            height: 32px;
+
+            flex: 0 0 32px;
+
+            border-radius: 50%;
+
+            background: #edf4ff;
+            color: #0d6efd;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 12px;
+            font-weight: 800;
+
+            text-transform: uppercase;
+        }
+
+
+        .account-name {
+            max-width: 160px;
+
+            overflow: hidden;
+
+            text-overflow: ellipsis;
+
+            white-space: nowrap;
+        }
+
+
+        .account-chevron {
+            width: 14px;
+            height: 14px;
+
+            margin-left: 2px;
+
+            color: #8791a1;
+
+            transition: transform .2s ease;
+        }
+
+
+        .account-dropdown:hover
+        .account-chevron,
+        .account-dropdown.open
+        .account-chevron {
+            transform: rotate(180deg);
+        }
+
+
+        .account-dropdown-menu {
+            position: absolute;
+
+            top: calc(100% + 9px);
+            right: 0;
+
+            z-index: 1250;
+
+            width: 270px;
+
+            padding: 10px;
+
+            border: 1px solid #e4e9f0;
+            border-radius: 13px;
+
+            background: #ffffff;
+
+            box-shadow:
+                0 18px 45px
+                rgba(34, 48, 73, .15);
+
+            opacity: 0;
+
+            visibility: hidden;
+
+            pointer-events: none;
+
+            transform: translateY(6px);
+
+            transition:
+                opacity .16s ease,
+                transform .16s ease,
+                visibility .16s ease;
+        }
+
+
+        .account-dropdown-menu::before {
+            content: "";
+
+            position: absolute;
+
+            top: -8px;
+            right: 28px;
+
+            width: 16px;
+            height: 16px;
+
+            background: #ffffff;
+
+            border-left: 1px solid #e4e9f0;
+            border-top: 1px solid #e4e9f0;
+
+            transform: rotate(45deg);
+        }
+
+
+        .account-dropdown:hover
+        > .account-dropdown-menu,
+        .account-dropdown.open
+        > .account-dropdown-menu {
+            opacity: 1;
+
+            visibility: visible;
+
+            pointer-events: auto;
+
+            transform: translateY(0);
+        }
+
+
+        /* =========================================
+           ACCOUNT HEADER
+        ========================================= */
+
+        .account-menu-header {
+            padding: 11px 12px 12px;
+        }
+
+
+        .account-menu-name {
+            margin-bottom: 3px;
+
+            color: #273142;
+
+            font-size: 13px;
+            font-weight: 800;
+
+            overflow: hidden;
+
+            text-overflow: ellipsis;
+
+            white-space: nowrap;
+        }
+
+
+        .account-menu-role {
+            color: #8b95a5;
+
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+
+        /* =========================================
+           ACCOUNT ITEM
+        ========================================= */
+
+        .account-menu-item {
+            width: 100%;
+
+            min-height: 42px;
+
+            padding: 0 12px;
+
+            border: none;
+            border-radius: 8px;
+
+            background: transparent;
+            color: #4e596b;
+
+            display: flex;
+            align-items: center;
+
+            gap: 11px;
+
+            font-family: inherit;
+
+            font-size: 13px;
+            font-weight: 600;
+
+            text-align: left;
+
+            text-decoration: none;
+
+            cursor: pointer;
+
+            transition:
+                background .15s ease,
+                color .15s ease;
+        }
+
+
+        .account-menu-item:hover {
+            background: #f3f7fd;
+
+            color: #0d6efd;
+        }
+
+
+        .account-menu-item.active {
+            background: #edf4ff;
+
+            color: #0d6efd;
+        }
+
+
+        .account-menu-item.danger {
+            color: #dc3545;
+        }
+
+
+        .account-menu-item.danger:hover {
+            background: #fff4f5;
+
+            color: #c92a3a;
+        }
+
+
+        .account-menu-icon {
+            width: 18px;
+            height: 18px;
+
+            flex: 0 0 18px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            color: currentColor;
+        }
+
+
+        .account-menu-form {
+            margin: 0;
+        }
+
+
+        /* =========================================
+           AUTH
+        ========================================= */
+
+        .auth-link {
+            height: 44px;
+
+            padding: 0 16px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 10px;
+
+            font-size: 13px;
+            font-weight: 700;
+
+            text-decoration: none;
+        }
+
+
+        .login-link {
+            color: #0d6efd;
+
+            background: #ffffff;
+
+            border: 1px solid #bdd5ff;
+        }
+
+
+        .register-link {
+            color: #ffffff;
+
+            background: #0d6efd;
+
+            border: 1px solid #0d6efd;
+        }
+
+
+        /* =========================================
+           FOOTER
+        ========================================= */
+
+        .edulearn-footer {
+            border-top: 1px solid #e7ebf0;
+
+            background: #ffffff;
+        }
+
+
+        .footer-container {
+            max-width: 1180px;
+
+            min-height: 78px;
+
+            margin: 0 auto;
+
+            padding: 0 20px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 25px;
+
+            color: #6c7687;
+
+            font-size: 13px;
+        }
+
+
+        .footer-brand {
+            color: #0d6efd;
+
+            font-weight: 800;
+        }
+
+
+        /* =========================================
+           RESPONSIVE
+        ========================================= */
+
+        @@media (max-width: 1050px) {
 
             .edulearn-nav-container {
-                max-width: 1180px;
-                min-height: 88px;
-                margin: 0 auto;
-                padding: 0 20px;
-                display: flex;
-                align-items: center;
-                gap: 34px;
+                gap: 20px;
             }
 
-
-            /* =========================================
-                       LOGO
-                    ========================================= */
-
-            .edulearn-logo {
-                color: #0d6efd;
-                font-size: 25px;
-                font-weight: 800;
-                text-decoration: none;
-                white-space: nowrap;
-            }
-
-
-                .edulearn-logo:hover {
-                    color: #0d6efd;
-                }
-
-
-            /* =========================================
-                       MENU
-                    ========================================= */
 
             .edulearn-nav-links {
-                display: flex;
-                align-items: center;
-                gap: 28px;
-                flex: 1;
+                gap: 17px;
             }
 
 
             .edulearn-nav-link {
-                color: #273142;
-                font-size: 14px;
-                font-weight: 600;
-                text-decoration: none;
-                white-space: nowrap;
-                transition: color .2s ease;
+                font-size: 13px;
+            }
+        }
+
+
+        @@media (max-width: 850px) {
+
+            .edulearn-nav-container {
+                padding-top: 14px;
+                padding-bottom: 14px;
+
+                flex-wrap: wrap;
             }
 
 
-                .edulearn-nav-link:hover {
-                    color: #0d6efd;
-                }
+            .edulearn-nav-links {
+                order: 3;
 
+                width: 100%;
 
-                .edulearn-nav-link.active {
-                    color: #0d6efd;
-                    font-weight: 700;
-                }
+                overflow-x: auto;
 
+                padding-bottom: 3px;
+            }
 
-            /* =========================================
-                       ACCOUNT AREA
-                    ========================================= */
 
             .account-area {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                white-space: nowrap;
+                margin-left: auto;
             }
 
 
-            /* =========================================
-                       NOTIFICATION
-                       KHÔNG BORDER - CHỈ CÓ ICON
-                    ========================================= */
-
-            .notification-area {
-                width: 44px;
-                height: 44px;
-                flex-shrink: 0;
-                display: flex;
-                align-items: center;
-                justify-content: center;
+            .edulearn-dropdown-menu {
+                left: 0;
             }
+        }
 
 
-            /* =========================================
-                       ACCOUNT
-                       CÙNG STYLE VỚI LOGOUT
-                    ========================================= */
+        @@media (max-width: 600px) {
 
-            .account-chip {
-                height: 44px;
-                min-width: 0;
-                padding: 5px 14px 5px 6px;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                border: 1px solid #dfe5ed;
-                /*
-                         * KHÔNG CÒN VIÊN THUỐC
-                         */
-                border-radius: 10px;
-                background: #ffffff;
-                color: #273142;
-                font-size: 13px;
-                font-weight: 600;
-            }
-
-
-            .account-avatar {
-                width: 32px;
-                height: 32px;
-                flex-shrink: 0;
-                border-radius: 50%;
-                background: #edf4ff;
-                color: #0d6efd;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 12px;
-                font-weight: 800;
-                text-transform: uppercase;
+            .edulearn-logo {
+                font-size: 22px;
             }
 
 
             .account-name {
-                max-width: 180px;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
+                display: none;
             }
 
 
-            /* =========================================
-                       LOGOUT
-                    ========================================= */
+            .account-dropdown-button {
+                width: 44px;
 
-            .logout-form {
-                margin: 0;
-            }
+                padding: 5px;
 
-
-            .logout-button {
-                height: 44px;
-                padding: 0 17px;
-                border: 1px solid #dfe5ed;
-                /*
-                         * CÙNG BO GÓC ACCOUNT CHIP
-                         */
-                border-radius: 10px;
-                background: #ffffff;
-                color: #5b6472;
-                font-size: 13px;
-                font-weight: 600;
-                transition: background .2s ease, border-color .2s ease, color .2s ease;
-            }
-
-
-                .logout-button:hover {
-                    border-color: #dc3545;
-                    color: #dc3545;
-                    background: #fff8f8;
-                }
-
-
-            /* =========================================
-                       LOGIN / REGISTER
-                    ========================================= */
-
-            .auth-link {
-                height: 44px;
-                padding: 0 16px;
-                display: inline-flex;
-                align-items: center;
                 justify-content: center;
-                border-radius: 10px;
-                font-size: 13px;
-                font-weight: 700;
-                text-decoration: none;
             }
 
 
-            .login-link {
-                color: #0d6efd;
-                background: #ffffff;
-                border: 1px solid #bdd5ff;
+            .account-chevron {
+                display: none;
             }
 
 
-                .login-link:hover {
-                    color: #0b5ed7;
-                    background: #f7faff;
-                }
+            .account-dropdown-menu {
+                position: fixed;
 
+                top: 76px;
+                right: 12px;
 
-            .register-link {
-                color: #ffffff;
-                background: #0d6efd;
-                border: 1px solid #0d6efd;
-            }
-
-
-                .register-link:hover {
-                    color: #ffffff;
-                    background: #0b5ed7;
-                }
-
-
-            /* =========================================
-                       FOOTER
-                    ========================================= */
-
-            .edulearn-footer {
-                border-top: 1px solid #e7ebf0;
-                background: #ffffff;
+                width: min(
+                    290px,
+                    calc(100vw - 24px)
+                );
             }
 
 
             .footer-container {
-                max-width: 1180px;
-                min-height: 78px;
-                margin: 0 auto;
-                padding: 0 20px;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 25px;
-                color: #6c7687;
-                font-size: 13px;
+                padding-top: 20px;
+                padding-bottom: 20px;
+
+                flex-direction: column;
+                align-items: flex-start;
             }
-
-
-            .footer-brand {
-                color: #0d6efd;
-                font-weight: 800;
-            }
-
-
-            /* =========================================
-                       RESPONSIVE
-                    ========================================= */
-
-            @@media (max-width: 1050px) {
-
-                .edulearn-nav-container {
-                    gap: 20px;
-                }
-
-
-                .edulearn-nav-links {
-                    gap: 17px;
-                }
-
-
-                .edulearn-nav-link {
-                    font-size: 13px;
-                }
-            }
-
-
-            @@media (max-width: 850px) {
-
-                .edulearn-nav-container {
-                    padding-top: 15px;
-                    padding-bottom: 15px;
-                    flex-wrap: wrap;
-                }
-
-
-                .edulearn-nav-links {
-                    order: 3;
-                    width: 100%;
-                    overflow-x: auto;
-                    padding-bottom: 3px;
-                }
-
-
-                .account-area {
-                    margin-left: auto;
-                }
-            }
-
-
-            @@media (max-width: 600px) {
-
-                .account-name {
-                    display: none;
-                }
-
-
-                .account-chip {
-                    width: 44px;
-                    padding: 5px;
-                    justify-content: center;
-                }
-
-
-                .edulearn-logo {
-                    font-size: 22px;
-                }
-
-
-                .logout-button {
-                    padding: 0 12px;
-                }
-
-
-                .footer-container {
-                    padding-top: 20px;
-                    padding-bottom: 20px;
-                    flex-direction: column;
-                    align-items: flex-start;
-                }
-            }
+        }
 
     </style>
 
@@ -437,9 +1009,7 @@
         <div class="edulearn-nav-container">
 
 
-            <!-- =================================
-                 LOGO
-            ================================== -->
+            <!-- LOGO -->
 
             <a asp-controller="Home"
                asp-action="Index"
@@ -468,27 +1038,138 @@
 
 
 
-                <a asp-controller="Courses"
-                   asp-action="Index"
-                   class="edulearn-nav-link @(isCoursesPage ? "active" : "")">
+                <!-- =================================
+                     KHÓA HỌC
+                ================================== -->
 
-                    Khóa học
-
-                </a>
-
+                <div class="edulearn-dropdown"
+                     data-dropdown>
 
 
-                @if (User.Identity?.IsAuthenticated == true &&
-                     User.IsInRole("Student"))
-                {
-                    <a asp-controller="Courses"
-                       asp-action="MyCourses"
-                       class="edulearn-nav-link @(isMyCoursesPage ? "active" : "")">
+                    <button type="button"
+                            class="edulearn-nav-link dropdown-trigger @(isCoursesPage ? "active" : "")"
+                            data-dropdown-trigger
+                            aria-expanded="false">
 
-                        Khóa học của tôi
+                        Khóa học
 
-                    </a>
-                }
+
+                        <svg class="nav-chevron"
+                             viewBox="0 0 20 20"
+                             fill="none"
+                             xmlns="http://www.w3.org/2000/svg">
+
+                            <path d="M5 7.5L10 12.5L15 7.5"
+                                  stroke="currentColor"
+                                  stroke-width="1.8"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round" />
+
+                        </svg>
+
+                    </button>
+
+
+
+                    <div class="edulearn-dropdown-menu">
+
+
+                        <a asp-controller="Courses"
+                           asp-action="Index"
+                           class="dropdown-menu-item @(
+                               isCoursesPage &&
+                               currentAction == "Index" &&
+                               string.IsNullOrWhiteSpace(selectedLevel)
+                                   ? "active"
+                                   : "")">
+
+                            <span>
+                                Tất cả khóa học
+                            </span>
+
+                        </a>
+
+
+                        <div class="dropdown-menu-divider">
+                        </div>
+
+
+
+                        <a asp-controller="Courses"
+                           asp-action="Index"
+                           asp-route-level="beginner"
+                           class="dropdown-menu-item @(selectedLevel == "beginner" ? "active" : "")">
+
+                            <span class="level-menu-left">
+
+                                <span class="level-dot beginner">
+                                </span>
+
+                                <span>
+                                    Cơ bản
+                                </span>
+
+                            </span>
+
+                            <span class="dropdown-level">
+                                Bắt đầu
+                            </span>
+
+                        </a>
+
+
+
+                        <a asp-controller="Courses"
+                           asp-action="Index"
+                           asp-route-level="intermediate"
+                           class="dropdown-menu-item @(selectedLevel == "intermediate" ? "active" : "")">
+
+                            <span class="level-menu-left">
+
+                                <span class="level-dot intermediate">
+                                </span>
+
+                                <span>
+                                    Trung cấp
+                                </span>
+
+                            </span>
+
+                            <span class="dropdown-level">
+                                Phát triển
+                            </span>
+
+                        </a>
+
+
+
+                        <a asp-controller="Courses"
+                           asp-action="Index"
+                           asp-route-level="advanced"
+                           class="dropdown-menu-item @(selectedLevel == "advanced" ? "active" : "")">
+
+                            <span class="level-menu-left">
+
+                                <span class="level-dot advanced">
+                                </span>
+
+                                <span>
+                                    Nâng cao
+                                </span>
+
+                            </span>
+
+                            <span class="dropdown-level">
+                                Chuyên sâu
+                            </span>
+
+                        </a>
+
+
+                    </div>
+
+
+                </div>
 
 
 
@@ -520,13 +1201,10 @@
             <div class="account-area">
 
 
-                @if (User.Identity?.IsAuthenticated == true)
+                @if (isAuthenticated)
                 {
 
-                    <!-- =========================
-                         CHUÔNG
-                         CHỈ ICON XANH
-                    ========================== -->
+                    <!-- NOTIFICATION -->
 
                     <div class="notification-area">
 
@@ -537,58 +1215,220 @@
 
 
 
-                    <!-- =========================
-                         AVATAR + TÊN
-                    ========================== -->
+                    <!-- ACCOUNT DROPDOWN -->
 
-                    <div class="account-chip">
-
-
-                        <span class="account-avatar">
-
-                            @firstLetter
-
-                        </span>
+                    <div class="account-dropdown"
+                         data-dropdown>
 
 
-                        <span class="account-name">
-
-                            @displayName
-
-                        </span>
-
-
-                    </div>
+                        <button type="button"
+                                class="account-dropdown-button"
+                                data-dropdown-trigger
+                                aria-expanded="false">
 
 
+                            <span class="account-avatar">
 
-                    <!-- =========================
-                         ĐĂNG XUẤT
-                    ========================== -->
+                                @firstLetter
 
-                    <form asp-controller="Account"
-                          asp-action="Logout"
-                          method="post"
-                          class="logout-form">
+                            </span>
 
 
-                        <button type="submit"
-                                class="logout-button">
+                            <span class="account-name">
 
-                            Đăng xuất
+                                @displayName
+
+                            </span>
+
+
+                            <svg class="account-chevron"
+                                 viewBox="0 0 20 20"
+                                 fill="none"
+                                 xmlns="http://www.w3.org/2000/svg">
+
+                                <path d="M5 7.5L10 12.5L15 7.5"
+                                      stroke="currentColor"
+                                      stroke-width="1.8"
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round" />
+
+                            </svg>
+
 
                         </button>
 
 
-                    </form>
+
+                        <div class="account-dropdown-menu">
+
+
+                            <div class="account-menu-header">
+
+                                <div class="account-menu-name">
+
+                                    @displayName
+
+                                </div>
+
+
+                                <div class="account-menu-role">
+
+                                    @roleLabel
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="dropdown-menu-divider">
+                            </div>
+
+
+
+                            @if (isStudent)
+                            {
+
+                                <a asp-controller="Courses"
+                                   asp-action="MyCourses"
+                                   class="account-menu-item @(isMyCoursesPage ? "active" : "")">
+
+                                    <span class="account-menu-icon">
+                                        ▣
+                                    </span>
+
+                                    <span>
+                                        Khóa học của tôi
+                                    </span>
+
+                                </a>
+
+
+                                <a asp-controller="LessonQuestions"
+                                   asp-action="MyQuestions"
+                                   class="account-menu-item @(isQuestionsPage ? "active" : "")">
+
+                                    <span class="account-menu-icon">
+                                        ?
+                                    </span>
+
+                                    <span>
+                                        Câu hỏi của tôi
+                                    </span>
+
+                                </a>
+
+                            }
+
+
+
+                            @if (isInstructor)
+                            {
+
+                                <a asp-controller="Home"
+                                   asp-action="Index"
+                                   asp-fragment="instructor-tools"
+                                   class="account-menu-item">
+
+                                    <span class="account-menu-icon">
+                                        ▣
+                                    </span>
+
+                                    <span>
+                                        Khóa học phụ trách
+                                    </span>
+
+                                </a>
+
+
+                                <a asp-controller="LessonQuestions"
+                                   asp-action="Index"
+                                   class="account-menu-item @(isQuestionsPage ? "active" : "")">
+
+                                    <span class="account-menu-icon">
+                                        ?
+                                    </span>
+
+                                    <span>
+                                        Hỏi đáp học viên
+                                    </span>
+
+                                </a>
+
+                            }
+
+
+
+                            @if (isAdmin)
+                            {
+
+                                <a asp-controller="LessonQuestions"
+                                   asp-action="Index"
+                                   class="account-menu-item @(isQuestionsPage ? "active" : "")">
+
+                                    <span class="account-menu-icon">
+                                        ?
+                                    </span>
+
+                                    <span>
+                                        Quản lý hỏi đáp
+                                    </span>
+
+                                </a>
+
+                            }
+
+
+
+                            <a href="#"
+                               class="account-menu-item"
+                               onclick="return false;">
+
+                                <span class="account-menu-icon">
+                                    ○
+                                </span>
+
+                                <span>
+                                    Quản lý tài khoản
+                                </span>
+
+                            </a>
+
+
+
+                            <div class="dropdown-menu-divider">
+                            </div>
+
+
+
+                            <form asp-controller="Account"
+                                  asp-action="Logout"
+                                  method="post"
+                                  class="account-menu-form">
+
+                                <button type="submit"
+                                        class="account-menu-item danger">
+
+                                    <span class="account-menu-icon">
+                                        ↪
+                                    </span>
+
+                                    <span>
+                                        Đăng xuất
+                                    </span>
+
+                                </button>
+
+                            </form>
+
+
+                        </div>
+
+
+                    </div>
 
                 }
                 else
                 {
-
-                    <!-- =========================
-                         CHƯA ĐĂNG NHẬP
-                    ========================== -->
 
                     <a asp-controller="Account"
                        asp-action="Login"
@@ -620,10 +1460,6 @@
 
 
 
-    <!-- =========================================
-         CONTENT
-    ========================================= -->
-
     <main>
 
         @RenderBody()
@@ -632,24 +1468,16 @@
 
 
 
-    <!-- =========================================
-         FOOTER
-    ========================================= -->
-
     <footer class="edulearn-footer">
 
-
         <div class="footer-container">
-
 
             <div>
 
                 © 2026
 
                 <span class="footer-brand">
-
                     EduLearn
-
                 </span>
 
                 - Chia sẻ tri thức, kiến tạo tương lai
@@ -658,22 +1486,14 @@
 
 
             <div>
-
                 Nền tảng khóa học Công nghệ thông tin
-
             </div>
 
-
         </div>
-
 
     </footer>
 
 
-
-    <!-- =========================================
-         SCRIPTS
-    ========================================= -->
 
     <script src="~/lib/jquery/dist/jquery.min.js">
     </script>
@@ -685,6 +1505,157 @@
 
     <script src="~/js/site.js"
             asp-append-version="true">
+    </script>
+
+
+
+    <!-- =========================================
+         DROPDOWN SCRIPT
+    ========================================= -->
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                const dropdowns =
+                    document.querySelectorAll(
+                        "[data-dropdown]"
+                    );
+
+
+                dropdowns.forEach(
+                    function (dropdown) {
+
+                        const trigger =
+                            dropdown.querySelector(
+                                "[data-dropdown-trigger]"
+                            );
+
+
+                        if (!trigger) {
+                            return;
+                        }
+
+
+                        trigger.addEventListener(
+                            "click",
+                            function (event) {
+
+                                event.stopPropagation();
+
+
+                                const wasOpen =
+                                    dropdown.classList.contains(
+                                        "open"
+                                    );
+
+
+                                dropdowns.forEach(
+                                    function (otherDropdown) {
+
+                                        otherDropdown.classList.remove(
+                                            "open"
+                                        );
+
+
+                                        const otherTrigger =
+                                            otherDropdown.querySelector(
+                                                "[data-dropdown-trigger]"
+                                            );
+
+
+                                        if (otherTrigger) {
+
+                                            otherTrigger.setAttribute(
+                                                "aria-expanded",
+                                                "false"
+                                            );
+
+                                        }
+
+                                    }
+                                );
+
+
+                                if (!wasOpen) {
+
+                                    dropdown.classList.add(
+                                        "open"
+                                    );
+
+
+                                    trigger.setAttribute(
+                                        "aria-expanded",
+                                        "true"
+                                    );
+
+                                }
+
+                            }
+                        );
+
+                    }
+                );
+
+
+                document.addEventListener(
+                    "click",
+                    function () {
+
+                        dropdowns.forEach(
+                            function (dropdown) {
+
+                                dropdown.classList.remove(
+                                    "open"
+                                );
+
+
+                                const trigger =
+                                    dropdown.querySelector(
+                                        "[data-dropdown-trigger]"
+                                    );
+
+
+                                if (trigger) {
+
+                                    trigger.setAttribute(
+                                        "aria-expanded",
+                                        "false"
+                                    );
+
+                                }
+
+                            }
+                        );
+
+                    }
+                );
+
+
+                document
+                    .querySelectorAll(
+                        ".edulearn-dropdown-menu, .account-dropdown-menu"
+                    )
+                    .forEach(
+                        function (menu) {
+
+                            menu.addEventListener(
+                                "click",
+                                function (event) {
+
+                                    event.stopPropagation();
+
+                                }
+                            );
+
+                        }
+                    );
+
+            }
+        );
+
     </script>
 
 

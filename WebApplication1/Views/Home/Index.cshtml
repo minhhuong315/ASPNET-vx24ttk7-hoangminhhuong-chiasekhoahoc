@@ -575,26 +575,21 @@
         gap: 18px;
     }
 
-    .instructor-tool-card {
-        padding: 25px;
+    .instructor-tool-link {
+    display: block;
 
-        border: 1px solid #e8edf4;
-        border-radius: 16px;
+    color: inherit;
 
-        background: #ffffff;
+    text-decoration: none;
 
-        transition: .2s ease;
-    }
+    cursor: pointer;
+}
 
-    .instructor-tool-card:hover {
-        transform: translateY(-3px);
+.instructor-tool-link:hover {
+    color: inherit;
 
-        border-color: #bfd5fb;
-
-        box-shadow:
-            0 12px 30px
-            rgba(38, 76, 140, .08);
-    }
+    text-decoration: none;
+}
 
     .instructor-tool-icon {
         width: 46px;
@@ -1171,267 +1166,386 @@
     ====================================================== -->
 
     @if (isInstructor)
-    {
-        <section class="hero-section">
+{
+    <!-- =====================================================
+         INSTRUCTOR HOME
+    ====================================================== -->
 
-            <div class="home-container">
+    <section class="hero-section">
 
-                <div class="hero-wrapper">
+        <div class="home-container">
 
-                    <div>
+            <div class="hero-wrapper">
 
-                        <div class="hero-badge">
-                            Không gian giảng dạy EduLearn
-                        </div>
 
-                        <h1 class="hero-title">
+                <!-- =========================================
+                     BÊN TRÁI
+                ========================================== -->
 
-                            Quản lý nội dung,<br />
+                <div>
 
-                            <span>
-                                kết nối học viên
-                            </span>
 
-                        </h1>
+                    <div class="hero-badge">
 
-                        <p class="hero-description">
-
-                            Theo dõi các khóa học đang phụ trách,
-                            cập nhật bài giảng và hỗ trợ học viên
-                            thông qua hệ thống hỏi đáp theo từng bài học.
-
-                        </p>
-
-                        <div class="hero-actions">
-
-                            <a href="#instructor-tools"
-                               class="hero-primary">
-
-                                Công cụ giảng viên
-
-                            </a>
-
-                            <a href="#instructor-qa"
-                               class="hero-secondary">
-
-                                Hỏi đáp học viên
-
-                            </a>
-
-                        </div>
-
-                        <div class="hero-techs">
-
-                            <span class="hero-tech">
-                                Quản lý khóa học
-                            </span>
-
-                            <span class="hero-tech">
-                                Module & bài học
-                            </span>
-
-                            <span class="hero-tech">
-                                Hỏi đáp
-                            </span>
-
-                            <span class="hero-tech">
-                                Thông báo
-                            </span>
-
-                        </div>
+                        Không gian giảng dạy EduLearn
 
                     </div>
 
 
-                    <div class="platform-preview">
+                    <h1 class="hero-title">
 
-                        <div class="preview-top">
+                        Quản lý nội dung,<br />
 
-                            <div class="preview-title">
-                                Không gian giảng viên
-                            </div>
+                        <span>
+                            kết nối học viên
+                        </span>
 
-                            <div class="preview-status blue">
-                                Giảng viên
-                            </div>
-
-                        </div>
+                    </h1>
 
 
-                        <div class="preview-course">
+                    <p class="hero-description">
 
-                            <div class="preview-thumb">
-                                KH
-                            </div>
-
-                            <div>
-
-                                <div class="preview-course-title">
-                                    Quản lý khóa học
-                                </div>
-
-                                <div class="preview-description">
-
-                                    Tổ chức module, bài học,
-                                    nội dung và tài liệu
-                                    của khóa học đang phụ trách.
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="preview-course"
-                             id="instructor-qa">
-
-                            <div class="preview-thumb purple">
-                                Q&A
-                            </div>
-
-                            <div>
-
-                                <div class="preview-course-title">
-                                    Hỏi đáp học viên
-                                </div>
-
-                                <div class="preview-description">
-
-                                    Nhận câu hỏi theo từng bài học
-                                    và phản hồi trực tiếp cho học viên.
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="preview-course">
-
-                            <div class="preview-thumb green">
-                                TB
-                            </div>
-
-                            <div>
-
-                                <div class="preview-course-title">
-                                    Thông báo
-                                </div>
-
-                                <div class="preview-description">
-
-                                    Theo dõi câu hỏi mới
-                                    và các hoạt động cần xử lý
-                                    trong khóa học.
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <section class="instructor-section"
-                 id="instructor-tools">
-
-            <div class="home-container">
-
-                <div class="role-section-header">
-
-                    <h2 class="role-section-title">
-                        Công cụ dành cho giảng viên
-                    </h2>
-
-                    <p class="role-section-description">
-
-                        Các chức năng phục vụ việc quản lý nội dung
-                        và hỗ trợ học viên trên EduLearn.
+                        Theo dõi các khóa học đang phụ trách,
+                        cập nhật bài giảng và hỗ trợ học viên
+                        trong suốt quá trình học tập.
 
                     </p>
 
+
+                    <!--
+                        CHỈ GIỮ 1 CTA CHÍNH.
+                        Không lặp Hỏi đáp học viên ở đây.
+                    -->
+
+                    <div class="hero-actions">
+
+                        <a href="#instructor-tools"
+                           class="hero-primary">
+
+                            Công cụ giảng viên
+
+                        </a>
+
+                    </div>
+
+
+                    <!--
+                        CHIP chỉ mô tả phạm vi công việc.
+                        Không lặp "Hỏi đáp".
+                    -->
+
+                    <div class="hero-techs">
+
+                        <span class="hero-tech">
+                            Quản lý khóa học
+                        </span>
+
+                        <span class="hero-tech">
+                            Module & bài học
+                        </span>
+
+                        <span class="hero-tech">
+                            Cập nhật nội dung
+                        </span>
+
+                        <span class="hero-tech">
+                            Thông báo
+                        </span>
+
+                    </div>
+
+
                 </div>
 
 
-                <div class="instructor-tool-grid">
 
-                    <div class="instructor-tool-card">
+                <!-- =========================================
+                     BÊN PHẢI
+                ========================================== -->
 
-                        <div class="instructor-tool-icon">
+                <div class="platform-preview">
+
+
+                    <div class="preview-top">
+
+                        <div class="preview-title">
+
+                            Không gian giảng viên
+
+                        </div>
+
+
+                        <div class="preview-status blue">
+
+                            Giảng viên
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- QUẢN LÝ KHÓA HỌC -->
+
+                    <div class="preview-course">
+
+                        <div class="preview-thumb">
+
                             KH
+
                         </div>
 
-                        <div class="instructor-tool-title">
-                            Khóa học đang phụ trách
+
+                        <div>
+
+                            <div class="preview-course-title">
+
+                                Quản lý khóa học
+
+                            </div>
+
+
+                            <div class="preview-description">
+
+                                Tổ chức module, bài học,
+                                nội dung và tài liệu
+                                của khóa học đang phụ trách.
+
+                            </div>
+
                         </div>
-
-                        <p class="instructor-tool-description">
-
-                            Quản lý thông tin khóa học,
-                            nội dung chương học và các bài học
-                            thuộc khóa học của bạn.
-
-                        </p>
 
                     </div>
 
 
-                    <div class="instructor-tool-card">
 
-                        <div class="instructor-tool-icon purple">
-                            Q&A
-                        </div>
+                    <!-- CẬP NHẬT BÀI GIẢNG -->
 
-                        <div class="instructor-tool-title">
-                            Hỏi đáp học viên
-                        </div>
+                    <div class="preview-course">
 
-                        <p class="instructor-tool-description">
+                        <div class="preview-thumb purple">
 
-                            Xem các câu hỏi mới,
-                            phản hồi học viên và theo dõi
-                            những câu hỏi đã được giải đáp.
-
-                        </p>
-
-                    </div>
-
-
-                    <div class="instructor-tool-card">
-
-                        <div class="instructor-tool-icon green">
                             UP
+
                         </div>
 
-                        <div class="instructor-tool-title">
-                            Cập nhật bài giảng
+
+                        <div>
+
+                            <div class="preview-course-title">
+
+                                Cập nhật bài giảng
+
+                            </div>
+
+
+                            <div class="preview-description">
+
+                                Điều chỉnh nội dung,
+                                video và tài liệu
+                                của các bài học.
+
+                            </div>
+
                         </div>
-
-                        <p class="instructor-tool-description">
-
-                            Cập nhật nội dung, video
-                            và tài liệu học tập để học viên
-                            luôn tiếp cận phiên bản mới nhất.
-
-                        </p>
 
                     </div>
+
+
+
+                    <!-- THÔNG BÁO -->
+
+                    <div class="preview-course">
+
+                        <div class="preview-thumb green">
+
+                            TB
+
+                        </div>
+
+
+                        <div>
+
+                            <div class="preview-course-title">
+
+                                Theo dõi hoạt động
+
+                            </div>
+
+
+                            <div class="preview-description">
+
+                                Kiểm tra thông báo mới
+                                và những nội dung
+                                đang cần xử lý.
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
 
                 </div>
+
 
             </div>
 
-        </section>
-    }
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         CÔNG CỤ DÀNH CHO GIẢNG VIÊN
+    ====================================================== -->
+
+    <section class="instructor-section"
+             id="instructor-tools">
+
+        <div class="home-container">
+
+
+            <div class="role-section-header">
+
+
+                <h2 class="role-section-title">
+
+                    Công cụ dành cho giảng viên
+
+                </h2>
+
+
+                <p class="role-section-description">
+
+                    Truy cập nhanh các chức năng
+                    phục vụ quản lý nội dung
+                    và hỗ trợ học viên trên EduLearn.
+
+                </p>
+
+
+            </div>
+
+
+
+            <div class="instructor-tool-grid">
+
+
+                <!-- =====================================
+                     KHÓA HỌC
+                ====================================== -->
+
+                <div class="instructor-tool-card">
+
+
+                    <div class="instructor-tool-icon">
+
+                        KH
+
+                    </div>
+
+
+                    <div class="instructor-tool-title">
+
+                        Khóa học đang phụ trách
+
+                    </div>
+
+
+                    <p class="instructor-tool-description">
+
+                        Quản lý thông tin khóa học,
+                        chương học và các bài học
+                        thuộc khóa học của bạn.
+
+                    </p>
+
+
+                </div>
+
+
+
+                <!-- =====================================
+                     Q&A
+                     ĐÂY LÀ SHORTCUT Q&A DUY NHẤT
+                     TRÊN HOME INSTRUCTOR
+                ====================================== -->
+
+                <a asp-controller="LessonQuestions"
+                   asp-action="Index"
+                   class="instructor-tool-card instructor-tool-link">
+
+
+                    <div class="instructor-tool-icon purple">
+
+                        Q&A
+
+                    </div>
+
+
+                    <div class="instructor-tool-title">
+
+                        Hỏi đáp học viên
+
+                    </div>
+
+
+                    <p class="instructor-tool-description">
+
+                        Xem câu hỏi mới,
+                        phản hồi học viên
+                        và quản lý các câu hỏi đã nhận.
+
+                    </p>
+
+
+                </a>
+
+
+
+                <!-- =====================================
+                     CẬP NHẬT BÀI GIẢNG
+                ====================================== -->
+
+                <div class="instructor-tool-card">
+
+
+                    <div class="instructor-tool-icon green">
+
+                        UP
+
+                    </div>
+
+
+                    <div class="instructor-tool-title">
+
+                        Cập nhật bài giảng
+
+                    </div>
+
+
+                    <p class="instructor-tool-description">
+
+                        Cập nhật nội dung,
+                        video và tài liệu học tập
+                        để học viên tiếp cận
+                        phiên bản mới nhất.
+
+                    </p>
+
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+    </section>
+}
 
 
 
