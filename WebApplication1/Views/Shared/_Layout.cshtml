@@ -44,6 +44,10 @@
         currentController == "Profile";
 
 
+    bool isWishlistPage =
+        currentController == "Wishlist";
+
+
     bool isAuthenticated =
         User.Identity?.IsAuthenticated == true;
 
@@ -1321,6 +1325,22 @@
                                     </span>
 
                                 </a>
+
+                                <a asp-controller="Wishlist"
+                                   asp-action="Index"
+                                   class="account-menu-item @(isWishlistPage ? "active" : "")">
+
+                                    <span class="account-menu-icon">
+                                        ♡
+                                    </span>
+
+                                    <span>
+                                        Danh sách yêu thích
+                                    </span>
+
+                                </a>
+
+
 
 
                                 <a asp-controller="LessonQuestions"

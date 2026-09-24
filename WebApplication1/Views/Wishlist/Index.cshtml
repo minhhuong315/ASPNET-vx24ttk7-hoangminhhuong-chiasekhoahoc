@@ -1,0 +1,393 @@
+﻿@model IEnumerable<OnlineLearningPlatform.Models.Wishlist>
+
+@{
+    ViewData["Title"] = "Danh sách yêu thích";
+
+    var items =
+        Model?.ToList()
+        ?? new List<OnlineLearningPlatform.Models.Wishlist>();
+}
+
+<style>
+    .wishlist-page {
+        min-height: 80vh;
+        padding: 48px 0 78px;
+        background: #f8fafc;
+    }
+
+    .wishlist-container {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .wishlist-heading {
+        margin-bottom: 25px;
+    }
+
+    .page-eyebrow {
+        margin-bottom: 6px;
+        color: #0d6efd;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+    .page-title {
+        margin: 0 0 8px;
+        color: #172033;
+        font-size: 31px;
+        font-weight: 800;
+    }
+
+    .page-description {
+        margin: 0;
+        color: #7d8798;
+        font-size: 12px;
+        line-height: 1.7;
+    }
+
+    .message {
+        margin-bottom: 18px;
+        padding: 13px 15px;
+        border-radius: 10px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .message.success {
+        border: 1px solid #bce4c9;
+        background: #effaf3;
+        color: #16723a;
+    }
+
+    .message.info {
+        border: 1px solid #cfe0fb;
+        background: #f3f8ff;
+        color: #315b98;
+    }
+
+    .wishlist-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .wishlist-card {
+        overflow: hidden;
+        border: 1px solid #e1e7ee;
+        border-radius: 15px;
+        background: #ffffff;
+    }
+
+    .course-thumbnail {
+        min-height: 145px;
+        padding: 18px;
+        background: linear-gradient(135deg, #0d6efd, #5a96f8);
+        color: #ffffff;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .course-category {
+        font-size: 10px;
+        font-weight: 700;
+        opacity: .9;
+    }
+
+    .course-icon {
+        font-size: 30px;
+        font-weight: 800;
+    }
+
+    .course-body {
+        padding: 18px;
+    }
+
+    .course-level {
+        display: inline-flex;
+        margin-bottom: 9px;
+        padding: 4px 8px;
+        border-radius: 20px;
+        background: #eef4ff;
+        color: #0d6efd;
+        font-size: 9px;
+        font-weight: 800;
+    }
+
+    .course-title {
+        min-height: 42px;
+        margin-bottom: 6px;
+        color: #273142;
+        font-size: 14px;
+        font-weight: 800;
+        line-height: 1.5;
+    }
+
+    .course-instructor {
+        margin-bottom: 15px;
+        color: #8b95a5;
+        font-size: 10px;
+    }
+
+    .course-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 13px;
+    }
+
+    .course-price {
+        color: #172033;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .course-added {
+        color: #98a2b3;
+        font-size: 9px;
+    }
+
+    .course-actions {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px;
+    }
+
+    .details-link,
+    .remove-button {
+        min-height: 38px;
+        padding: 0 12px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+    .details-link {
+        border: 1px solid #0d6efd;
+        background: #0d6efd;
+        color: #ffffff;
+    }
+
+    .remove-form {
+        margin: 0;
+    }
+
+    .remove-button {
+        height: 38px;
+        border: 1px solid #f0c7cc;
+        background: #fffafa;
+        color: #c92a3a;
+        font-family: inherit;
+        cursor: pointer;
+    }
+
+    .empty-state {
+        padding: 55px 25px;
+        border: 1px dashed #d7dee8;
+        border-radius: 15px;
+        background: #ffffff;
+        text-align: center;
+    }
+
+    .empty-title {
+        margin-bottom: 7px;
+        color: #475467;
+        font-size: 15px;
+        font-weight: 800;
+    }
+
+    .empty-text {
+        margin: 0 0 17px;
+        color: #8992a3;
+        font-size: 11px;
+    }
+
+    .browse-link {
+        min-height: 40px;
+        padding: 0 15px;
+        border-radius: 8px;
+        background: #0d6efd;
+        color: #ffffff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+    @@media (max-width: 900px) {
+        .wishlist-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @@media (max-width: 620px) {
+        .wishlist-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="wishlist-page">
+    <div class="wishlist-container">
+
+        <div class="wishlist-heading">
+            <div class="page-eyebrow">Học viên</div>
+            <h1 class="page-title">Danh sách yêu thích</h1>
+            <p class="page-description">
+                Lưu lại những khóa học bạn quan tâm
+                để có thể quay lại xem sau.
+            </p>
+        </div>
+
+        @if (TempData["WishlistSuccess"] != null)
+        {
+            <div class="message success">
+                @TempData["WishlistSuccess"]
+            </div>
+        }
+
+        @if (TempData["WishlistInfo"] != null)
+        {
+            <div class="message info">
+                @TempData["WishlistInfo"]
+            </div>
+        }
+
+        @if (items.Any())
+        {
+            <div class="wishlist-grid">
+
+                @foreach (var item in items)
+                {
+                    var course = item.Course;
+
+                    string levelText =
+                        course.Level switch
+                        {
+                            "Beginner" => "Cơ bản",
+                            "Intermediate" => "Trung cấp",
+                            "Advanced" => "Nâng cao",
+                            _ => course.Level
+                        };
+
+                    <article class="wishlist-card">
+
+                        <div class="course-thumbnail">
+                            <div class="course-category">
+                                @course.Category.Name
+                            </div>
+
+                            <div class="course-icon">
+                                @(course.Category.Icon ?? "IT")
+                            </div>
+                        </div>
+
+                        <div class="course-body">
+
+                            <div class="course-level">
+                                @levelText
+                            </div>
+
+                            <div class="course-title">
+                                @course.Title
+                            </div>
+
+                            <div class="course-instructor">
+                                @(string.IsNullOrWhiteSpace(
+                                    course.Instructor.FullName)
+                                    ? "Giảng viên EduLearn"
+                                    : course.Instructor.FullName)
+                            </div>
+
+                            <div class="course-footer">
+
+                                <div class="course-price">
+                                    @if (course.DiscountPrice.HasValue &&
+                                         course.DiscountPrice.Value > 0)
+                                    {
+                                        @($"{course.DiscountPrice.Value:N0} đ")
+                                    }
+                                    else
+                                    {
+                                        @($"{course.Price:N0} đ")
+                                    }
+                                </div>
+
+                                <div class="course-added">
+                                    Đã lưu @(item.AddedAt
+                                        .ToLocalTime()
+                                        .ToString("dd/MM/yyyy"))
+                                </div>
+
+                            </div>
+
+                            <div class="course-actions">
+
+                                <a asp-controller="Courses"
+                                   asp-action="Details"
+                                   asp-route-slug="@course.Slug"
+                                   class="details-link">
+                                    Xem chi tiết
+                                </a>
+
+                                <form asp-controller="Wishlist"
+                                      asp-action="Remove"
+                                      method="post"
+                                      class="remove-form">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden"
+                                           name="courseId"
+                                           value="@course.Id" />
+
+                                    <button type="submit"
+                                            class="remove-button"
+                                            onclick="return confirm('Xóa khóa học này khỏi danh sách yêu thích?');">
+                                        Xóa
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+                }
+
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+
+                <div class="empty-title">
+                    Chưa có khóa học yêu thích
+                </div>
+
+                <p class="empty-text">
+                    Khi thấy khóa học phù hợp,
+                    bạn có thể lưu lại để xem sau.
+                </p>
+
+                <a asp-controller="Courses"
+                   asp-action="Index"
+                   class="browse-link">
+                    Khám phá khóa học
+                </a>
+
+            </div>
+        }
+
+    </div>
+</div>

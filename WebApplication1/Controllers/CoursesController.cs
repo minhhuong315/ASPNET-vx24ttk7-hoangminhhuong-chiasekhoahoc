@@ -263,6 +263,9 @@ namespace OnlineLearningPlatform.Controllers
             ViewBag.EnrollmentProgress =
                 0m;
 
+            ViewBag.IsWishlisted =
+                false;
+
 
             if (User.Identity?.IsAuthenticated == true)
             {
@@ -295,6 +298,16 @@ namespace OnlineLearningPlatform.Controllers
 
                         ViewBag.EnrollmentProgress =
                             progress;
+                    }
+
+
+                    if (User.IsInRole("Student"))
+                    {
+                        ViewBag.IsWishlisted =
+                            await _context.Wishlists
+                                .AnyAsync(w =>
+                                    w.UserId == userId &&
+                                    w.CourseId == course.Id);
                     }
                 }
             }

@@ -3,32 +3,23 @@
 @{
     ViewData["Title"] = Model.Title;
 
-
     var approvedReviews =
         Model.Reviews?.ToList()
         ?? new List<OnlineLearningPlatform.Models.Review>();
-
 
     var averageRating =
         approvedReviews.Any()
             ? approvedReviews.Average(r => r.Rating)
             : 0;
 
-
     var totalLessons =
-        Model.Modules?.Sum(
-            m => m.Lessons.Count)
-        ?? 0;
-
+        Model.Modules?.Sum(m => m.Lessons.Count) ?? 0;
 
     bool isEnrolled =
         ViewBag.IsEnrolled != null &&
         (bool)ViewBag.IsEnrolled;
 
-
-    decimal enrollmentProgress =
-        0m;
-
+    decimal enrollmentProgress = 0m;
 
     if (ViewBag.EnrollmentProgress != null)
     {
@@ -40,1001 +31,524 @@
                 100m);
     }
 
-
     bool isAuthenticated =
         User.Identity?.IsAuthenticated == true;
-
 
     bool isStudent =
         isAuthenticated &&
         User.IsInRole("Student");
 
+    bool isWishlisted =
+        ViewBag.IsWishlisted != null &&
+        (bool)ViewBag.IsWishlisted;
 
     bool isAdmin =
         isAuthenticated &&
         User.IsInRole("Admin");
 
-
     bool isInstructor =
         isAuthenticated &&
         User.IsInRole("Instructor");
 
-
     string? successMessage =
         TempData["SuccessMessage"]?.ToString();
-
 
     string? infoMessage =
         TempData["InfoMessage"]?.ToString();
 
+    string? wishlistSuccessMessage =
+        TempData["WishlistSuccess"]?.ToString();
+
+    string? wishlistInfoMessage =
+        TempData["WishlistInfo"]?.ToString();
 
     string? toastMessage =
         successMessage ??
-        infoMessage;
-
+        wishlistSuccessMessage ??
+        infoMessage ??
+        wishlistInfoMessage;
 
     bool toastIsSuccess =
-        !string.IsNullOrWhiteSpace(
-            successMessage);
-
-
-    // =========================================
-    // CẤP ĐỘ KHÓA HỌC
-    // =========================================
-
-    string levelText =
-        Model.Level switch
-        {
-            "Beginner" =>
-                "Cơ bản",
-
-            "Intermediate" =>
-                "Trung cấp",
-
-            "Advanced" =>
-                "Nâng cao",
-
-            _ =>
-                "Chưa xác định"
-        };
-
-
-    string levelClass =
-        Model.Level switch
-        {
-            "Beginner" =>
-                "beginner",
-
-            "Intermediate" =>
-                "intermediate",
-
-            "Advanced" =>
-                "advanced",
-
-            _ =>
-                "default"
-        };
+        !string.IsNullOrWhiteSpace(successMessage) ||
+        !string.IsNullOrWhiteSpace(wishlistSuccessMessage);
 }
-
 
 <style>
 
-    /* =========================================
-       PAGE
-    ========================================= */
-
     .details-page {
-        min-height: 80vh;
-
         background: #f8fafc;
+        min-height: 80vh;
     }
-
 
     .details-container {
         max-width: 1180px;
-
         margin: 0 auto;
-
         padding: 0 20px;
     }
 
-
-
-    /* =========================================
+    /* =========================
        HERO
-    ========================================= */
+    ========================= */
 
     .course-hero {
-        padding: 55px 0;
-
-        color: #ffffff;
-
         background: #172033;
+        color: #ffffff;
+        padding: 55px 0;
     }
-
-
-    /*
-     * CƠ BẢN
-     * Xanh dương
-     */
-    .course-hero.beginner {
-        background:
-            linear-gradient(
-                135deg,
-                #123569 0%,
-                #172033 72%
-            );
-    }
-
-
-    /*
-     * TRUNG CẤP
-     * Tím
-     */
-    .course-hero.intermediate {
-        background:
-            linear-gradient(
-                135deg,
-                #44337a 0%,
-                #172033 72%
-            );
-    }
-
-
-    /*
-     * NÂNG CAO
-     * Xanh ngọc
-     */
-    .course-hero.advanced {
-        background:
-            linear-gradient(
-                135deg,
-                #126b66 0%,
-                #172033 72%
-            );
-    }
-
-
-    .course-hero.default {
-        background:
-            linear-gradient(
-                135deg,
-                #3f4b5d,
-                #172033
-            );
-    }
-
 
     .course-hero-grid {
         display: grid;
-
-        grid-template-columns:
-            1fr
-            380px;
-
+        grid-template-columns: 1fr 380px;
         gap: 50px;
-
         align-items: center;
     }
 
-
-
-    /* =========================================
-       BREADCRUMB
-    ========================================= */
-
     .breadcrumb-text {
-        margin-bottom: 20px;
-
         color: #aeb8c8;
-
         font-size: 13px;
+        margin-bottom: 20px;
     }
-
 
     .breadcrumb-text a {
         color: #d5dfed;
-
         text-decoration: none;
     }
-
 
     .breadcrumb-text a:hover {
         color: #ffffff;
     }
 
-
-
-    /* =========================================
-       CATEGORY + LEVEL
-    ========================================= */
-
-    .hero-badge-row {
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-
-        gap: 8px;
-
+    .course-category-badge {
+        display: inline-block;
+        padding: 6px 11px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.12);
+        color: #bcd5ff;
+        font-size: 12px;
+        font-weight: 700;
         margin-bottom: 16px;
     }
 
-
-    .course-category-badge {
-        display: inline-flex;
-        align-items: center;
-
-        min-height: 30px;
-
-        padding: 0 11px;
-
-        border-radius: 20px;
-
-        background:
-            rgba(
-                255,
-                255,
-                255,
-                .12
-            );
-
-        color: #d8e6ff;
-
-        font-size: 12px;
-        font-weight: 700;
-    }
-
-
-    .course-level-badge {
-        display: inline-flex;
-        align-items: center;
-
-        gap: 6px;
-
-        min-height: 30px;
-
-        padding: 0 11px;
-
-        border-radius: 20px;
-
-        font-size: 11px;
-        font-weight: 800;
-    }
-
-
-    .course-level-badge::before {
-        content: "";
-
-        width: 6px;
-        height: 6px;
-
-        border-radius: 50%;
-
-        background: currentColor;
-    }
-
-
-    .course-level-badge.beginner {
-        background: #eaf2ff;
-        color: #0d6efd;
-    }
-
-
-    .course-level-badge.intermediate {
-        background: #f2edff;
-        color: #7451d8;
-    }
-
-
-    .course-level-badge.advanced {
-        background: #e5f8f5;
-        color: #087f73;
-    }
-
-
-    .course-level-badge.default {
-        background: #eef1f4;
-        color: #667085;
-    }
-
-
-
-    /* =========================================
-       HERO TEXT
-    ========================================= */
-
     .course-main-title {
-        margin-bottom: 18px;
-
         font-size: 38px;
-        font-weight: 800;
         line-height: 1.25;
+        font-weight: 800;
+        margin-bottom: 18px;
     }
-
 
     .course-short-description {
-        margin-bottom: 22px;
-
         color: #c4cbd6;
-
         font-size: 16px;
         line-height: 1.7;
+        margin-bottom: 22px;
     }
-
 
     .course-meta {
         display: flex;
         flex-wrap: wrap;
-
         gap: 20px;
-
         color: #d7dce4;
-
         font-size: 13px;
     }
 
-
-
-    /* =========================================
-       HERO CARD
-    ========================================= */
+    /* =========================
+       CARD ĐĂNG KÝ
+    ========================= */
 
     .hero-card {
-        padding: 22px;
-
-        border-radius: 18px;
-
         background: #ffffff;
         color: #202938;
-
-        box-shadow:
-            0 18px 45px
-            rgba(0, 0, 0, .20);
+        padding: 22px;
+        border-radius: 18px;
+        box-shadow: 0 18px 45px rgba(0, 0, 0, 0.20);
     }
-
-
-
-    /* =========================================
-       THUMBNAIL THEO CẤP ĐỘ
-    ========================================= */
 
     .hero-thumbnail {
         height: 190px;
-
-        margin-bottom: 20px;
-
-        padding: 22px;
-
+        background: linear-gradient(
+            135deg,
+            #0d6efd,
+            #478cff);
         border-radius: 14px;
-
-        color: #ffffff;
-
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+        padding: 22px;
+        color: #ffffff;
+        margin-bottom: 20px;
     }
-
-
-    .hero-thumbnail.beginner {
-        background:
-            linear-gradient(
-                135deg,
-                #1558c9,
-                #4389f5
-            );
-    }
-
-
-    .hero-thumbnail.intermediate {
-        background:
-            linear-gradient(
-                135deg,
-                #6546c7,
-                #9279e9
-            );
-    }
-
-
-    .hero-thumbnail.advanced {
-        background:
-            linear-gradient(
-                135deg,
-                #087f73,
-                #29b6a6
-            );
-    }
-
-
-    .hero-thumbnail.default {
-        background:
-            linear-gradient(
-                135deg,
-                #485568,
-                #778397
-            );
-    }
-
 
     .hero-thumbnail-category {
         font-size: 13px;
         font-weight: 700;
-
-        opacity: .92;
+        opacity: .9;
     }
-
-
-    .hero-thumbnail-level {
-        align-self: flex-start;
-
-        padding: 5px 9px;
-
-        border-radius: 20px;
-
-        background:
-            rgba(
-                255,
-                255,
-                255,
-                .18
-            );
-
-        font-size: 10px;
-        font-weight: 800;
-    }
-
 
     .hero-thumbnail-logo {
         font-size: 38px;
         font-weight: 800;
     }
 
-
-
-    /* =========================================
-       PRICE
-    ========================================= */
-
     .course-price {
-        margin-bottom: 16px;
-
-        color: #172033;
-
         font-size: 27px;
         font-weight: 800;
+        margin-bottom: 16px;
     }
-
-
-
-    /* =========================================
-       BUTTON
-    ========================================= */
 
     .enroll-button {
         display: block;
-
         width: 100%;
-
-        padding: 13px 16px;
-
         border: none;
-        border-radius: 10px;
-
         background: #0d6efd;
         color: #ffffff;
-
-        font-weight: 700;
-
         text-align: center;
         text-decoration: none;
-
+        padding: 13px 16px;
+        border-radius: 10px;
+        font-weight: 700;
         cursor: pointer;
     }
 
-
     .enroll-button:hover {
         background: #0b5ed7;
-
         color: #ffffff;
     }
 
+    .wishlist-form {
+        margin-top: 10px;
+    }
 
+    .wishlist-button {
+        width: 100%;
+        min-height: 43px;
+        padding: 0 15px;
+        border: 1px solid #d6e2f5;
+        border-radius: 10px;
+        background: #f7faff;
+        color: #0d6efd;
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 800;
+        cursor: pointer;
+    }
 
-    /* =========================================
-       ENROLLED
-    ========================================= */
+    .wishlist-button:hover {
+        border-color: #a9c8f8;
+        background: #edf4ff;
+    }
+
+    .wishlist-button.saved {
+        border-color: #f0c7cc;
+        background: #fffafa;
+        color: #c92a3a;
+    }
+
+    .wishlist-button.saved:hover {
+        border-color: #dc3545;
+        background: #fff1f2;
+    }
 
     .enrolled-status {
         width: 100%;
-
-        margin-bottom: 18px;
-
-        padding: 12px 16px;
-
-        border: 1px solid #bfe5cb;
-        border-radius: 10px;
-
         background: #eaf8ef;
         color: #198754;
-
-        font-weight: 700;
-
+        border: 1px solid #bfe5cb;
         text-align: center;
+        padding: 12px 16px;
+        border-radius: 10px;
+        font-weight: 700;
+        margin-bottom: 18px;
     }
 
-
-
-    /* =========================================
-       PROGRESS
-    ========================================= */
+    /* =========================
+       TIẾN ĐỘ
+    ========================= */
 
     .learning-progress {
         margin-bottom: 18px;
     }
 
-
     .progress-heading {
         display: flex;
         align-items: center;
         justify-content: space-between;
-
         gap: 15px;
-
         margin-bottom: 8px;
     }
 
-
     .progress-label {
         color: #566273;
-
         font-size: 13px;
         font-weight: 600;
     }
 
-
     .progress-percent {
         color: #0d6efd;
-
         font-size: 13px;
         font-weight: 800;
     }
 
-
     .progress-track {
         width: 100%;
         height: 9px;
-
-        overflow: hidden;
-
-        border-radius: 50px;
-
         background: #edf1f6;
+        border-radius: 50px;
+        overflow: hidden;
     }
-
 
     .progress-value {
         height: 100%;
-
-        border-radius: 50px;
-
         background: #0d6efd;
-
+        border-radius: 50px;
         transition: width .3s ease;
     }
 
-
     .progress-extra {
-        margin-top: 7px;
-
         color: #929aaa;
-
         font-size: 11px;
+        margin-top: 7px;
     }
-
 
     .learn-button {
         display: block;
-
         width: 100%;
-
-        padding: 13px 16px;
-
-        border: 1px solid #0d6efd;
-        border-radius: 10px;
-
         background: #0d6efd;
         color: #ffffff;
-
-        font-weight: 700;
-
+        border: 1px solid #0d6efd;
         text-align: center;
         text-decoration: none;
+        padding: 13px 16px;
+        border-radius: 10px;
+        font-weight: 700;
     }
-
 
     .learn-button:hover {
         background: #0b5ed7;
-
         color: #ffffff;
     }
 
-
     .role-note {
         padding: 13px 15px;
-
-        border: 1px solid #c9e8f7;
-        border-radius: 10px;
-
         background: #eef8ff;
+        border: 1px solid #c9e8f7;
         color: #126278;
-
+        border-radius: 10px;
         font-size: 13px;
-
         text-align: center;
     }
 
-
-
-    /* =========================================
+    /* =========================
        CONTENT
-    ========================================= */
+    ========================= */
 
     .course-content {
         padding: 55px 0 80px;
     }
 
-
     .content-layout {
         display: grid;
-
-        grid-template-columns:
-            1fr
-            310px;
-
+        grid-template-columns: 1fr 310px;
         gap: 35px;
     }
 
-
     .content-card {
-        margin-bottom: 22px;
-
-        padding: 28px;
-
+        background: #ffffff;
         border: 1px solid #e8ebf0;
         border-radius: 16px;
-
-        background: #ffffff;
+        padding: 28px;
+        margin-bottom: 22px;
     }
-
 
     .content-title {
-        margin-bottom: 18px;
-
-        color: #172033;
-
         font-size: 23px;
         font-weight: 800;
+        color: #172033;
+        margin-bottom: 18px;
     }
-
 
     .description-text {
         color: #606b7b;
-
         line-height: 1.8;
-
         white-space: pre-line;
     }
 
-
-
-    /* =========================================
+    /* =========================
        MODULE / LESSON
-    ========================================= */
+    ========================= */
 
     .module-card {
-        margin-bottom: 12px;
-
-        overflow: hidden;
-
         border: 1px solid #e9edf3;
         border-radius: 12px;
+        margin-bottom: 12px;
+        overflow: hidden;
     }
-
 
     .module-title {
-        padding: 14px 17px;
-
         background: #f8fafc;
-        color: #273142;
-
+        padding: 14px 17px;
         font-weight: 700;
+        color: #273142;
     }
-
 
     .lesson-row {
+        padding: 12px 17px;
+        border-top: 1px solid #eef0f3;
         display: flex;
         justify-content: space-between;
-
         gap: 15px;
-
-        padding: 12px 17px;
-
-        border-top: 1px solid #eef0f3;
-
-        color: #667085;
-
         font-size: 13px;
+        color: #667085;
     }
-
 
     .empty-content {
-        padding: 20px;
-
-        border-radius: 10px;
-
-        background: #f8fafc;
         color: #8992a3;
+        background: #f8fafc;
+        padding: 20px;
+        border-radius: 10px;
     }
 
-
-
-    /* =========================================
-       SIDEBAR INFO
-    ========================================= */
+    /* =========================
+       SIDEBAR
+    ========================= */
 
     .info-row {
         padding: 11px 0;
-
         border-bottom: 1px solid #eef0f3;
     }
-
 
     .info-row:last-child {
         border-bottom: none;
     }
 
-
     .info-label {
-        margin-bottom: 3px;
-
         color: #8992a3;
-
         font-size: 12px;
+        margin-bottom: 3px;
     }
-
 
     .info-value {
         color: #273142;
-
-        font-size: 14px;
         font-weight: 600;
+        font-size: 14px;
     }
-
-
-    .sidebar-level {
-        display: inline-flex;
-        align-items: center;
-
-        gap: 6px;
-
-        padding: 5px 9px;
-
-        border-radius: 20px;
-
-        font-size: 11px;
-        font-weight: 800;
-    }
-
-
-    .sidebar-level::before {
-        content: "";
-
-        width: 6px;
-        height: 6px;
-
-        border-radius: 50%;
-
-        background: currentColor;
-    }
-
-
-    .sidebar-level.beginner {
-        background: #eaf2ff;
-        color: #0d6efd;
-    }
-
-
-    .sidebar-level.intermediate {
-        background: #f2edff;
-        color: #7451d8;
-    }
-
-
-    .sidebar-level.advanced {
-        background: #e5f8f5;
-        color: #087f73;
-    }
-
-
-    .sidebar-level.default {
-        background: #eef1f4;
-        color: #667085;
-    }
-
-
-
-    /* =========================================
-       INSTRUCTOR
-    ========================================= */
 
     .instructor-name {
-        margin-bottom: 6px;
-
-        color: #273142;
-
         font-weight: 700;
+        color: #273142;
+        margin-bottom: 6px;
     }
-
 
     .instructor-bio {
         color: #7a8494;
-
         font-size: 13px;
         line-height: 1.6;
     }
 
-
-
-    /* =========================================
+    /* =========================
        REVIEW
-    ========================================= */
+    ========================= */
 
     .rating-summary {
         display: flex;
         align-items: center;
-
         gap: 14px;
-
         margin-bottom: 22px;
     }
 
-
     .rating-number {
-        color: #172033;
-
         font-size: 35px;
         font-weight: 800;
+        color: #172033;
     }
-
 
     .rating-stars {
         color: #f59e0b;
-
         font-weight: 700;
     }
-
 
     .review-item {
         padding: 16px 0;
-
         border-top: 1px solid #eef0f3;
     }
 
-
     .review-user {
-        color: #273142;
-
         font-weight: 700;
+        color: #273142;
     }
 
-
     .review-comment {
-        margin-top: 7px;
-
         color: #697386;
-
+        margin-top: 7px;
         line-height: 1.6;
     }
 
-
-
-    /* =========================================
+    /* =========================
        TOAST
-    ========================================= */
+    ========================= */
 
     .toast-position {
         position: fixed !important;
-
         left: 32px !important;
         bottom: 32px !important;
-
         right: auto !important;
         top: auto !important;
-
         z-index: 2000 !important;
-
         padding: 0 !important;
     }
 
-
     .edulearn-toast {
         width: 320px;
-
-        max-width:
-            calc(100vw - 64px);
-
-        overflow: hidden;
-
+        max-width: calc(100vw - 64px);
         border: none;
         border-radius: 14px;
-
+        overflow: hidden;
         background: #ffffff;
-
-        box-shadow:
-            0 12px 35px
-            rgba(0, 0, 0, .16);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.16);
     }
-
 
     .toast-success {
-        border-left:
-            5px solid #198754;
+        border-left: 5px solid #198754;
     }
-
 
     .toast-info {
-        border-left:
-            5px solid #0dcaf0;
+        border-left: 5px solid #0dcaf0;
     }
-
 
     .toast-icon {
         width: 34px;
         height: 34px;
-
-        flex-shrink: 0;
-
         border-radius: 50%;
-
         display: flex;
         align-items: center;
         justify-content: center;
-
         font-weight: 800;
+        flex-shrink: 0;
     }
-
 
     .toast-icon-success {
         background: #e7f7ed;
         color: #198754;
     }
 
-
     .toast-icon-info {
         background: #e5f8fc;
         color: #087990;
     }
 
-
     .toast-title {
-        color: #202938;
-
         font-weight: 700;
+        color: #202938;
     }
-
 
     .toast-message {
-        margin-top: 2px;
-
         color: #697386;
-
         font-size: 13px;
+        margin-top: 2px;
     }
 
-
-
-    /* =========================================
+    /* =========================
        RESPONSIVE
-    ========================================= */
+    ========================= */
 
     @@media (max-width: 991px) {
 
@@ -1043,13 +557,11 @@
             grid-template-columns: 1fr;
         }
 
-
         .hero-card {
             max-width: 500px;
         }
 
     }
-
 
     @@media (max-width: 600px) {
 
@@ -1057,20 +569,10 @@
             font-size: 30px;
         }
 
-
         .course-meta {
             flex-direction: column;
-
             gap: 7px;
         }
-
-
-        .lesson-row {
-            flex-direction: column;
-
-            gap: 4px;
-        }
-
 
         .toast-position {
             left: 16px !important;
@@ -1078,10 +580,8 @@
             right: 16px !important;
         }
 
-
         .edulearn-toast {
             width: auto;
-
             max-width: none;
         }
 
@@ -1090,203 +590,113 @@
 </style>
 
 
-
 <div class="details-page">
 
-
-    <!-- =========================================
+    <!-- =========================
          HERO
-    ========================================= -->
+    ========================= -->
 
-    <section class="course-hero @levelClass">
+    <section class="course-hero">
 
         <div class="details-container">
 
-
             <div class="course-hero-grid">
 
-
-                <!-- =================================
-                     THÔNG TIN KHÓA HỌC
-                ================================== -->
+                <!-- THÔNG TIN KHÓA HỌC -->
 
                 <div>
 
-
                     <div class="breadcrumb-text">
-
 
                         <a asp-controller="Home"
                            asp-action="Index">
-
                             Trang chủ
-
                         </a>
-
 
                         /
 
-
                         <a asp-controller="Courses"
                            asp-action="Index">
-
                             Khóa học
-
                         </a>
-
 
                         / @Model.Title
 
-
                     </div>
 
 
-
-                    <div class="hero-badge-row">
-
-
-                        <div class="course-category-badge">
-
-                            @Model.Category.Name
-
-                        </div>
-
-
-                        <div class="course-level-badge @levelClass">
-
-                            @levelText
-
-                        </div>
-
-
+                    <div class="course-category-badge">
+                        @Model.Category.Name
                     </div>
-
 
 
                     <h1 class="course-main-title">
-
                         @Model.Title
-
                     </h1>
 
 
-
                     <p class="course-short-description">
-
                         @Model.ShortDescription
-
                     </p>
-
 
 
                     <div class="course-meta">
 
-
                         <span>
-
                             Giảng viên:
-
                             <strong>
-
                                 @Model.Instructor.FullName
-
                             </strong>
-
                         </span>
 
-
                         <span>
-
                             Cấp độ:
-
                             <strong>
-
-                                @levelText
-
+                                @Model.Level
                             </strong>
-
                         </span>
 
-
                         <span>
-
                             @Model.ViewCount lượt xem
-
                         </span>
 
 
                         @if (approvedReviews.Any())
                         {
                             <span>
-
-                                ★
-                                @averageRating.ToString("0.0")
-
+                                ★ @averageRating.ToString("0.0")
                                 (@approvedReviews.Count đánh giá)
-
                             </span>
                         }
 
-
                     </div>
-
 
                 </div>
 
 
-
-                <!-- =================================
-                     CARD BÊN PHẢI
-                ================================== -->
+                <!-- CARD BÊN PHẢI -->
 
                 <div class="hero-card">
 
+                    <div class="hero-thumbnail">
 
-                    <div class="hero-thumbnail @levelClass">
-
-
-                        <div>
-
-
-                            <div class="hero-thumbnail-category">
-
-                                @Model.Category.Name
-
-                            </div>
-
-
-                            <div class="hero-thumbnail-level">
-
-                                @levelText
-
-                            </div>
-
-
+                        <div class="hero-thumbnail-category">
+                            @Model.Category.Name
                         </div>
-
 
                         <div class="hero-thumbnail-logo">
-
                             @(Model.Category.Icon ?? "IT")
-
                         </div>
 
-
                     </div>
-
 
 
                     <div class="course-price">
-
                         @Model.Price.ToString("N0") đ
-
                     </div>
 
 
-
-                    <!-- =================================
-                         CHƯA ĐĂNG NHẬP
-                    ================================== -->
+                    <!-- CHƯA ĐĂNG NHẬP -->
 
                     @if (!isAuthenticated)
                     {
@@ -1301,25 +711,17 @@
                     }
 
 
+                    <!-- STUDENT CHƯA ĐĂNG KÝ -->
 
-                    <!-- =================================
-                         STUDENT CHƯA ĐĂNG KÝ
-                    ================================== -->
-
-                    @if (isStudent &&
-                         !isEnrolled)
+                    @if (isStudent && !isEnrolled)
                     {
                         <form asp-controller="Courses"
                               asp-action="Enroll"
                               method="post">
 
-                            @Html.AntiForgeryToken()
-
-
                             <input type="hidden"
                                    name="courseId"
                                    value="@Model.Id" />
-
 
                             <button type="submit"
                                     class="enroll-button">
@@ -1332,57 +734,38 @@
                     }
 
 
+                    <!-- STUDENT ĐÃ ĐĂNG KÝ -->
 
-                    <!-- =================================
-                         STUDENT ĐÃ ĐĂNG KÝ
-                    ================================== -->
-
-                    @if (isStudent &&
-                         isEnrolled)
+                    @if (isStudent && isEnrolled)
                     {
-
-                        @if (enrollmentProgress >=
-                             100)
+                        @if (enrollmentProgress >= 100)
                         {
                             <div class="enrolled-status">
-
                                 ✓ Đã hoàn thành khóa học
-
                             </div>
                         }
-                        else
+
+                        @if (enrollmentProgress < 100)
                         {
                             <div class="enrolled-status">
-
                                 ✓ Đã đăng ký khóa học
-
                             </div>
                         }
-
 
 
                         <div class="learning-progress">
 
-
                             <div class="progress-heading">
 
-
                                 <span class="progress-label">
-
                                     Tiến độ học tập
-
                                 </span>
-
 
                                 <span class="progress-percent">
-
                                     @enrollmentProgress.ToString("0")%
-
                                 </span>
 
-
                             </div>
-
 
 
                             <div class="progress-track">
@@ -1394,41 +777,32 @@
                             </div>
 
 
-
-                            @if (enrollmentProgress >=
-                                 100)
+                            @if (enrollmentProgress >= 100)
                             {
                                 <div class="progress-extra">
-
                                     Bạn đã hoàn thành khóa học này.
-
                                 </div>
                             }
-                            else if (enrollmentProgress >
-                                     0)
+
+                            @if (enrollmentProgress > 0 &&
+                                 enrollmentProgress < 100)
                             {
                                 <div class="progress-extra">
-
                                     Tiếp tục quá trình học tập của bạn.
-
                                 </div>
                             }
-                            else
+
+                            @if (enrollmentProgress == 0)
                             {
                                 <div class="progress-extra">
-
                                     Bạn chưa bắt đầu bài học nào.
-
                                 </div>
                             }
-
 
                         </div>
 
 
-
-                        @if (enrollmentProgress >=
-                             100)
+                        @if (enrollmentProgress >= 100)
                         {
                             <a asp-controller="Courses"
                                asp-action="Learn"
@@ -1439,8 +813,10 @@
 
                             </a>
                         }
-                        else if (enrollmentProgress >
-                                 0)
+
+
+                        @if (enrollmentProgress > 0 &&
+                             enrollmentProgress < 100)
                         {
                             <a asp-controller="Courses"
                                asp-action="Learn"
@@ -1451,7 +827,9 @@
 
                             </a>
                         }
-                        else
+
+
+                        @if (enrollmentProgress == 0)
                         {
                             <a asp-controller="Courses"
                                asp-action="Learn"
@@ -1462,153 +840,162 @@
 
                             </a>
                         }
-
                     }
 
 
+                    <!-- YÊU THÍCH -->
 
-                    <!-- =================================
-                         ADMIN
-                    ================================== -->
+                    @if (isStudent)
+                    {
+                        if (!isWishlisted)
+                        {
+                            <form asp-controller="Wishlist"
+                                  asp-action="Add"
+                                  method="post"
+                                  class="wishlist-form">
+
+                                @Html.AntiForgeryToken()
+
+                                <input type="hidden"
+                                       name="courseId"
+                                       value="@Model.Id" />
+
+                                <input type="hidden"
+                                       name="slug"
+                                       value="@Model.Slug" />
+
+                                <button type="submit"
+                                        class="wishlist-button">
+                                    ♡ Thêm vào yêu thích
+                                </button>
+
+                            </form>
+                        }
+                        else
+                        {
+                            <form asp-controller="Wishlist"
+                                  asp-action="Remove"
+                                  method="post"
+                                  class="wishlist-form">
+
+                                @Html.AntiForgeryToken()
+
+                                <input type="hidden"
+                                       name="courseId"
+                                       value="@Model.Id" />
+
+                                <input type="hidden"
+                                       name="slug"
+                                       value="@Model.Slug" />
+
+                                <input type="hidden"
+                                       name="returnToDetails"
+                                       value="true" />
+
+                                <button type="submit"
+                                        class="wishlist-button saved">
+                                    ♥ Đã yêu thích · Bỏ lưu
+                                </button>
+
+                            </form>
+                        }
+                    }
+
+
+                    <!-- ADMIN -->
 
                     @if (isAdmin)
                     {
                         <div class="role-note">
-
                             Bạn đang đăng nhập với quyền Quản trị viên.
-
                         </div>
                     }
 
 
-
-                    <!-- =================================
-                         INSTRUCTOR
-                    ================================== -->
+                    <!-- INSTRUCTOR -->
 
                     @if (isInstructor)
                     {
                         <div class="role-note">
-
                             Bạn đang đăng nhập với quyền Giảng viên.
-
                         </div>
                     }
 
-
                 </div>
 
-
             </div>
-
 
         </div>
 
     </section>
 
 
-
-    <!-- =========================================
+    <!-- =========================
          NỘI DUNG
-    ========================================= -->
+    ========================= -->
 
     <section class="course-content"
              id="course-content">
 
-
         <div class="details-container">
-
 
             <div class="content-layout">
 
-
                 <div>
 
-
-                    <!-- =================================
-                         GIỚI THIỆU
-                    ================================== -->
+                    <!-- GIỚI THIỆU -->
 
                     <div class="content-card">
 
-
                         <h2 class="content-title">
-
                             Giới thiệu khóa học
-
                         </h2>
 
-
                         <div class="description-text">
-
                             @Model.Description
-
                         </div>
-
 
                     </div>
 
 
-
-                    <!-- =================================
-                         MODULE / LESSON
-                    ================================== -->
+                    <!-- MODULE / LESSON -->
 
                     <div class="content-card">
 
-
                         <h2 class="content-title">
-
                             Nội dung khóa học
-
                         </h2>
-
 
 
                         @if (Model.Modules != null &&
                              Model.Modules.Any())
                         {
                             foreach (var module in
-                                Model.Modules
-                                    .OrderBy(
-                                        m =>
-                                            m.DisplayOrder))
+                                Model.Modules.OrderBy(
+                                    m => m.DisplayOrder))
                             {
                                 <div class="module-card">
 
-
                                     <div class="module-title">
-
                                         @module.Title
-
                                     </div>
-
 
 
                                     @if (module.Lessons.Any())
                                     {
                                         foreach (var lesson in
-                                            module.Lessons
-                                                .OrderBy(
-                                                    l =>
-                                                        l.DisplayOrder))
+                                            module.Lessons.OrderBy(
+                                                l => l.DisplayOrder))
                                         {
                                             <div class="lesson-row">
 
-
                                                 <span>
-
                                                     @lesson.Title
-
                                                 </span>
-
 
                                                 <span>
-
                                                     @lesson.Duration phút
-
                                                 </span>
-
 
                                             </div>
                                         }
@@ -1616,12 +1003,9 @@
                                     else
                                     {
                                         <div class="lesson-row">
-
                                             Chưa có bài học.
-
                                         </div>
                                     }
-
 
                                 </div>
                             }
@@ -1629,86 +1013,55 @@
                         else
                         {
                             <div class="empty-content">
-
                                 Nội dung bài học đang được cập nhật.
-
                             </div>
                         }
-
 
                     </div>
 
 
-
-                    <!-- =================================
-                         ĐÁNH GIÁ
-                    ================================== -->
+                    <!-- ĐÁNH GIÁ -->
 
                     <div class="content-card">
 
-
                         <h2 class="content-title">
-
                             Đánh giá khóa học
-
                         </h2>
-
 
 
                         @if (approvedReviews.Any())
                         {
-
                             <div class="rating-summary">
 
-
                                 <div class="rating-number">
-
                                     @averageRating.ToString("0.0")
-
                                 </div>
-
 
                                 <div>
 
-
                                     <div class="rating-stars">
-
                                         ★★★★★
-
                                     </div>
-
 
                                     <div class="text-muted small">
-
                                         @approvedReviews.Count đánh giá
-
                                     </div>
 
-
                                 </div>
-
 
                             </div>
 
 
-
-                            foreach (var review in
-                                approvedReviews)
+                            foreach (var review in approvedReviews)
                             {
                                 <div class="review-item">
 
-
                                     <div class="review-user">
-
                                         @review.User.FullName
-
                                     </div>
 
-
                                     <div class="rating-stars">
-
                                         @review.Rating / 5 ★
-
                                     </div>
 
 
@@ -1716,109 +1069,69 @@
                                         review.Comment))
                                     {
                                         <div class="review-comment">
-
                                             @review.Comment
-
                                         </div>
                                     }
 
-
                                 </div>
                             }
-
                         }
                         else
                         {
                             <div class="empty-content">
-
                                 Khóa học chưa có đánh giá.
-
                             </div>
                         }
 
-
                     </div>
-
 
                 </div>
 
 
-
-                <!-- =================================
+                <!-- =========================
                      SIDEBAR
-                ================================== -->
+                ========================= -->
 
                 <aside>
 
-
-                    <!-- THÔNG TIN KHÓA HỌC -->
-
                     <div class="content-card">
 
-
                         <h3 class="content-title">
-
                             Thông tin khóa học
-
                         </h3>
 
 
-
                         <div class="info-row">
 
-
                             <div class="info-label">
-
                                 Danh mục
-
                             </div>
 
-
                             <div class="info-value">
-
                                 @Model.Category.Name
-
                             </div>
-
 
                         </div>
 
 
-
                         <div class="info-row">
 
-
                             <div class="info-label">
-
                                 Cấp độ
-
                             </div>
-
 
                             <div class="info-value">
-
-                                <span class="sidebar-level @levelClass">
-
-                                    @levelText
-
-                                </span>
-
+                                @Model.Level
                             </div>
-
 
                         </div>
 
 
-
                         <div class="info-row">
 
-
                             <div class="info-label">
-
                                 Ngôn ngữ
-
                             </div>
-
 
                             <div class="info-value">
 
@@ -1828,93 +1141,59 @@
 
                             </div>
 
-
                         </div>
-
 
 
                         <div class="info-row">
 
-
                             <div class="info-label">
-
                                 Thời lượng
-
                             </div>
 
-
                             <div class="info-value">
-
                                 @Model.Duration phút
-
                             </div>
-
 
                         </div>
 
 
-
                         <div class="info-row">
 
-
                             <div class="info-label">
-
                                 Số bài học
-
                             </div>
-
 
                             <div class="info-value">
-
                                 @totalLessons bài
-
                             </div>
 
-
                         </div>
-
 
 
                         <div class="info-row">
 
-
                             <div class="info-label">
-
                                 Học viên
-
                             </div>
-
 
                             <div class="info-value">
-
                                 @Model.EnrollmentCount học viên
-
                             </div>
 
-
                         </div>
-
 
                     </div>
 
 
-
-                    <!-- GIẢNG VIÊN -->
-
                     <div class="content-card">
 
-
                         <h3 class="content-title">
-
                             Giảng viên
-
                         </h3>
 
 
                         <div class="instructor-name">
-
                             @Model.Instructor.FullName
-
                         </div>
 
 
@@ -1922,41 +1201,30 @@
                             Model.Instructor.Bio))
                         {
                             <div class="instructor-bio">
-
                                 @Model.Instructor.Bio
-
                             </div>
                         }
 
-
                     </div>
-
 
                 </aside>
 
-
             </div>
-
 
         </div>
 
-
     </section>
-
 
 </div>
 
 
-
-<!-- =========================================
+<!-- =========================
      POPUP THÔNG BÁO
-========================================= -->
+========================= -->
 
-@if (!string.IsNullOrWhiteSpace(
-    toastMessage))
+@if (!string.IsNullOrWhiteSpace(toastMessage))
 {
     <div class="toast-container toast-position">
-
 
         <div id="courseToast"
              class="toast edulearn-toast @(toastIsSuccess ? "toast-success" : "toast-info")"
@@ -1964,9 +1232,7 @@
              aria-live="assertive"
              aria-atomic="true">
 
-
             <div class="toast-body d-flex align-items-center gap-3">
-
 
                 <div class="toast-icon @(toastIsSuccess ? "toast-icon-success" : "toast-icon-info")">
 
@@ -1979,7 +1245,6 @@
 
                 <div class="flex-grow-1">
 
-
                     <div class="toast-title">
 
                         @(toastIsSuccess
@@ -1988,13 +1253,9 @@
 
                     </div>
 
-
                     <div class="toast-message">
-
                         @toastMessage
-
                     </div>
-
 
                 </div>
 
@@ -2005,16 +1266,12 @@
                         aria-label="Đóng">
                 </button>
 
-
             </div>
-
 
         </div>
 
-
     </div>
 }
-
 
 
 @section Scripts {
@@ -2027,9 +1284,7 @@
 
                 const toastElement =
                     document.getElementById(
-                        "courseToast"
-                    );
-
+                        "courseToast");
 
                 if (toastElement) {
 
@@ -2039,16 +1294,11 @@
                             {
                                 autohide: true,
                                 delay: 3500
-                            }
-                        );
-
+                            });
 
                     toast.show();
-
                 }
-
-            }
-        );
+            });
 
     </script>
 
