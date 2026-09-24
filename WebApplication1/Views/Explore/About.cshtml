@@ -1,0 +1,359 @@
+﻿@{
+    ViewData["Title"] = "Về EduLearn";
+}
+
+<style>
+
+    .about-page {
+        min-height: 78vh;
+        background: #ffffff;
+    }
+
+    .about-container {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .about-hero {
+        padding: 72px 0 58px;
+        background:
+            linear-gradient(
+                180deg,
+                #f6f9ff 0%,
+                #ffffff 100%
+            );
+    }
+
+    .about-hero-content {
+        max-width: 760px;
+    }
+
+    .about-eyebrow {
+        margin-bottom: 9px;
+        color: #0d6efd;
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+    }
+
+    .about-title {
+        margin: 0 0 15px;
+        color: #172033;
+        font-size: 42px;
+        font-weight: 800;
+        line-height: 1.2;
+    }
+
+    .about-title span {
+        color: #0d6efd;
+    }
+
+    .about-description {
+        margin: 0;
+        color: #6f7a8c;
+        font-size: 15px;
+        line-height: 1.8;
+    }
+
+    .about-section {
+        padding: 58px 0;
+    }
+
+    .about-section.soft {
+        background: #f8fafc;
+    }
+
+    .section-title {
+        margin: 0 0 10px;
+        color: #273142;
+        font-size: 25px;
+        font-weight: 800;
+    }
+
+    .section-description {
+        max-width: 760px;
+        margin: 0;
+        color: #748095;
+        font-size: 13px;
+        line-height: 1.8;
+    }
+
+    .value-grid {
+        display: grid;
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+        gap: 16px;
+        margin-top: 28px;
+    }
+
+    .value-card {
+        padding: 22px;
+        border: 1px solid #e4e9f0;
+        border-radius: 14px;
+        background: #ffffff;
+    }
+
+    .value-number {
+        width: 37px;
+        height: 37px;
+        margin-bottom: 14px;
+        border-radius: 10px;
+        background: #edf4ff;
+        color: #0d6efd;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+    .value-title {
+        margin-bottom: 7px;
+        color: #344054;
+        font-size: 14px;
+        font-weight: 800;
+    }
+
+    .value-description {
+        margin: 0;
+        color: #7d8798;
+        font-size: 12px;
+        line-height: 1.7;
+    }
+
+    .about-cta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 27px 30px;
+        border-radius: 17px;
+        background: #0d6efd;
+        color: #ffffff;
+    }
+
+    .cta-title {
+        margin-bottom: 5px;
+        font-size: 20px;
+        font-weight: 800;
+    }
+
+    .cta-text {
+        margin: 0;
+        opacity: .88;
+        font-size: 12px;
+    }
+
+    .cta-link {
+        min-height: 42px;
+        padding: 0 17px;
+        border-radius: 9px;
+        background: #ffffff;
+        color: #0d6efd;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 800;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    @@media (max-width: 760px) {
+
+        .about-title {
+            font-size: 34px;
+        }
+
+        .value-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .about-cta {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+
+</style>
+
+
+<div class="about-page">
+
+
+    <section class="about-hero">
+
+        <div class="about-container">
+
+            <div class="about-hero-content">
+
+
+                <div class="about-eyebrow">
+                    Về EduLearn
+                </div>
+
+
+                <h1 class="about-title">
+
+                    Chia sẻ tri thức,
+                    <span>kiến tạo tương lai</span>
+
+                </h1>
+
+
+                <p class="about-description">
+
+                    EduLearn là website chia sẻ khóa học trực tuyến
+                    tập trung vào lĩnh vực Công nghệ thông tin,
+                    kết nối người học với nội dung học tập
+                    được tổ chức theo khóa học, module và bài học.
+
+                </p>
+
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <section class="about-section">
+
+        <div class="about-container">
+
+
+            <h2 class="section-title">
+                Mục tiêu của EduLearn
+            </h2>
+
+
+            <p class="section-description">
+
+                Xây dựng một không gian học trực tuyến
+                dễ sử dụng, nơi học viên có thể khám phá khóa học,
+                theo dõi tiến độ và trao đổi với giảng viên;
+                đồng thời cung cấp công cụ để giảng viên
+                tổ chức và cập nhật nội dung giảng dạy.
+
+            </p>
+
+
+            <div class="value-grid">
+
+
+                <article class="value-card">
+
+                    <div class="value-number">
+                        01
+                    </div>
+
+                    <div class="value-title">
+                        Học tập có cấu trúc
+                    </div>
+
+                    <p class="value-description">
+
+                        Nội dung được tổ chức theo
+                        khóa học, module và bài học
+                        để người học dễ theo dõi.
+
+                    </p>
+
+                </article>
+
+
+                <article class="value-card">
+
+                    <div class="value-number">
+                        02
+                    </div>
+
+                    <div class="value-title">
+                        Theo dõi tiến độ
+                    </div>
+
+                    <p class="value-description">
+
+                        Hệ thống ghi nhận quá trình học
+                        và giúp học viên tiếp tục
+                        từ đúng vị trí đã dừng.
+
+                    </p>
+
+                </article>
+
+
+                <article class="value-card">
+
+                    <div class="value-number">
+                        03
+                    </div>
+
+                    <div class="value-title">
+                        Kết nối giảng viên
+                    </div>
+
+                    <p class="value-description">
+
+                        Hỏi đáp theo bài học
+                        giúp học viên gửi câu hỏi
+                        và nhận phản hồi từ giảng viên.
+
+                    </p>
+
+                </article>
+
+
+            </div>
+
+
+        </div>
+
+    </section>
+
+
+    <section class="about-section soft">
+
+        <div class="about-container">
+
+
+            <div class="about-cta">
+
+
+                <div>
+
+                    <div class="cta-title">
+                        Khám phá khóa học trên EduLearn
+                    </div>
+
+                    <p class="cta-text">
+
+                        Tìm khóa học phù hợp với
+                        trình độ và mục tiêu học tập của bạn.
+
+                    </p>
+
+                </div>
+
+
+                <a asp-controller="Courses"
+                   asp-action="Index"
+                   class="cta-link">
+
+                    Xem khóa học →
+
+                </a>
+
+
+            </div>
+
+
+        </div>
+
+    </section>
+
+
+</div>

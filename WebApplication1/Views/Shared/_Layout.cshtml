@@ -30,6 +30,16 @@
         currentController == "InstructorCourses";
 
 
+    bool isInstructorsPage =
+        currentController == "Explore" &&
+        currentAction == "Instructors";
+
+
+    bool isAboutPage =
+        currentController == "Explore" &&
+        currentAction == "About";
+
+
     bool isAuthenticated =
         User.Identity?.IsAuthenticated == true;
 
@@ -1177,8 +1187,9 @@
 
 
 
-                <a href="#"
-                   class="edulearn-nav-link">
+                <a asp-controller="Explore"
+                   asp-action="Instructors"
+                   class="edulearn-nav-link @(isInstructorsPage ? "active" : "")">
 
                     Giảng viên
 
@@ -1186,8 +1197,9 @@
 
 
 
-                <a href="#"
-                   class="edulearn-nav-link">
+                <a asp-controller="Explore"
+                   asp-action="About"
+                   class="edulearn-nav-link @(isAboutPage ? "active" : "")">
 
                     Về EduLearn
 
