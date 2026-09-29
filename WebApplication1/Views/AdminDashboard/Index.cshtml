@@ -1,0 +1,589 @@
+﻿@model OnlineLearningPlatform.ViewModels.AdminDashboardViewModel
+
+@{
+    ViewData["Title"] = "Bảng điều khiển quản trị";
+}
+
+<style>
+
+    .admin-page {
+        min-height: 80vh;
+        padding: 46px 0 78px;
+        background: #f8fafc;
+    }
+
+    .admin-container {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .admin-header {
+        margin-bottom: 25px;
+    }
+
+    .page-eyebrow {
+        margin-bottom: 6px;
+        color: #0d6efd;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+    .page-title {
+        margin: 0 0 7px;
+        color: #172033;
+        font-size: 31px;
+        font-weight: 800;
+    }
+
+    .page-description {
+        margin: 0;
+        color: #7d8798;
+        font-size: 12px;
+        line-height: 1.7;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns:
+            repeat(4, minmax(0, 1fr));
+        gap: 13px;
+        margin-bottom: 22px;
+    }
+
+    .stat-card {
+        padding: 18px;
+        border: 1px solid #e1e7ee;
+        border-radius: 13px;
+        background: #ffffff;
+    }
+
+    .stat-label {
+        color: #8a94a5;
+        font-size: 9px;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+    .stat-value {
+        margin-top: 7px;
+        color: #273142;
+        font-size: 24px;
+        font-weight: 800;
+    }
+
+    .stat-note {
+        margin-top: 4px;
+        color: #98a2b3;
+        font-size: 9px;
+    }
+
+    .admin-grid {
+        display: grid;
+        grid-template-columns:
+            minmax(0, 1.65fr)
+            minmax(260px, .75fr);
+        gap: 18px;
+        align-items: start;
+    }
+
+    .admin-card {
+        overflow: hidden;
+        border: 1px solid #e1e7ee;
+        border-radius: 14px;
+        background: #ffffff;
+    }
+
+    .card-header {
+        padding: 17px 19px;
+        border-bottom: 1px solid #edf0f4;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+    }
+
+    .card-title {
+        margin: 0;
+        color: #344054;
+        font-size: 14px;
+        font-weight: 800;
+    }
+
+    .card-subtitle {
+        color: #98a2b3;
+        font-size: 9px;
+    }
+
+    .table-wrap {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .admin-table {
+        width: 100%;
+        min-width: 760px;
+        border-collapse: collapse;
+    }
+
+    .admin-table th {
+        padding: 11px 14px;
+        border-bottom: 1px solid #edf0f4;
+        background: #fbfcfd;
+        color: #7d8798;
+        font-size: 9px;
+        font-weight: 800;
+        text-align: left;
+        text-transform: uppercase;
+    }
+
+    .admin-table td {
+        padding: 13px 14px;
+        border-bottom: 1px solid #f0f2f5;
+        color: #475467;
+        font-size: 10px;
+        vertical-align: middle;
+    }
+
+    .admin-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .course-title {
+        color: #344054;
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+    .course-meta {
+        margin-top: 3px;
+        color: #98a2b3;
+        font-size: 9px;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        padding: 5px 8px;
+        border-radius: 20px;
+        font-size: 9px;
+        font-weight: 800;
+    }
+
+    .status-badge.published {
+        background: #edf8f1;
+        color: #198754;
+    }
+
+    .status-badge.draft {
+        background: #f3f4f6;
+        color: #697386;
+    }
+
+    .view-link {
+        color: #0d6efd;
+        font-size: 9px;
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+    .quick-body {
+        padding: 16px;
+    }
+
+    .quick-link {
+        min-height: 46px;
+        margin-bottom: 9px;
+        padding: 0 13px;
+        border: 1px solid #e0e6ee;
+        border-radius: 10px;
+        background: #ffffff;
+        color: #475467;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 10px;
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+    .quick-link:hover {
+        border-color: #bcd3f5;
+        background: #f8fbff;
+        color: #0d6efd;
+    }
+
+    .quick-link:last-child {
+        margin-bottom: 0;
+    }
+
+    .quick-note {
+        padding: 14px 16px;
+        border-top: 1px solid #edf0f4;
+        background: #fbfcfd;
+        color: #8992a3;
+        font-size: 9px;
+        line-height: 1.65;
+    }
+
+    .empty-state {
+        padding: 45px 20px;
+        color: #8992a3;
+        font-size: 10px;
+        text-align: center;
+    }
+
+    @@media (max-width: 950px) {
+
+        .stats-grid {
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+        }
+
+        .admin-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @@media (max-width: 560px) {
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+</style>
+
+
+<div class="admin-page">
+
+    <div class="admin-container">
+
+
+        <div class="admin-header">
+
+            <div class="page-eyebrow">
+                Quản trị hệ thống
+            </div>
+
+            <h1 class="page-title">
+                Bảng điều khiển EduLearn
+            </h1>
+
+            <p class="page-description">
+
+                Theo dõi nhanh người dùng,
+                khóa học và hoạt động học tập
+                trên toàn bộ nền tảng.
+
+            </p>
+
+        </div>
+
+
+        <div class="stats-grid">
+
+
+            <div class="stat-card">
+
+                <div class="stat-label">
+                    Tổng người dùng
+                </div>
+
+                <div class="stat-value">
+                    @Model.TotalUsers
+                </div>
+
+                <div class="stat-note">
+
+                    @Model.TotalStudents học viên
+                    · @Model.TotalInstructors giảng viên
+
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-label">
+                    Khóa học
+                </div>
+
+                <div class="stat-value">
+                    @Model.TotalCourses
+                </div>
+
+                <div class="stat-note">
+
+                    @Model.PublishedCourses đã xuất bản
+                    · @Model.DraftCourses bản nháp
+
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-label">
+                    Lượt đăng ký
+                </div>
+
+                <div class="stat-value">
+                    @Model.TotalEnrollments
+                </div>
+
+                <div class="stat-note">
+                    Tổng enrollment toàn hệ thống
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-label">
+                    Đánh giá
+                </div>
+
+                <div class="stat-value">
+                    @Model.TotalReviews
+                </div>
+
+                <div class="stat-note">
+                    Tổng review khóa học
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <div class="admin-grid">
+
+
+            <section class="admin-card">
+
+
+                <div class="card-header">
+
+                    <h2 class="card-title">
+                        Khóa học cập nhật gần đây
+                    </h2>
+
+                    <div class="card-subtitle">
+                        6 khóa gần nhất
+                    </div>
+
+                </div>
+
+
+                @if (Model.RecentCourses.Any())
+                {
+                    <div class="table-wrap">
+
+                        <table class="admin-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>Khóa học</th>
+                                    <th>Giảng viên</th>
+                                    <th>Đăng ký</th>
+                                    <th>Trạng thái</th>
+                                    <th>Cập nhật</th>
+                                    <th></th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                @foreach (var course in Model.RecentCourses)
+                                {
+                                    <tr>
+
+
+                                        <td>
+
+                                            <div class="course-title">
+                                                @course.Title
+                                            </div>
+
+                                            <div class="course-meta">
+                                                @course.CategoryName
+                                            </div>
+
+                                        </td>
+
+
+                                        <td>
+                                            @course.InstructorName
+                                        </td>
+
+
+                                        <td>
+                                            @course.EnrollmentCount
+                                        </td>
+
+
+                                        <td>
+
+                                            <span class="status-badge @(course.IsPublished ? "published" : "draft")">
+
+                                                @(course.IsPublished
+                                                    ? "Đã xuất bản"
+                                                    : "Bản nháp")
+
+                                            </span>
+
+                                        </td>
+
+
+                                        <td>
+
+                                            @(course.UpdatedAt
+                                                .ToLocalTime()
+                                                .ToString("dd/MM/yyyy"))
+
+                                        </td>
+
+
+                                        <td>
+
+                                            @if (course.IsPublished)
+                                            {
+                                                <a asp-controller="Courses"
+                                                   asp-action="Details"
+                                                   asp-route-slug="@course.Slug"
+                                                   class="view-link">
+
+                                                    Xem →
+
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <span class="course-meta">
+                                                    Chưa công khai
+                                                </span>
+                                            }
+
+                                        </td>
+
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        Hiện chưa có khóa học trong hệ thống.
+                    </div>
+                }
+
+
+            </section>
+
+
+
+            <aside class="admin-card">
+
+
+                <div class="card-header">
+
+                    <h2 class="card-title">
+                        Truy cập nhanh
+                    </h2>
+
+                </div>
+
+
+                <div class="quick-body">
+
+
+                    <a asp-controller="Courses"
+                       asp-action="Index"
+                       class="quick-link">
+
+                        <span>
+                            Xem danh sách khóa học
+                        </span>
+
+                        <span>→</span>
+
+                    </a>
+
+
+                    <a asp-controller="AdminUsers"
+                       asp-action="Index"
+                       class="quick-link">
+
+                        <span>
+                            Quản lý người dùng
+                        </span>
+
+                        <span>→</span>
+
+                    </a>
+
+
+                    <a asp-controller="LessonQuestions"
+                       asp-action="Index"
+                       class="quick-link">
+
+                        <span>
+                            Quản lý hỏi đáp
+                        </span>
+
+                        <span>→</span>
+
+                    </a>
+
+
+                    <a asp-controller="Profile"
+                       asp-action="Index"
+                       class="quick-link">
+
+                        <span>
+                            Tài khoản quản trị
+                        </span>
+
+                        <span>→</span>
+
+                    </a>
+
+
+                </div>
+
+
+                <div class="quick-note">
+
+                    Mốc tiếp theo sẽ bổ sung
+                    Quản lý người dùng và Quản lý khóa học
+                    dành riêng cho Admin.
+
+                </div>
+
+
+            </aside>
+
+
+        </div>
+
+
+    </div>
+
+</div>

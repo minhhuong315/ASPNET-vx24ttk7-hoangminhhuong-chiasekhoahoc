@@ -52,6 +52,14 @@
         currentController == "Wishlist";
 
 
+    bool isAdminDashboardPage =
+        currentController == "AdminDashboard";
+
+
+    bool isAdminUsersPage =
+        currentController == "AdminUsers";
+
+
     bool isAuthenticated =
         User.Identity?.IsAuthenticated == true;
 
@@ -1418,6 +1426,36 @@
 
                             @if (isAdmin)
                             {
+
+                                <a asp-controller="AdminDashboard"
+                                   asp-action="Index"
+                                   class="account-menu-item @(isAdminDashboardPage ? "active" : "")">
+
+                                    <span class="account-menu-icon">
+                                        DB
+                                    </span>
+
+                                    <span>
+                                        Bảng điều khiển
+                                    </span>
+
+                                </a>
+
+
+                                <a asp-controller="AdminUsers"
+                                   asp-action="Index"
+                                   class="account-menu-item @(isAdminUsersPage ? "active" : "")">
+
+                                    <span class="account-menu-icon">
+                                        ND
+                                    </span>
+
+                                    <span>
+                                        Quản lý người dùng
+                                    </span>
+
+                                </a>
+
 
                                 <a asp-controller="LessonQuestions"
                                    asp-action="Index"
