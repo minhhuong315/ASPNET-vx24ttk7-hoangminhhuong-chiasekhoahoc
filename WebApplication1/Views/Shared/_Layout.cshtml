@@ -30,6 +30,10 @@
         currentController == "InstructorCourses";
 
 
+    bool isInstructorStudentsPage =
+        currentController == "InstructorStudents";
+
+
     bool isInstructorsPage =
         currentController == "Explore" &&
         currentAction == "Instructors";
@@ -1374,6 +1378,21 @@
 
                                     <span>
                                         Khóa học phụ trách
+                                    </span>
+
+                                </a>
+
+
+                                <a asp-controller="InstructorStudents"
+                                   asp-action="Index"
+                                   class="account-menu-item @(isInstructorStudentsPage ? "active" : "")">
+
+                                    <span class="account-menu-icon">
+                                        HV
+                                    </span>
+
+                                    <span>
+                                        Học viên khóa học
                                     </span>
 
                                 </a>
