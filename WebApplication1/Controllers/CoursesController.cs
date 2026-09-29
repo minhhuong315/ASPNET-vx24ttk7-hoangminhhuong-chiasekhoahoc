@@ -266,6 +266,9 @@ namespace OnlineLearningPlatform.Controllers
             ViewBag.IsWishlisted =
                 false;
 
+            ViewBag.CurrentUserReview =
+                null;
+
 
             if (User.Identity?.IsAuthenticated == true)
             {
@@ -308,6 +311,14 @@ namespace OnlineLearningPlatform.Controllers
                                 .AnyAsync(w =>
                                     w.UserId == userId &&
                                     w.CourseId == course.Id);
+
+
+                        ViewBag.CurrentUserReview =
+                            await _context.Reviews
+                                .AsNoTracking()
+                                .FirstOrDefaultAsync(r =>
+                                    r.UserId == userId &&
+                                    r.CourseId == course.Id);
                     }
                 }
             }

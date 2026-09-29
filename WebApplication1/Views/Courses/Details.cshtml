@@ -42,6 +42,10 @@
         ViewBag.IsWishlisted != null &&
         (bool)ViewBag.IsWishlisted;
 
+    var currentUserReview =
+        ViewBag.CurrentUserReview
+            as OnlineLearningPlatform.Models.Review;
+
     bool isAdmin =
         isAuthenticated &&
         User.IsInRole("Admin");
@@ -62,15 +66,31 @@
     string? wishlistInfoMessage =
         TempData["WishlistInfo"]?.ToString();
 
+    string? reviewSuccessMessage =
+        TempData["ReviewSuccess"]?.ToString();
+
+    string? reviewInfoMessage =
+        TempData["ReviewInfo"]?.ToString();
+
+    string? reviewErrorMessage =
+        TempData["ReviewError"]?.ToString();
+
     string? toastMessage =
         successMessage ??
         wishlistSuccessMessage ??
+        reviewSuccessMessage ??
+        reviewErrorMessage ??
         infoMessage ??
-        wishlistInfoMessage;
+        wishlistInfoMessage ??
+        reviewInfoMessage;
 
     bool toastIsSuccess =
         !string.IsNullOrWhiteSpace(successMessage) ||
-        !string.IsNullOrWhiteSpace(wishlistSuccessMessage);
+        !string.IsNullOrWhiteSpace(wishlistSuccessMessage) ||
+        !string.IsNullOrWhiteSpace(reviewSuccessMessage);
+
+    bool toastIsError =
+        !string.IsNullOrWhiteSpace(reviewErrorMessage);
 }
 
 <style>
@@ -87,8 +107,8 @@
     }
 
     /* =========================
-       HERO
-    ========================= */
+           HERO
+        ========================= */
 
     .course-hero {
         background: #172033;
@@ -109,14 +129,14 @@
         margin-bottom: 20px;
     }
 
-    .breadcrumb-text a {
-        color: #d5dfed;
-        text-decoration: none;
-    }
+        .breadcrumb-text a {
+            color: #d5dfed;
+            text-decoration: none;
+        }
 
-    .breadcrumb-text a:hover {
-        color: #ffffff;
-    }
+            .breadcrumb-text a:hover {
+                color: #ffffff;
+            }
 
     .course-category-badge {
         display: inline-block;
@@ -152,8 +172,8 @@
     }
 
     /* =========================
-       CARD ĐĂNG KÝ
-    ========================= */
+           CARD ĐĂNG KÝ
+        ========================= */
 
     .hero-card {
         background: #ffffff;
@@ -165,10 +185,7 @@
 
     .hero-thumbnail {
         height: 190px;
-        background: linear-gradient(
-            135deg,
-            #0d6efd,
-            #478cff);
+        background: linear-gradient( 135deg, #0d6efd, #478cff);
         border-radius: 14px;
         display: flex;
         flex-direction: column;
@@ -209,10 +226,10 @@
         cursor: pointer;
     }
 
-    .enroll-button:hover {
-        background: #0b5ed7;
-        color: #ffffff;
-    }
+        .enroll-button:hover {
+            background: #0b5ed7;
+            color: #ffffff;
+        }
 
     .wishlist-form {
         margin-top: 10px;
@@ -232,21 +249,21 @@
         cursor: pointer;
     }
 
-    .wishlist-button:hover {
-        border-color: #a9c8f8;
-        background: #edf4ff;
-    }
+        .wishlist-button:hover {
+            border-color: #a9c8f8;
+            background: #edf4ff;
+        }
 
-    .wishlist-button.saved {
-        border-color: #f0c7cc;
-        background: #fffafa;
-        color: #c92a3a;
-    }
+        .wishlist-button.saved {
+            border-color: #f0c7cc;
+            background: #fffafa;
+            color: #c92a3a;
+        }
 
-    .wishlist-button.saved:hover {
-        border-color: #dc3545;
-        background: #fff1f2;
-    }
+            .wishlist-button.saved:hover {
+                border-color: #dc3545;
+                background: #fff1f2;
+            }
 
     .enrolled-status {
         width: 100%;
@@ -261,8 +278,8 @@
     }
 
     /* =========================
-       TIẾN ĐỘ
-    ========================= */
+           TIẾN ĐỘ
+        ========================= */
 
     .learning-progress {
         margin-bottom: 18px;
@@ -322,10 +339,10 @@
         font-weight: 700;
     }
 
-    .learn-button:hover {
-        background: #0b5ed7;
-        color: #ffffff;
-    }
+        .learn-button:hover {
+            background: #0b5ed7;
+            color: #ffffff;
+        }
 
     .role-note {
         padding: 13px 15px;
@@ -338,8 +355,8 @@
     }
 
     /* =========================
-       CONTENT
-    ========================= */
+           CONTENT
+        ========================= */
 
     .course-content {
         padding: 55px 0 80px;
@@ -373,8 +390,8 @@
     }
 
     /* =========================
-       MODULE / LESSON
-    ========================= */
+           MODULE / LESSON
+        ========================= */
 
     .module-card {
         border: 1px solid #e9edf3;
@@ -408,17 +425,17 @@
     }
 
     /* =========================
-       SIDEBAR
-    ========================= */
+           SIDEBAR
+        ========================= */
 
     .info-row {
         padding: 11px 0;
         border-bottom: 1px solid #eef0f3;
     }
 
-    .info-row:last-child {
-        border-bottom: none;
-    }
+        .info-row:last-child {
+            border-bottom: none;
+        }
 
     .info-label {
         color: #8992a3;
@@ -445,8 +462,8 @@
     }
 
     /* =========================
-       REVIEW
-    ========================= */
+           REVIEW
+        ========================= */
 
     .rating-summary {
         display: flex;
@@ -482,9 +499,127 @@
         line-height: 1.6;
     }
 
+    .review-date {
+        margin-top: 6px;
+        color: #98a2b3;
+        font-size: 10px;
+    }
+
+    .review-form-box {
+        margin-bottom: 22px;
+        padding: 18px;
+        border: 1px solid #e3e8ef;
+        border-radius: 12px;
+        background: #f9fbfd;
+    }
+
+    .review-form-title {
+        margin-bottom: 5px;
+        color: #344054;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .review-form-description {
+        margin: 0 0 15px;
+        color: #8992a3;
+        font-size: 10px;
+        line-height: 1.6;
+    }
+
+    .review-form-group {
+        margin-bottom: 14px;
+    }
+
+    .review-label {
+        display: block;
+        margin-bottom: 6px;
+        color: #596579;
+        font-size: 10px;
+        font-weight: 800;
+    }
+
+    .review-select,
+    .review-textarea {
+        width: 100%;
+        border: 1px solid #dce2ea;
+        border-radius: 9px;
+        background: #ffffff;
+        color: #273142;
+        font: inherit;
+        font-size: 12px;
+        outline: none;
+    }
+
+    .review-select {
+        min-height: 42px;
+        padding: 0 11px;
+    }
+
+    .review-textarea {
+        min-height: 105px;
+        padding: 11px 12px;
+        resize: vertical;
+    }
+
+        .review-select:focus,
+        .review-textarea:focus {
+            border-color: #8db9fa;
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, .08);
+        }
+
+    .review-actions {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .review-submit,
+    .review-delete {
+        min-height: 38px;
+        padding: 0 13px;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 10px;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .review-submit {
+        border: 1px solid #0d6efd;
+        background: #0d6efd;
+        color: #ffffff;
+    }
+
+        .review-submit:hover {
+            background: #0b5ed7;
+        }
+
+    .review-delete {
+        border: 1px solid #f0c7cc;
+        background: #fffafa;
+        color: #c92a3a;
+    }
+
+        .review-delete:hover {
+            border-color: #dc3545;
+            background: #fff1f2;
+        }
+
+    .review-help {
+        margin-bottom: 18px;
+        padding: 13px 14px;
+        border-radius: 10px;
+        background: #f5f8fc;
+        color: #7d8798;
+        font-size: 10px;
+        line-height: 1.65;
+    }
+
     /* =========================
-       TOAST
-    ========================= */
+           TOAST
+        ========================= */
 
     .toast-position {
         position: fixed !important;
@@ -514,6 +649,10 @@
         border-left: 5px solid #0dcaf0;
     }
 
+    .toast-error {
+        border-left: 5px solid #dc3545;
+    }
+
     .toast-icon {
         width: 34px;
         height: 34px;
@@ -535,6 +674,11 @@
         color: #087990;
     }
 
+    .toast-icon-error {
+        background: #fff0f1;
+        color: #b42332;
+    }
+
     .toast-title {
         font-weight: 700;
         color: #202938;
@@ -547,8 +691,8 @@
     }
 
     /* =========================
-       RESPONSIVE
-    ========================= */
+           RESPONSIVE
+        ========================= */
 
     @@media (max-width: 991px) {
 
@@ -560,7 +704,6 @@
         .hero-card {
             max-width: 500px;
         }
-
     }
 
     @@media (max-width: 600px) {
@@ -584,7 +727,6 @@
             width: auto;
             max-width: none;
         }
-
     }
 
 </style>
@@ -697,7 +839,6 @@
 
 
                     <!-- CHƯA ĐĂNG NHẬP -->
-
                     @if (!isAuthenticated)
                     {
                         <a asp-controller="Account"
@@ -712,7 +853,6 @@
 
 
                     <!-- STUDENT CHƯA ĐĂNG KÝ -->
-
                     @if (isStudent && !isEnrolled)
                     {
                         <form asp-controller="Courses"
@@ -735,7 +875,6 @@
 
 
                     <!-- STUDENT ĐÃ ĐĂNG KÝ -->
-
                     @if (isStudent && isEnrolled)
                     {
                         @if (enrollmentProgress >= 100)
@@ -844,7 +983,6 @@
 
 
                     <!-- YÊU THÍCH -->
-
                     @if (isStudent)
                     {
                         if (!isWishlisted)
@@ -903,7 +1041,6 @@
 
 
                     <!-- ADMIN -->
-
                     @if (isAdmin)
                     {
                         <div class="role-note">
@@ -913,7 +1050,6 @@
 
 
                     <!-- INSTRUCTOR -->
-
                     @if (isInstructor)
                     {
                         <div class="role-note">
@@ -1022,11 +1158,159 @@
 
                     <!-- ĐÁNH GIÁ -->
 
-                    <div class="content-card">
+                    <div class="content-card"
+                         id="reviews">
 
                         <h2 class="content-title">
                             Đánh giá khóa học
                         </h2>
+
+
+                        @if (isStudent &&
+                             isEnrolled)
+                        {
+                            <div class="review-form-box">
+
+
+                                <div class="review-form-title">
+
+                                    @(currentUserReview == null
+                                        ? "Chia sẻ đánh giá của bạn"
+                                        : "Cập nhật đánh giá của bạn")
+
+                                </div>
+
+
+                                <p class="review-form-description">
+
+                                    Mỗi học viên chỉ có một đánh giá
+                                    cho mỗi khóa học.
+                                    Bạn có thể cập nhật lại bất cứ lúc nào.
+
+                                </p>
+
+
+                                <form asp-controller="Reviews"
+                                      asp-action="Upsert"
+                                      method="post">
+
+                                    @Html.AntiForgeryToken()
+
+
+                                    <input type="hidden"
+                                           name="courseId"
+                                           value="@Model.Id" />
+
+
+                                    <div class="review-form-group">
+
+                                        <label class="review-label"
+                                               for="rating">
+                                            Số sao
+                                        </label>
+
+                                        <select id="rating"
+                                                name="rating"
+                                                class="review-select"
+                                                required>
+
+                                            @for (int rating = 5;
+                                                  rating >= 1;
+                                                  rating--)
+                                            {
+                                                if (currentUserReview?.Rating ==
+                                                    rating)
+                                                {
+                                                    <option value="@rating"
+                                                            selected>
+                                                        @rating / 5 ★
+                                                    </option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@rating">
+                                                        @rating / 5 ★
+                                                    </option>
+                                                }
+                                            }
+
+                                        </select>
+
+                                    </div>
+
+
+                                    <div class="review-form-group">
+
+                                        <label class="review-label"
+                                               for="comment">
+                                            Nhận xét
+                                        </label>
+
+                                        <textarea id="comment"
+                                                  name="comment"
+                                                  maxlength="1000"
+                                                  class="review-textarea"
+                                                  placeholder="Chia sẻ trải nghiệm học khóa này...">@currentUserReview?.Comment</textarea>
+
+                                    </div>
+
+
+                                    <div class="review-actions">
+
+                                        <button type="submit"
+                                                class="review-submit">
+
+                                            @(currentUserReview == null
+                                                ? "Gửi đánh giá"
+                                                : "Cập nhật đánh giá")
+
+                                        </button>
+
+                                    </div>
+
+
+                                </form>
+
+
+                                @if (currentUserReview != null)
+                                {
+                                    <form asp-controller="Reviews"
+                                          asp-action="Delete"
+                                          method="post"
+                                          class="mt-2">
+
+                                        @Html.AntiForgeryToken()
+
+
+                                        <input type="hidden"
+                                               name="courseId"
+                                               value="@Model.Id" />
+
+
+                                        <button type="submit"
+                                                class="review-delete"
+                                                onclick="return confirm('Bạn chắc chắn muốn xóa đánh giá của mình?');">
+
+                                            Xóa đánh giá
+
+                                        </button>
+
+                                    </form>
+                                }
+
+
+                            </div>
+                        }
+                        else if (isStudent &&
+                                 !isEnrolled)
+                        {
+                            <div class="review-help">
+
+                                Bạn cần đăng ký khóa học
+                                trước khi có thể gửi đánh giá.
+
+                            </div>
+                        }
 
 
                         @if (approvedReviews.Any())
@@ -1052,13 +1336,22 @@
                             </div>
 
 
-                            foreach (var review in approvedReviews)
+                            foreach (var review in
+                                approvedReviews
+                                    .OrderByDescending(r =>
+                                        r.UpdatedAt))
                             {
                                 <div class="review-item">
 
                                     <div class="review-user">
-                                        @review.User.FullName
+
+                                        @(string.IsNullOrWhiteSpace(
+                                            review.User.FullName)
+                                            ? "Học viên EduLearn"
+                                            : review.User.FullName)
+
                                     </div>
+
 
                                     <div class="rating-stars">
                                         @review.Rating / 5 ★
@@ -1072,6 +1365,15 @@
                                             @review.Comment
                                         </div>
                                     }
+
+
+                                    <div class="review-date">
+
+                                        @(review.UpdatedAt
+                                            .ToLocalTime()
+                                            .ToString("dd/MM/yyyy HH:mm"))
+
+                                    </div>
 
                                 </div>
                             }
@@ -1221,24 +1523,25 @@
 <!-- =========================
      POPUP THÔNG BÁO
 ========================= -->
-
 @if (!string.IsNullOrWhiteSpace(toastMessage))
 {
     <div class="toast-container toast-position">
 
         <div id="courseToast"
-             class="toast edulearn-toast @(toastIsSuccess ? "toast-success" : "toast-info")"
+             class="toast edulearn-toast @(toastIsError ? "toast-error" : toastIsSuccess ? "toast-success" : "toast-info")"
              role="alert"
              aria-live="assertive"
              aria-atomic="true">
 
             <div class="toast-body d-flex align-items-center gap-3">
 
-                <div class="toast-icon @(toastIsSuccess ? "toast-icon-success" : "toast-icon-info")">
+                <div class="toast-icon @(toastIsError ? "toast-icon-error" : toastIsSuccess ? "toast-icon-success" : "toast-icon-info")">
 
-                    @(toastIsSuccess
-                        ? "✓"
-                        : "i")
+                    @(toastIsError
+                        ? "!"
+                        : toastIsSuccess
+                            ? "✓"
+                            : "i")
 
                 </div>
 
@@ -1247,9 +1550,11 @@
 
                     <div class="toast-title">
 
-                        @(toastIsSuccess
-                            ? "Thành công"
-                            : "Thông báo")
+                        @(toastIsError
+                            ? "Không thể thực hiện"
+                            : toastIsSuccess
+                                ? "Thành công"
+                                : "Thông báo")
 
                     </div>
 
