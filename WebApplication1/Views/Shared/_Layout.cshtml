@@ -60,6 +60,10 @@
         currentController == "AdminUsers";
 
 
+    bool isAdminCoursesPage =
+        currentController == "AdminCourses";
+
+
     bool isAuthenticated =
         User.Identity?.IsAuthenticated == true;
 
@@ -1437,6 +1441,21 @@
 
                                     <span>
                                         Bảng điều khiển
+                                    </span>
+
+                                </a>
+
+
+                                <a asp-controller="AdminCourses"
+                                   asp-action="Index"
+                                   class="account-menu-item @(isAdminCoursesPage ? "active" : "")">
+
+                                    <span class="account-menu-icon">
+                                        KH
+                                    </span>
+
+                                    <span>
+                                        Quản lý khóa học
                                     </span>
 
                                 </a>
