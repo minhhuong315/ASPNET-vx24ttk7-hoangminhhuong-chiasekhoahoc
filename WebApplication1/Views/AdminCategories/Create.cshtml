@@ -1,0 +1,345 @@
+﻿@model OnlineLearningPlatform.ViewModels.AdminCategoryFormViewModel
+
+@{
+    ViewData["Title"] = "Thêm danh mục";
+}
+
+<style>
+    .category-form-page {
+        min-height: 80vh;
+        padding: 48px 0 78px;
+        background: #f8fafc;
+    }
+
+    .category-form-container {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .back-link {
+        display: inline-flex;
+        margin-bottom: 18px;
+        color: #697386;
+        font-size: 10px;
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+    .page-eyebrow {
+        margin-bottom: 6px;
+        color: #0d6efd;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+    .page-title {
+        margin: 0 0 7px;
+        color: #172033;
+        font-size: 30px;
+        font-weight: 800;
+    }
+
+    .page-description {
+        margin: 0 0 22px;
+        color: #7d8798;
+        font-size: 12px;
+        line-height: 1.7;
+    }
+
+    .form-card {
+        overflow: hidden;
+        border: 1px solid #e1e7ee;
+        border-radius: 14px;
+        background: #ffffff;
+    }
+
+    .form-body {
+        padding: 23px;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+
+    .form-group {
+        margin-bottom: 17px;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 6px;
+        color: #475467;
+        font-size: 10px;
+        font-weight: 800;
+    }
+
+    .form-control-edulearn {
+        width: 100%;
+        min-height: 42px;
+        padding: 9px 11px;
+        border: 1px solid #dce2ea;
+        border-radius: 8px;
+        background: #ffffff;
+        color: #344054;
+        font: inherit;
+        font-size: 11px;
+        outline: none;
+    }
+
+    textarea.form-control-edulearn {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .form-note {
+        margin-top: 5px;
+        color: #98a2b3;
+        font-size: 9px;
+        line-height: 1.5;
+    }
+
+    .field-validation-error {
+        display: block;
+        margin-top: 5px;
+        color: #dc3545;
+        font-size: 9px;
+        font-weight: 700;
+    }
+
+    .validation-summary-errors {
+        margin-bottom: 16px;
+        padding: 11px 13px;
+        border: 1px solid #ffd2d6;
+        border-radius: 8px;
+        background: #fff4f5;
+        color: #b42332;
+        font-size: 10px;
+    }
+
+    .validation-summary-errors ul {
+        margin: 0;
+        padding-left: 17px;
+    }
+
+    .check-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #475467;
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    .form-actions {
+        padding: 17px 23px;
+        border-top: 1px solid #edf0f4;
+        background: #fbfcfd;
+        display: flex;
+        justify-content: flex-end;
+        gap: 9px;
+    }
+
+    .cancel-link,
+    .save-button {
+        min-height: 40px;
+        padding: 0 15px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+    .cancel-link {
+        border: 1px solid #dce2ea;
+        background: #ffffff;
+        color: #667085;
+    }
+
+    .save-button {
+        border: 1px solid #0d6efd;
+        background: #0d6efd;
+        color: #ffffff;
+        font-family: inherit;
+        cursor: pointer;
+    }
+
+    @@media (max-width: 620px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="category-form-page">
+    <div class="category-form-container">
+
+        <a asp-controller="AdminCategories"
+           asp-action="Index"
+           class="back-link">
+            ← Quay lại quản lý danh mục
+        </a>
+
+        <div class="page-eyebrow">
+            Quản trị hệ thống
+        </div>
+
+        <h1 class="page-title">
+            Thêm danh mục
+        </h1>
+
+        <p class="page-description">
+            Tạo lĩnh vực mới để giảng viên
+            có thể phân loại khóa học trên EduLearn.
+        </p>
+
+
+        <form asp-controller="AdminCategories"
+              asp-action="Create"
+              method="post"
+              class="form-card">
+
+            @Html.AntiForgeryToken()
+
+            <div class="form-body">
+
+                <div asp-validation-summary="ModelOnly">
+                </div>
+
+
+                <div class="form-row">
+
+                    <div class="form-group">
+                        <label asp-for="Name"
+                               class="form-label">
+                            Tên danh mục
+                        </label>
+
+                        <input asp-for="Name"
+                               class="form-control-edulearn"
+                               placeholder="Ví dụ: Trí tuệ nhân tạo" />
+
+                        <span asp-validation-for="Name">
+                        </span>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label asp-for="Icon"
+                               class="form-label">
+                            Icon / ký hiệu
+                        </label>
+
+                        <input asp-for="Icon"
+                               class="form-control-edulearn"
+                               placeholder="Ví dụ: AI" />
+
+                        <span asp-validation-for="Icon">
+                        </span>
+                    </div>
+
+                </div>
+
+
+                <div class="form-group">
+                    <label asp-for="Slug"
+                           class="form-label">
+                        Slug
+                    </label>
+
+                    <input type="text"
+                           id="Slug"
+                           name="Slug"
+                           value="@Model.Slug"
+                           class="form-control-edulearn"
+                           placeholder="Để trống để hệ thống tự tạo" />
+
+                    <div class="form-note">
+                        Có thể để trống. Hệ thống sẽ tự tạo slug từ tên danh mục.
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <label asp-for="Description"
+                           class="form-label">
+                        Mô tả
+                    </label>
+
+                    <textarea asp-for="Description"
+                              class="form-control-edulearn"
+                              placeholder="Mô tả ngắn về lĩnh vực này..."></textarea>
+
+                    <span asp-validation-for="Description">
+                    </span>
+                </div>
+
+
+                <div class="form-row">
+
+                    <div class="form-group">
+                        <label asp-for="DisplayOrder"
+                               class="form-label">
+                            Thứ tự hiển thị
+                        </label>
+
+                        <input asp-for="DisplayOrder"
+                               type="number"
+                               min="1"
+                               class="form-control-edulearn" />
+
+                        <div class="form-note">
+                            Sau khi lưu, hệ thống sẽ tự chuẩn hóa thứ tự 1, 2, 3...
+                        </div>
+
+                        <span asp-validation-for="DisplayOrder">
+                        </span>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            Trạng thái
+                        </label>
+
+                        <label class="check-row">
+                            <input asp-for="IsActive" />
+                            Cho phép sử dụng danh mục này
+                        </label>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-actions">
+
+                <a asp-controller="AdminCategories"
+                   asp-action="Index"
+                   class="cancel-link">
+                    Hủy
+                </a>
+
+                <button type="submit"
+                        class="save-button">
+                    Tạo danh mục
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
