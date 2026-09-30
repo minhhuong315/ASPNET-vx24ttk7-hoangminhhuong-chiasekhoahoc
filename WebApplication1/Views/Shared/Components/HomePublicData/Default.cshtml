@@ -1,0 +1,284 @@
+﻿@model OnlineLearningPlatform.ViewModels.HomePublicDataViewModel
+
+@{
+    string ratingText =
+        Model.AverageRating > 0
+            ? $"{Model.AverageRating:0.0}/5"
+            : "—";
+}
+
+
+<!-- =========================================
+     THỐNG KÊ NỀN TẢNG - DỮ LIỆU THẬT
+========================================== -->
+
+<section class="stats-section">
+
+    <div class="home-container">
+
+        <div class="stats-grid">
+
+
+            <div class="stat-item">
+
+                <div class="stat-number">
+                    @Model.PublishedCourseCount
+                </div>
+
+                <div class="stat-label">
+                    Khóa học CNTT
+                </div>
+
+            </div>
+
+
+            <div class="stat-item">
+
+                <div class="stat-number">
+                    @Model.StudentCount
+                </div>
+
+                <div class="stat-label">
+                    Học viên
+                </div>
+
+            </div>
+
+
+            <div class="stat-item">
+
+                <div class="stat-number">
+                    @Model.InstructorCount
+                </div>
+
+                <div class="stat-label">
+                    Giảng viên
+                </div>
+
+            </div>
+
+
+            <div class="stat-item">
+
+                <div class="stat-number">
+                    @ratingText
+                </div>
+
+                <div class="stat-label">
+                    Đánh giá trung bình
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =========================================
+     CATEGORIES - DỮ LIỆU THẬT
+========================================== -->
+
+<section class="home-section category-section">
+
+    <div class="home-container">
+
+        <div class="section-header">
+
+            <div>
+
+                <h2 class="section-title">
+                    Khám phá theo lĩnh vực
+                </h2>
+
+                <p class="section-description">
+                    Lựa chọn lĩnh vực Công nghệ thông tin
+                    phù hợp với mục tiêu của bạn.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        @if (Model.Categories.Any())
+        {
+            <div class="category-grid">
+
+                @foreach (var category in Model.Categories)
+                {
+                    <a asp-controller="Courses"
+                       asp-action="Index"
+                       asp-route-categoryId="@category.Id"
+                       class="category-card">
+
+                        <div class="category-icon">
+                            @category.Icon
+                        </div>
+
+                        <div class="category-name">
+                            @category.Name
+                        </div>
+
+                        <div class="category-count">
+                            @category.PublishedCourseCount khóa học
+                        </div>
+
+                    </a>
+                }
+
+            </div>
+        }
+        else
+        {
+            <div style="
+                padding: 24px;
+                border: 1px dashed #d7dee8;
+                border-radius: 14px;
+                background: #ffffff;
+                color: #8992a3;
+                text-align: center;">
+                Hiện chưa có danh mục đang hoạt động.
+            </div>
+        }
+
+    </div>
+
+</section>
+
+
+
+<!-- =========================================
+     FEATURED COURSES - DỮ LIỆU THẬT
+========================================== -->
+
+<section class="home-section"
+         id="featured-courses">
+
+    <div class="home-container">
+
+        <div class="section-header">
+
+            <div>
+
+                <h2 class="section-title">
+                    Khóa học nổi bật
+                </h2>
+
+                <p class="section-description">
+                    Các khóa học đã xuất bản
+                    được ưu tiên theo trạng thái nổi bật
+                    và mức độ quan tâm trên EduLearn.
+                </p>
+
+            </div>
+
+            <a asp-controller="Courses"
+               asp-action="Index"
+               class="section-link">
+                Xem tất cả →
+            </a>
+
+        </div>
+
+
+        @if (Model.FeaturedCourses.Any())
+        {
+            <div class="course-grid">
+
+                @{
+                    int courseIndex = 0;
+                }
+
+                @foreach (var course in Model.FeaturedCourses)
+                {
+                    string thumbnailClass =
+                        courseIndex switch
+                        {
+                            1 => "purple",
+                            2 => "teal",
+                            3 => "dark",
+                            _ => string.Empty
+                        };
+
+
+                    string levelText =
+                        course.Level switch
+                        {
+                            "Beginner" => "Cơ bản",
+                            "Intermediate" => "Trung cấp",
+                            "Advanced" => "Nâng cao",
+                            _ => course.Level
+                        };
+
+
+                    <a asp-controller="Courses"
+                       asp-action="Details"
+                       asp-route-slug="@course.Slug"
+                       class="course-card">
+
+                        <div class="course-thumbnail @thumbnailClass">
+
+                            <div class="course-tech">
+                                @course.CategoryName
+                            </div>
+
+                            <div class="course-tech-logo">
+                                @course.CategoryIcon
+                            </div>
+
+                        </div>
+
+
+                        <div class="course-body">
+
+                            <span class="course-level">
+                                @levelText
+                            </span>
+
+                            <div class="course-name">
+                                @course.Title
+                            </div>
+
+                            <div class="course-instructor">
+                                @course.InstructorName
+                            </div>
+
+                            <div class="course-footer">
+
+                                <span class="course-detail">
+                                    @course.EnrollmentCount học viên · Xem chi tiết →
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </a>
+
+
+                    courseIndex++;
+                }
+
+            </div>
+        }
+        else
+        {
+            <div style="
+                padding: 28px;
+                border: 1px dashed #d7dee8;
+                border-radius: 14px;
+                background: #ffffff;
+                color: #8992a3;
+                text-align: center;">
+                Hiện chưa có khóa học đã xuất bản.
+            </div>
+        }
+
+    </div>
+
+</section>
