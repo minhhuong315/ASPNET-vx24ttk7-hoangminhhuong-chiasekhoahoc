@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -810,9 +811,15 @@ namespace OnlineLearningPlatform.Controllers
             }
 
 
+            await using var transaction =
+                await _context.Database.BeginTransactionAsync(
+                    IsolationLevel.Serializable);
+
+
             var question =
                 await _context.LessonQuestions
                     .Include(q => q.User)
+                    .Include(q => q.Answers)
                     .Include(q => q.Lesson)
                         .ThenInclude(l => l.Module)
                             .ThenInclude(m => m.Course)
@@ -840,6 +847,34 @@ namespace OnlineLearningPlatform.Controllers
             }
 
 
+            // =====================================
+            // CHẶN TẠO PHẢN HỒI TRÙNG
+            //
+            // Mỗi câu hỏi chỉ có 1 phản hồi.
+            // Nếu đã có phản hồi thì Instructor/Admin
+            // phải dùng chức năng Sửa phản hồi.
+            // Transaction Serializable giúp tránh
+            // trường hợp double-click gửi 2 request
+            // gần như đồng thời.
+            // =====================================
+
+            if (question.Answers.Any())
+            {
+                TempData["QuestionInfoMessage"] =
+                    "Câu hỏi này đã có phản hồi. Vui lòng chỉnh sửa phản hồi hiện có.";
+
+                await transaction.RollbackAsync();
+
+                return RedirectToAction(
+                    "Index",
+                    new
+                    {
+                        selectedQuestionId =
+                            question.Id
+                    });
+            }
+
+
             content =
                 content?.Trim();
 
@@ -849,6 +884,8 @@ namespace OnlineLearningPlatform.Controllers
             {
                 TempData["QuestionInfoMessage"] =
                     "Vui lòng nhập nội dung phản hồi.";
+
+                await transaction.RollbackAsync();
 
 
                 return RedirectToAction(
@@ -865,6 +902,8 @@ namespace OnlineLearningPlatform.Controllers
             {
                 TempData["QuestionInfoMessage"] =
                     "Phản hồi không được vượt quá 2000 ký tự.";
+
+                await transaction.RollbackAsync();
 
 
                 return RedirectToAction(
@@ -953,6 +992,8 @@ namespace OnlineLearningPlatform.Controllers
 
 
             await _context.SaveChangesAsync();
+
+            await transaction.CommitAsync();
 
 
             TempData["QuestionSuccessMessage"] =
