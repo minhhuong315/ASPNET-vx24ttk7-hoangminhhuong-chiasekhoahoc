@@ -76,30 +76,26 @@
 <style>
 
     /* =========================================
-       PAGE
-    ========================================= */
+           PAGE
+        ========================================= */
 
     .courses-page {
         min-height: 80vh;
-
         padding: 55px 0 75px;
-
         background: #f8fafc;
     }
 
 
     .courses-container {
         max-width: 1180px;
-
         margin: 0 auto;
-
         padding: 0 20px;
     }
 
 
     /* =========================================
-       HEADER
-    ========================================= */
+           HEADER
+        ========================================= */
 
     .courses-header {
         margin-bottom: 30px;
@@ -108,9 +104,7 @@
 
     .courses-title {
         margin-bottom: 8px;
-
         color: #172033;
-
         font-size: 34px;
         font-weight: 800;
     }
@@ -118,9 +112,7 @@
 
     .courses-subtitle {
         margin: 0;
-
         color: #7a8494;
-
         line-height: 1.6;
     }
 
@@ -128,199 +120,189 @@
     .active-level {
         display: inline-flex;
         align-items: center;
-
         gap: 7px;
-
         margin-top: 13px;
-
         padding: 7px 11px;
-
         border-radius: 30px;
-
         font-size: 12px;
         font-weight: 700;
     }
 
 
-    .active-level.beginner {
-        background: #eaf2ff;
-        color: #0d6efd;
-    }
+        .active-level.beginner {
+            background: #eaf2ff;
+            color: #0d6efd;
+        }
 
 
-    .active-level.intermediate {
-        background: #f2edff;
-        color: #7451d8;
-    }
+        .active-level.intermediate {
+            background: #f2edff;
+            color: #7451d8;
+        }
 
 
-    .active-level.advanced {
-        background: #e6f8f5;
-        color: #087f73;
-    }
+        .active-level.advanced {
+            background: #e6f8f5;
+            color: #087f73;
+        }
 
 
     .active-level-dot {
         width: 7px;
         height: 7px;
-
         border-radius: 50%;
-
         background: currentColor;
     }
 
 
     /* =========================================
-       LAYOUT
-    ========================================= */
+           LAYOUT
+        ========================================= */
 
     .courses-layout {
         display: grid;
-
-        grid-template-columns:
-            240px
-            1fr;
-
+        grid-template-columns: 240px 1fr;
         gap: 28px;
     }
 
 
     /* =========================================
-       SIDEBAR
-    ========================================= */
+           SIDEBAR
+        ========================================= */
 
     .filter-box {
         height: fit-content;
-
         padding: 20px;
-
         border: 1px solid #e8ebf0;
         border-radius: 16px;
-
         background: #ffffff;
     }
 
 
     .filter-title {
         margin-bottom: 15px;
-
         color: #273142;
-
         font-weight: 800;
     }
 
 
     .category-link {
         display: block;
-
         margin-bottom: 6px;
-
         padding: 9px 11px;
-
         border-radius: 9px;
-
         color: #5f6b7a;
-
         font-size: 14px;
-
         text-decoration: none;
-
-        transition:
-            background .15s ease,
-            color .15s ease;
+        transition: background .15s ease, color .15s ease;
     }
 
 
-    .category-link:hover,
-    .category-link.active {
-        background: #edf4ff;
+        .category-link:hover,
+        .category-link.active {
+            background: #edf4ff;
+            color: #0d6efd;
+        }
 
-        color: #0d6efd;
+
+    .filter-divider {
+        margin: 18px 0;
+        border-top: 1px solid #eef0f3;
     }
+
+
+    .level-link {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+
+    .level-dot {
+        width: 7px;
+        height: 7px;
+        flex: 0 0 7px;
+        border-radius: 50%;
+        background: #98a2b3;
+    }
+
+
+        .level-dot.beginner {
+            background: #0d6efd;
+        }
+
+
+        .level-dot.intermediate {
+            background: #7451d8;
+        }
+
+
+        .level-dot.advanced {
+            background: #087f73;
+        }
 
 
     /* =========================================
-       SEARCH
-    ========================================= */
+           SEARCH
+        ========================================= */
 
     .search-row {
         display: flex;
-
         gap: 10px;
-
         margin-bottom: 22px;
     }
 
 
     .search-input {
         flex: 1;
-
         min-height: 46px;
-
         padding: 0 14px;
-
         border: 1px solid #dfe3ea;
         border-radius: 10px;
-
         outline: none;
-
         color: #344054;
-
         background: #ffffff;
-
-        transition:
-            border-color .2s ease,
-            box-shadow .2s ease;
+        transition: border-color .2s ease, box-shadow .2s ease;
     }
 
 
-    .search-input:focus {
-        border-color: #8eb9fa;
-
-        box-shadow:
-            0 0 0 3px
-            rgba(13, 110, 253, .08);
-    }
+        .search-input:focus {
+            border-color: #8eb9fa;
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, .08);
+        }
 
 
     .search-button {
         min-height: 46px;
-
         padding: 0 20px;
-
         border: none;
         border-radius: 10px;
-
         background: #0d6efd;
         color: #ffffff;
-
         font-weight: 700;
     }
 
 
-    .search-button:hover {
-        background: #0b5ed7;
-    }
+        .search-button:hover {
+            background: #0b5ed7;
+        }
 
 
     /* =========================================
-       RESULT HEADER
-    ========================================= */
+           RESULT HEADER
+        ========================================= */
 
     .result-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-
         gap: 15px;
-
         margin-bottom: 16px;
     }
 
 
     .result-count {
         color: #697386;
-
         font-size: 13px;
         font-weight: 600;
     }
@@ -328,119 +310,81 @@
 
     .clear-filter {
         color: #0d6efd;
-
         font-size: 12px;
         font-weight: 700;
-
         text-decoration: none;
     }
 
 
     /* =========================================
-       COURSE GRID
-    ========================================= */
+           COURSE GRID
+        ========================================= */
 
     .course-list {
         display: grid;
-
-        grid-template-columns:
-            repeat(3, 1fr);
-
+        grid-template-columns: repeat(3, 1fr);
         gap: 20px;
     }
 
 
     .course-card {
         overflow: hidden;
-
         border: 1px solid #e8ebf0;
         border-radius: 16px;
-
         background: #ffffff;
-
-        transition:
-            transform .2s ease,
-            box-shadow .2s ease;
+        transition: transform .2s ease, box-shadow .2s ease;
     }
 
 
-    .course-card:hover {
-        transform:
-            translateY(-4px);
-
-        box-shadow:
-            0 14px 34px
-            rgba(33, 52, 84, .10);
-    }
+        .course-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 14px 34px rgba(33, 52, 84, .10);
+        }
 
 
     /* =========================================
-       THUMBNAIL THEO CẤP ĐỘ
-    ========================================= */
+           THUMBNAIL THEO CẤP ĐỘ
+        ========================================= */
 
     .course-thumbnail {
         height: 155px;
-
         padding: 20px;
-
         color: #ffffff;
-
         display: flex;
         flex-direction: column;
         justify-content: space-between;
     }
 
 
-    /* CƠ BẢN - XANH DƯƠNG */
+        /* CƠ BẢN - XANH DƯƠNG */
 
-    .course-thumbnail.beginner {
-        background:
-            linear-gradient(
-                135deg,
-                #1558c9,
-                #4389f5
-            );
-    }
+        .course-thumbnail.beginner {
+            background: linear-gradient( 135deg, #1558c9, #4389f5 );
+        }
 
 
-    /* TRUNG CẤP - TÍM */
+        /* TRUNG CẤP - TÍM */
 
-    .course-thumbnail.intermediate {
-        background:
-            linear-gradient(
-                135deg,
-                #6546c7,
-                #9279e9
-            );
-    }
+        .course-thumbnail.intermediate {
+            background: linear-gradient( 135deg, #6546c7, #9279e9 );
+        }
 
 
-    /* NÂNG CAO - XANH NGỌC */
+        /* NÂNG CAO - XANH NGỌC */
 
-    .course-thumbnail.advanced {
-        background:
-            linear-gradient(
-                135deg,
-                #087f73,
-                #29b6a6
-            );
-    }
+        .course-thumbnail.advanced {
+            background: linear-gradient( 135deg, #087f73, #29b6a6 );
+        }
 
 
-    .course-thumbnail.default {
-        background:
-            linear-gradient(
-                135deg,
-                #485568,
-                #778397
-            );
-    }
+        .course-thumbnail.default {
+            background: linear-gradient( 135deg, #485568, #778397 );
+        }
 
 
     .course-category {
         font-size: 12px;
         font-weight: 700;
-
         opacity: .92;
     }
 
@@ -452,8 +396,8 @@
 
 
     /* =========================================
-       BODY
-    ========================================= */
+           BODY
+        ========================================= */
 
     .course-body {
         padding: 18px;
@@ -461,73 +405,62 @@
 
 
     /* =========================================
-       LEVEL BADGE
-    ========================================= */
+           LEVEL BADGE
+        ========================================= */
 
     .course-level {
         display: inline-flex;
         align-items: center;
-
         gap: 6px;
-
         margin-bottom: 10px;
-
         padding: 5px 9px;
-
         border-radius: 20px;
-
         font-size: 11px;
         font-weight: 800;
     }
 
 
-    .course-level::before {
-        content: "";
-
-        width: 6px;
-        height: 6px;
-
-        border-radius: 50%;
-
-        background: currentColor;
-    }
+        .course-level::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
 
 
-    .course-level.beginner {
-        background: #eaf2ff;
-        color: #0d6efd;
-    }
+        .course-level.beginner {
+            background: #eaf2ff;
+            color: #0d6efd;
+        }
 
 
-    .course-level.intermediate {
-        background: #f2edff;
-        color: #7451d8;
-    }
+        .course-level.intermediate {
+            background: #f2edff;
+            color: #7451d8;
+        }
 
 
-    .course-level.advanced {
-        background: #e6f8f5;
-        color: #087f73;
-    }
+        .course-level.advanced {
+            background: #e6f8f5;
+            color: #087f73;
+        }
 
 
-    .course-level.default {
-        background: #f0f2f5;
-        color: #667085;
-    }
+        .course-level.default {
+            background: #f0f2f5;
+            color: #667085;
+        }
 
 
     /* =========================================
-       COURSE INFORMATION
-    ========================================= */
+           COURSE INFORMATION
+        ========================================= */
 
     .course-name {
         min-height: 46px;
-
         margin-bottom: 8px;
-
         color: #202938;
-
         font-size: 16px;
         font-weight: 700;
         line-height: 1.45;
@@ -536,9 +469,7 @@
 
     .course-description {
         min-height: 60px;
-
         color: #7a8494;
-
         font-size: 13px;
         line-height: 1.55;
     }
@@ -546,64 +477,53 @@
 
     .course-instructor {
         margin-top: 12px;
-
         color: #8992a3;
-
         font-size: 12px;
     }
 
 
     /* =========================================
-       FOOTER
-    ========================================= */
+           FOOTER
+        ========================================= */
 
     .course-footer {
         display: flex;
         align-items: center;
         justify-content: space-between;
-
         margin-top: 14px;
-
         padding-top: 14px;
-
         border-top: 1px solid #eef0f3;
     }
 
 
     .course-price {
         color: #172033;
-
         font-weight: 800;
     }
 
 
     .course-detail {
         color: #0d6efd;
-
         font-size: 13px;
         font-weight: 700;
-
         text-decoration: none;
     }
 
 
-    .course-detail:hover {
-        color: #0b5ed7;
-    }
+        .course-detail:hover {
+            color: #0b5ed7;
+        }
 
 
     /* =========================================
-       EMPTY
-    ========================================= */
+           EMPTY
+        ========================================= */
 
     .empty-box {
         padding: 55px 30px;
-
         border: 1px solid #e8ebf0;
         border-radius: 16px;
-
         background: #ffffff;
-
         text-align: center;
     }
 
@@ -611,27 +531,20 @@
     .empty-icon {
         width: 54px;
         height: 54px;
-
         margin: 0 auto 14px;
-
         border-radius: 14px;
-
         background: #edf4ff;
         color: #0d6efd;
-
         display: flex;
         align-items: center;
         justify-content: center;
-
         font-weight: 800;
     }
 
 
     .empty-title {
         margin-bottom: 6px;
-
         color: #344054;
-
         font-size: 15px;
         font-weight: 800;
     }
@@ -639,51 +552,40 @@
 
     .empty-description {
         margin-bottom: 16px;
-
         color: #7a8494;
-
         font-size: 13px;
     }
 
 
     .empty-button {
         min-height: 40px;
-
         padding: 0 16px;
-
         border-radius: 9px;
-
         background: #0d6efd;
         color: #ffffff;
-
         display: inline-flex;
         align-items: center;
         justify-content: center;
-
         font-size: 12px;
         font-weight: 700;
-
         text-decoration: none;
     }
 
 
     /* =========================================
-       RESPONSIVE
-    ========================================= */
+           RESPONSIVE
+        ========================================= */
 
     @@media (max-width: 991px) {
 
         .courses-layout {
-            grid-template-columns:
-                1fr;
+            grid-template-columns: 1fr;
         }
 
 
         .course-list {
-            grid-template-columns:
-                repeat(2, 1fr);
+            grid-template-columns: repeat(2, 1fr);
         }
-
     }
 
 
@@ -700,8 +602,7 @@
 
 
         .course-list {
-            grid-template-columns:
-                1fr;
+            grid-template-columns: 1fr;
         }
 
 
@@ -717,10 +618,8 @@
 
         .result-header {
             align-items: flex-start;
-
             flex-direction: column;
         }
-
     }
 
 </style>
@@ -842,6 +741,94 @@
                 }
 
 
+                <div class="filter-divider">
+                </div>
+
+
+                <!-- TRÌNH ĐỘ -->
+
+                <div class="filter-title">
+
+                    Trình độ
+
+                </div>
+
+
+                <!-- TẤT CẢ TRÌNH ĐỘ -->
+
+                <a asp-controller="Courses"
+                   asp-action="Index"
+                   asp-route-categoryId="@selectedCategoryId"
+                   asp-route-search="@searchValue"
+                   class="category-link level-link @(string.IsNullOrWhiteSpace(selectedLevel) ? "active" : "")">
+
+                    <span class="level-dot">
+                    </span>
+
+                    <span>
+                        Tất cả trình độ
+                    </span>
+
+                </a>
+
+
+                <!-- CƠ BẢN -->
+
+                <a asp-controller="Courses"
+                   asp-action="Index"
+                   asp-route-categoryId="@selectedCategoryId"
+                   asp-route-search="@searchValue"
+                   asp-route-level="beginner"
+                   class="category-link level-link @(selectedLevel == "beginner" ? "active" : "")">
+
+                    <span class="level-dot beginner">
+                    </span>
+
+                    <span>
+                        Cơ bản
+                    </span>
+
+                </a>
+
+
+                <!-- TRUNG CẤP -->
+
+                <a asp-controller="Courses"
+                   asp-action="Index"
+                   asp-route-categoryId="@selectedCategoryId"
+                   asp-route-search="@searchValue"
+                   asp-route-level="intermediate"
+                   class="category-link level-link @(selectedLevel == "intermediate" ? "active" : "")">
+
+                    <span class="level-dot intermediate">
+                    </span>
+
+                    <span>
+                        Trung cấp
+                    </span>
+
+                </a>
+
+
+                <!-- NÂNG CAO -->
+
+                <a asp-controller="Courses"
+                   asp-action="Index"
+                   asp-route-categoryId="@selectedCategoryId"
+                   asp-route-search="@searchValue"
+                   asp-route-level="advanced"
+                   class="category-link level-link @(selectedLevel == "advanced" ? "active" : "")">
+
+                    <span class="level-dot advanced">
+                    </span>
+
+                    <span>
+                        Nâng cao
+                    </span>
+
+                </a>
+
+
             </aside>
 
 
@@ -937,7 +924,6 @@
                 <!-- =============================
                      COURSE LIST
                 ============================== -->
-
                 @if (Model.Any())
                 {
                     <div class="course-list">
