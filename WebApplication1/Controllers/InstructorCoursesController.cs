@@ -27,12 +27,45 @@ namespace OnlineLearningPlatform.Controllers
         }
 
 
+        private static string NormalizeCourseStatus(
+            string? status)
+        {
+            status =
+                status?
+                    .Trim()
+                    .ToLowerInvariant();
+
+            return status == "published" ||
+                   status == "draft"
+                ? status
+                : "all";
+        }
+
+
+        private static string NormalizeCourseLevel(
+            string? level)
+        {
+            level =
+                level?
+                    .Trim()
+                    .ToLowerInvariant();
+
+            return level == "beginner" ||
+                   level == "intermediate" ||
+                   level == "advanced"
+                ? level
+                : "all";
+        }
+
+
         // =========================================
         // DANH SÁCH KHÓA HỌC
         // =========================================
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(
+            string? status,
+            string? level)
         {
             var userId =
                 _userManager.GetUserId(User);
@@ -42,6 +75,15 @@ namespace OnlineLearningPlatform.Controllers
             {
                 return Challenge();
             }
+
+
+            status =
+                NormalizeCourseStatus(
+                    status);
+
+            level =
+                NormalizeCourseLevel(
+                    level);
 
 
             var courses =
@@ -62,7 +104,7 @@ namespace OnlineLearningPlatform.Controllers
                     .ToListAsync();
 
 
-            var courseItems =
+            var allCourseItems =
                 courses
                     .Select(c =>
                         new InstructorCourseItemViewModel
@@ -109,31 +151,78 @@ namespace OnlineLearningPlatform.Controllers
                     .ToList();
 
 
+            IEnumerable<InstructorCourseItemViewModel>
+                filteredCourses =
+                    allCourseItems;
+
+
+            if (status == "published")
+            {
+                filteredCourses =
+                    filteredCourses.Where(c =>
+                        c.IsPublished);
+            }
+            else if (status == "draft")
+            {
+                filteredCourses =
+                    filteredCourses.Where(c =>
+                        !c.IsPublished);
+            }
+
+
+            if (level == "beginner")
+            {
+                filteredCourses =
+                    filteredCourses.Where(c =>
+                        c.Level == "Beginner");
+            }
+            else if (level == "intermediate")
+            {
+                filteredCourses =
+                    filteredCourses.Where(c =>
+                        c.Level == "Intermediate");
+            }
+            else if (level == "advanced")
+            {
+                filteredCourses =
+                    filteredCourses.Where(c =>
+                        c.Level == "Advanced");
+            }
+
+
             var model =
                 new InstructorCoursesViewModel
                 {
                     Courses =
-                        courseItems,
+                        filteredCourses
+                            .ToList(),
 
                     TotalCourses =
-                        courseItems.Count,
+                        allCourseItems.Count,
 
                     PublishedCourses =
-                        courseItems.Count(c =>
+                        allCourseItems.Count(c =>
                             c.IsPublished),
 
                     DraftCourses =
-                        courseItems.Count(c =>
+                        allCourseItems.Count(c =>
                             !c.IsPublished),
 
                     TotalLessons =
-                        courseItems.Sum(c =>
+                        allCourseItems.Sum(c =>
                             c.LessonCount),
 
                     TotalEnrollments =
-                        courseItems.Sum(c =>
+                        allCourseItems.Sum(c =>
                             c.EnrollmentCount)
                 };
+
+
+            ViewBag.CourseStatus =
+                status;
+
+            ViewBag.CourseLevel =
+                level;
 
 
             return View(model);
