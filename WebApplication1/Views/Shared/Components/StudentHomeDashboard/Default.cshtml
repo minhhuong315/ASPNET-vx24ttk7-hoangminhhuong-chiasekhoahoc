@@ -1,0 +1,719 @@
+﻿@model OnlineLearningPlatform.ViewModels.StudentHomeDashboardViewModel
+
+@{
+    string GetLevelText(string level)
+    {
+        return level switch
+        {
+            "Beginner" => "Cơ bản",
+            "Intermediate" => "Trung cấp",
+            "Advanced" => "Nâng cao",
+            _ => level
+        };
+    }
+
+    string GetLevelClass(string level)
+    {
+        return level switch
+        {
+            "Intermediate" => "intermediate",
+            "Advanced" => "advanced",
+            _ => "beginner"
+        };
+    }
+}
+
+<style>
+    .student-home {
+        min-height: 78vh;
+        padding: 48px 0 72px;
+        background: #f8fafc;
+    }
+
+    .student-home-container {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .dashboard-heading {
+        margin-bottom: 24px;
+    }
+
+    .dashboard-eyebrow {
+        margin-bottom: 6px;
+        color: #0d6efd;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+    .dashboard-title {
+        margin: 0 0 7px;
+        color: #172033;
+        font-size: 32px;
+        font-weight: 800;
+    }
+
+    .dashboard-description {
+        margin: 0;
+        color: #7c8798;
+        font-size: 13px;
+        line-height: 1.7;
+    }
+
+    .student-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+        margin-bottom: 28px;
+    }
+
+    .student-stat {
+        display: block;
+        padding: 20px;
+        border: 1px solid #e3e8ef;
+        border-radius: 14px;
+        background: #ffffff;
+        color: inherit;
+        text-decoration: none;
+        cursor: pointer;
+        transition:
+            transform .18s ease,
+            border-color .18s ease,
+            box-shadow .18s ease;
+    }
+
+    .student-stat:hover {
+        color: inherit;
+        transform: translateY(-2px);
+        border-color: #b9d4ff;
+        box-shadow:
+            0 8px 22px
+            rgba(13, 110, 253, .08);
+    }
+
+    .student-stat-label {
+        margin-bottom: 7px;
+        color: #7c8798;
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    .student-stat-number {
+        color: #172033;
+        font-size: 27px;
+        font-weight: 800;
+    }
+
+    .student-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.55fr) minmax(300px, .8fr);
+        gap: 18px;
+        align-items: start;
+        margin-bottom: 30px;
+    }
+
+    .student-panel {
+        border: 1px solid #e3e8ef;
+        border-radius: 15px;
+        background: #ffffff;
+        overflow: hidden;
+    }
+
+    .panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 20px 22px;
+        border-bottom: 1px solid #eef1f5;
+    }
+
+    .panel-title {
+        margin: 0;
+        color: #273142;
+        font-size: 16px;
+        font-weight: 800;
+    }
+
+    .panel-link {
+        color: #0d6efd;
+        font-size: 10px;
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+    .course-list {
+        padding: 4px 22px;
+    }
+
+    .learning-course {
+        display: grid;
+        grid-template-columns: 54px minmax(0, 1fr) auto;
+        gap: 13px;
+        align-items: center;
+        padding: 16px 0;
+        border-bottom: 1px solid #eef1f5;
+    }
+
+    .learning-course:last-child {
+        border-bottom: none;
+    }
+
+    .course-icon {
+        width: 54px;
+        height: 54px;
+        border-radius: 12px;
+        background: #e8f1ff;
+        color: #0d6efd;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .learning-title {
+        margin-bottom: 4px;
+        color: #273142;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .learning-category {
+        color: #98a2b3;
+        font-size: 9px;
+    }
+
+    .progress-track {
+        height: 6px;
+        margin-top: 8px;
+        border-radius: 20px;
+        background: #edf1f6;
+        overflow: hidden;
+    }
+
+    .progress-value {
+        height: 100%;
+        border-radius: 20px;
+        background: #0d6efd;
+    }
+
+    .progress-text {
+        margin-top: 5px;
+        color: #7c8798;
+        font-size: 9px;
+    }
+
+    .continue-link {
+        min-height: 35px;
+        padding: 0 11px;
+        border-radius: 8px;
+        background: #0d6efd;
+        color: #ffffff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 9px;
+        font-weight: 800;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .quick-grid {
+        display: grid;
+        gap: 10px;
+        padding: 16px;
+    }
+
+    .quick-link {
+        padding: 14px;
+        border: 1px solid #e7ebf2;
+        border-radius: 11px;
+        background: #ffffff;
+        color: inherit;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        text-decoration: none;
+    }
+
+    .quick-link:hover {
+        border-color: #b9d4ff;
+    }
+
+    .quick-title {
+        color: #344054;
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+    .quick-note {
+        margin-top: 3px;
+        color: #98a2b3;
+        font-size: 9px;
+    }
+
+    .quick-arrow {
+        color: #0d6efd;
+        font-weight: 800;
+    }
+
+    .explore-section {
+        margin-top: 10px;
+    }
+
+    .section-heading {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 15px;
+        margin-bottom: 18px;
+    }
+
+    .section-title {
+        margin: 0;
+        color: #172033;
+        font-size: 23px;
+        font-weight: 800;
+    }
+
+    .section-description {
+        margin: 6px 0 0;
+        color: #7c8798;
+        font-size: 11px;
+    }
+
+    .explore-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+    }
+
+    .explore-card {
+        overflow: hidden;
+        border: 1px solid #e3e8ef;
+        border-radius: 14px;
+        background: #ffffff;
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .explore-thumb {
+        min-height: 118px;
+        padding: 17px;
+        background: linear-gradient(135deg, #0d6efd, #4d8df7);
+        color: #ffffff;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .explore-thumb.intermediate {
+        background: linear-gradient(135deg, #6246cc, #8c79e8);
+    }
+
+    .explore-thumb.advanced {
+        background: linear-gradient(135deg, #087f8c, #2bb4b8);
+    }
+
+    .explore-category {
+        font-size: 9px;
+        font-weight: 800;
+    }
+
+    .explore-icon {
+        font-size: 25px;
+        font-weight: 800;
+    }
+
+    .explore-body {
+        padding: 16px;
+    }
+
+    .level-badge {
+        display: inline-flex;
+        padding: 4px 8px;
+        border-radius: 20px;
+        background: #edf4ff;
+        color: #0d6efd;
+        font-size: 9px;
+        font-weight: 800;
+    }
+
+    .level-badge.intermediate {
+        background: #f2edff;
+        color: #6f42c1;
+    }
+
+    .level-badge.advanced {
+        background: #e5f8f5;
+        color: #087f73;
+    }
+
+    .explore-title {
+        min-height: 40px;
+        margin: 10px 0 9px;
+        color: #273142;
+        font-size: 13px;
+        font-weight: 800;
+        line-height: 1.5;
+    }
+
+    .explore-meta {
+        color: #98a2b3;
+        font-size: 9px;
+    }
+
+    .empty-state {
+        padding: 36px 22px;
+        text-align: center;
+        color: #7c8798;
+        font-size: 11px;
+    }
+
+    .empty-action {
+        display: inline-flex;
+        margin-top: 13px;
+        padding: 10px 14px;
+        border-radius: 8px;
+        background: #0d6efd;
+        color: #ffffff;
+        font-size: 10px;
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+    @@media (max-width: 900px) {
+        .student-stats,
+        .explore-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .student-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @@media (max-width: 620px) {
+        .student-stats,
+        .explore-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .learning-course {
+            grid-template-columns: 48px minmax(0, 1fr);
+        }
+
+        .continue-link {
+            grid-column: 1 / -1;
+        }
+    }
+</style>
+
+<section class="student-home">
+    <div class="student-home-container">
+
+        <div class="dashboard-heading">
+            <div class="dashboard-eyebrow">
+                Học viên
+            </div>
+
+            <h1 class="dashboard-title">
+                Tổng quan học tập
+            </h1>
+
+            <p class="dashboard-description">
+                Theo dõi các khóa học, tiến độ và những nội dung
+                bạn đang quan tâm trên EduLearn.
+            </p>
+        </div>
+
+
+        <div class="student-stats">
+
+            <a asp-controller="Courses"
+               asp-action="MyCourses"
+               class="student-stat">
+                <div class="student-stat-label">
+                    Khóa đã đăng ký
+                </div>
+                <div class="student-stat-number">
+                    @Model.RegisteredCourseCount
+                </div>
+            </a>
+
+            <a asp-controller="Courses"
+               asp-action="MyCourses"
+               class="student-stat">
+                <div class="student-stat-label">
+                    Đang học
+                </div>
+                <div class="student-stat-number">
+                    @Model.InProgressCourseCount
+                </div>
+            </a>
+
+            <a asp-controller="Courses"
+               asp-action="MyCourses"
+               class="student-stat">
+                <div class="student-stat-label">
+                    Đã hoàn thành
+                </div>
+                <div class="student-stat-number">
+                    @Model.CompletedCourseCount
+                </div>
+            </a>
+
+            <a asp-controller="Wishlist"
+               asp-action="Index"
+               class="student-stat">
+                <div class="student-stat-label">
+                    Yêu thích
+                </div>
+                <div class="student-stat-number">
+                    @Model.WishlistCount
+                </div>
+            </a>
+
+        </div>
+
+
+        <div class="student-grid">
+
+            <section class="student-panel">
+
+                <div class="panel-header">
+                    <h2 class="panel-title">
+                        Tiếp tục học
+                    </h2>
+
+                    <a asp-controller="Courses"
+                       asp-action="MyCourses"
+                       class="panel-link">
+                        Xem tất cả →
+                    </a>
+                </div>
+
+                @if (Model.RecentCourses.Any())
+                {
+                    <div class="course-list">
+
+                        @foreach (var course in Model.RecentCourses)
+                        {
+                            var safeProgress =
+                                Math.Clamp(
+                                    course.Progress,
+                                    0,
+                                    100);
+
+                            <div class="learning-course">
+
+                                <div class="course-icon">
+                                    @course.CategoryIcon
+                                </div>
+
+                                <div>
+                                    <div class="learning-title">
+                                        @course.Title
+                                    </div>
+
+                                    <div class="learning-category">
+                                        @course.CategoryName
+                                    </div>
+
+                                    <div class="progress-track">
+                                        <div class="progress-value"
+                                             style="width: @safeProgress%">
+                                        </div>
+                                    </div>
+
+                                    <div class="progress-text">
+                                        @safeProgress.ToString("0")% hoàn thành
+                                    </div>
+                                </div>
+
+                                <a asp-controller="Courses"
+                                   asp-action="Learn"
+                                   asp-route-courseId="@course.CourseId"
+                                   class="continue-link">
+                                    Tiếp tục học
+                                </a>
+
+                            </div>
+                        }
+
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        Bạn chưa đăng ký khóa học nào.
+
+                        <div>
+                            <a asp-controller="Courses"
+                               asp-action="Index"
+                               class="empty-action">
+                                Khám phá khóa học
+                            </a>
+                        </div>
+                    </div>
+                }
+
+            </section>
+
+
+            <section class="student-panel">
+
+                <div class="panel-header">
+                    <h2 class="panel-title">
+                        Truy cập nhanh
+                    </h2>
+                </div>
+
+                <div class="quick-grid">
+
+                    <a asp-controller="Courses"
+                       asp-action="MyCourses"
+                       class="quick-link">
+                        <div>
+                            <div class="quick-title">
+                                Khóa học của tôi
+                            </div>
+                            <div class="quick-note">
+                                Quản lý các khóa đã đăng ký
+                            </div>
+                        </div>
+                        <span class="quick-arrow">→</span>
+                    </a>
+
+                    <a asp-controller="Wishlist"
+                       asp-action="Index"
+                       class="quick-link">
+                        <div>
+                            <div class="quick-title">
+                                Danh sách yêu thích
+                            </div>
+                            <div class="quick-note">
+                                @Model.WishlistCount khóa học đã lưu
+                            </div>
+                        </div>
+                        <span class="quick-arrow">→</span>
+                    </a>
+
+                    <a asp-controller="LessonQuestions"
+                       asp-action="MyQuestions"
+                       class="quick-link">
+                        <div>
+                            <div class="quick-title">
+                                Câu hỏi của tôi
+                            </div>
+                            <div class="quick-note">
+                                @Model.OpenQuestionCount câu đang chờ phản hồi
+                            </div>
+                        </div>
+                        <span class="quick-arrow">→</span>
+                    </a>
+
+                    <a asp-controller="Notifications"
+                       asp-action="Index"
+                       class="quick-link">
+                        <div>
+                            <div class="quick-title">
+                                Thông báo
+                            </div>
+                            <div class="quick-note">
+                                Theo dõi phản hồi và cập nhật
+                            </div>
+                        </div>
+                        <span class="quick-arrow">→</span>
+                    </a>
+
+                </div>
+
+            </section>
+
+        </div>
+
+
+        <section class="explore-section">
+
+            <div class="section-heading">
+                <div>
+                    <h2 class="section-title">
+                        Khám phá thêm
+                    </h2>
+
+                    <p class="section-description">
+                        Một số khóa học đã xuất bản mà bạn chưa đăng ký.
+                    </p>
+                </div>
+
+                <a asp-controller="Courses"
+                   asp-action="Index"
+                   class="panel-link">
+                    Tất cả khóa học →
+                </a>
+            </div>
+
+            @if (Model.ExploreCourses.Any())
+            {
+                <div class="explore-grid">
+
+                    @foreach (var course in Model.ExploreCourses)
+                    {
+                        string levelClass =
+                            GetLevelClass(
+                                course.Level);
+
+                        <a asp-controller="Courses"
+                           asp-action="Details"
+                           asp-route-slug="@course.Slug"
+                           class="explore-card">
+
+                            <div class="explore-thumb @levelClass">
+                                <div class="explore-category">
+                                    @course.CategoryName
+                                </div>
+
+                                <div class="explore-icon">
+                                    @course.CategoryIcon
+                                </div>
+                            </div>
+
+                            <div class="explore-body">
+
+                                <span class="level-badge @levelClass">
+                                    @GetLevelText(course.Level)
+                                </span>
+
+                                <div class="explore-title">
+                                    @course.Title
+                                </div>
+
+                                <div class="explore-meta">
+                                    @course.EnrollmentCount học viên
+                                </div>
+
+                            </div>
+
+                        </a>
+                    }
+
+                </div>
+            }
+            else
+            {
+                <div class="student-panel">
+                    <div class="empty-state">
+                        Hiện chưa có khóa học mới để gợi ý.
+                    </div>
+                </div>
+            }
+
+        </section>
+
+    </div>
+</section>

@@ -1,0 +1,595 @@
+﻿@model OnlineLearningPlatform.ViewModels.AdminHomeDashboardViewModel
+
+<style>
+    .admin-home {
+        min-height: 78vh;
+        padding: 48px 0 72px;
+        background: #f8fafc;
+    }
+
+    .admin-home-container {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .dashboard-heading {
+        margin-bottom: 24px;
+    }
+
+    .dashboard-eyebrow {
+        margin-bottom: 6px;
+        color: #7c3aed;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+    .dashboard-title {
+        margin: 0 0 7px;
+        color: #172033;
+        font-size: 32px;
+        font-weight: 800;
+    }
+
+    .dashboard-description {
+        margin: 0;
+        color: #7c8798;
+        font-size: 13px;
+        line-height: 1.7;
+    }
+
+    .admin-stats {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 12px;
+        margin-bottom: 28px;
+    }
+
+    .admin-stat {
+        display: block;
+        padding: 18px;
+        border: 1px solid #e3e8ef;
+        border-radius: 13px;
+        background: #ffffff;
+        color: inherit;
+        text-decoration: none;
+        cursor: pointer;
+        transition:
+            transform .18s ease,
+            border-color .18s ease,
+            box-shadow .18s ease;
+    }
+
+    .admin-stat:hover {
+        color: inherit;
+        transform: translateY(-2px);
+        border-color: #c9b8f7;
+        box-shadow:
+            0 8px 22px
+            rgba(124, 58, 237, .08);
+    }
+
+    .stat-label {
+        margin-bottom: 7px;
+        color: #7c8798;
+        font-size: 9px;
+        font-weight: 700;
+    }
+
+    .stat-number {
+        color: #172033;
+        font-size: 24px;
+        font-weight: 800;
+    }
+
+    .admin-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.35fr) minmax(300px, .75fr);
+        gap: 18px;
+        margin-bottom: 28px;
+        align-items: start;
+    }
+
+    .panel {
+        overflow: hidden;
+        border: 1px solid #e3e8ef;
+        border-radius: 15px;
+        background: #ffffff;
+    }
+
+    .panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 19px 21px;
+        border-bottom: 1px solid #eef1f5;
+    }
+
+    .panel-title {
+        margin: 0;
+        color: #273142;
+        font-size: 16px;
+        font-weight: 800;
+    }
+
+    .panel-link {
+        color: #0d6efd;
+        font-size: 10px;
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+    .quick-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        padding: 18px;
+    }
+
+    .quick-card {
+        padding: 17px;
+        border: 1px solid #e5e9ef;
+        border-radius: 12px;
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .quick-card:hover {
+        border-color: #c9b8f7;
+    }
+
+    .quick-icon {
+        width: 38px;
+        height: 38px;
+        margin-bottom: 11px;
+        border-radius: 10px;
+        background: #f3ecff;
+        color: #7c3aed;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 800;
+    }
+
+    .quick-title {
+        color: #344054;
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+    .quick-note {
+        margin-top: 4px;
+        color: #98a2b3;
+        font-size: 9px;
+        line-height: 1.5;
+    }
+
+    .system-list {
+        padding: 8px 18px;
+    }
+
+    .system-item {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 13px 0;
+        border-bottom: 1px solid #eef1f5;
+    }
+
+    .system-item:last-child {
+        border-bottom: none;
+    }
+
+    .system-label {
+        color: #475467;
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    .system-value {
+        color: #172033;
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+    .course-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .course-table th,
+    .course-table td {
+        padding: 13px 16px;
+        border-bottom: 1px solid #eef1f5;
+        text-align: left;
+        vertical-align: middle;
+    }
+
+    .course-table th {
+        background: #fbfcfe;
+        color: #7c8798;
+        font-size: 9px;
+        font-weight: 800;
+    }
+
+    .course-table td {
+        color: #475467;
+        font-size: 10px;
+    }
+
+    .course-name {
+        color: #273142;
+        font-size: 10px;
+        font-weight: 800;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        padding: 4px 7px;
+        border-radius: 20px;
+        background: #edfdf2;
+        color: #198754;
+        font-size: 8px;
+        font-weight: 800;
+    }
+
+    .status-badge.draft {
+        background: #fff5e8;
+        color: #b26a00;
+    }
+
+    .manage-link {
+        color: #0d6efd;
+        font-size: 9px;
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+    .empty {
+        padding: 30px;
+        color: #7c8798;
+        font-size: 11px;
+        text-align: center;
+    }
+
+    @@media (max-width: 1050px) {
+        .admin-stats {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @@media (max-width: 800px) {
+        .admin-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .course-table {
+            min-width: 780px;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .admin-stats,
+        .quick-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+</style>
+
+<section class="admin-home">
+    <div class="admin-home-container">
+
+        <div class="dashboard-heading">
+            <div class="dashboard-eyebrow">
+                Quản trị viên
+            </div>
+
+            <h1 class="dashboard-title">
+                Tổng quan hệ thống
+            </h1>
+
+            <p class="dashboard-description">
+                Theo dõi người dùng, khóa học và hoạt động chính
+                trên toàn bộ nền tảng EduLearn.
+            </p>
+        </div>
+
+
+        <div class="admin-stats">
+
+            <a asp-controller="AdminUsers"
+               asp-action="Index"
+               class="admin-stat">
+                <div class="stat-label">
+                    Tổng người dùng
+                </div>
+                <div class="stat-number">
+                    @Model.TotalUsers
+                </div>
+            </a>
+
+            <a asp-controller="AdminUsers"
+               asp-action="Index"
+               asp-route-role="Student"
+               class="admin-stat">
+                <div class="stat-label">
+                    Học viên
+                </div>
+                <div class="stat-number">
+                    @Model.StudentCount
+                </div>
+            </a>
+
+            <a asp-controller="AdminUsers"
+               asp-action="Index"
+               asp-route-role="Instructor"
+               class="admin-stat">
+                <div class="stat-label">
+                    Giảng viên
+                </div>
+                <div class="stat-number">
+                    @Model.InstructorCount
+                </div>
+            </a>
+
+            <a asp-controller="AdminCourses"
+               asp-action="Index"
+               class="admin-stat">
+                <div class="stat-label">
+                    Tổng khóa học
+                </div>
+                <div class="stat-number">
+                    @Model.TotalCourses
+                </div>
+            </a>
+
+            <a asp-controller="AdminCourses"
+               asp-action="Index"
+               asp-route-status="published"
+               class="admin-stat">
+                <div class="stat-label">
+                    Đã xuất bản
+                </div>
+                <div class="stat-number">
+                    @Model.PublishedCourses
+                </div>
+            </a>
+
+            <a asp-controller="AdminCourses"
+               asp-action="Index"
+               class="admin-stat">
+                <div class="stat-label">
+                    Lượt đăng ký
+                </div>
+                <div class="stat-number">
+                    @Model.TotalEnrollments
+                </div>
+            </a>
+
+        </div>
+
+
+        <div class="admin-grid">
+
+            <section class="panel">
+
+                <div class="panel-header">
+                    <h2 class="panel-title">
+                        Quản lý nhanh
+                    </h2>
+                </div>
+
+                <div class="quick-grid">
+
+                    <a asp-controller="AdminUsers"
+                       asp-action="Index"
+                       class="quick-card">
+                        <div class="quick-icon">
+                            U
+                        </div>
+                        <div class="quick-title">
+                            Người dùng
+                        </div>
+                        <div class="quick-note">
+                            Tài khoản, vai trò và trạng thái truy cập.
+                        </div>
+                    </a>
+
+                    <a asp-controller="AdminCourses"
+                       asp-action="Index"
+                       class="quick-card">
+                        <div class="quick-icon">
+                            KH
+                        </div>
+                        <div class="quick-title">
+                            Khóa học
+                        </div>
+                        <div class="quick-note">
+                            Xuất bản, nổi bật và quản lý nội dung.
+                        </div>
+                    </a>
+
+                    <a asp-controller="AdminCategories"
+                       asp-action="Index"
+                       class="quick-card">
+                        <div class="quick-icon">
+                            DM
+                        </div>
+                        <div class="quick-title">
+                            Danh mục
+                        </div>
+                        <div class="quick-note">
+                            Cấu trúc lĩnh vực và thứ tự hiển thị.
+                        </div>
+                    </a>
+
+                    <a asp-controller="LessonQuestions"
+                       asp-action="Index"
+                       class="quick-card">
+                        <div class="quick-icon">
+                            Q&A
+                        </div>
+                        <div class="quick-title">
+                            Hỏi đáp
+                        </div>
+                        <div class="quick-note">
+                            Kiểm tra các câu hỏi đang chờ xử lý.
+                        </div>
+                    </a>
+
+                </div>
+
+            </section>
+
+
+            <section class="panel">
+
+                <div class="panel-header">
+                    <h2 class="panel-title">
+                        Tình trạng nội dung
+                    </h2>
+
+                    <a asp-controller="AdminDashboard"
+                       asp-action="Index"
+                       class="panel-link">
+                        Dashboard chi tiết →
+                    </a>
+                </div>
+
+                <div class="system-list">
+
+                    <div class="system-item">
+                        <span class="system-label">
+                            Khóa học bản nháp
+                        </span>
+                        <span class="system-value">
+                            @Model.DraftCourses
+                        </span>
+                    </div>
+
+                    <div class="system-item">
+                        <span class="system-label">
+                            Danh mục hoạt động
+                        </span>
+                        <span class="system-value">
+                            @Model.ActiveCategories
+                        </span>
+                    </div>
+
+                    <div class="system-item">
+                        <span class="system-label">
+                            Câu hỏi chưa trả lời
+                        </span>
+                        <span class="system-value">
+                            @Model.PendingQuestions
+                        </span>
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+
+        <section class="panel">
+
+            <div class="panel-header">
+                <h2 class="panel-title">
+                    Khóa học cập nhật gần đây
+                </h2>
+
+                <a asp-controller="AdminCourses"
+                   asp-action="Index"
+                   class="panel-link">
+                    Quản lý khóa học →
+                </a>
+            </div>
+
+            @if (Model.RecentCourses.Any())
+            {
+                <div class="table-wrap">
+
+                    <table class="course-table">
+                        <thead>
+                            <tr>
+                                <th>Khóa học</th>
+                                <th>Giảng viên</th>
+                                <th>Danh mục</th>
+                                <th>Học viên</th>
+                                <th>Trạng thái</th>
+                                <th>Cập nhật</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var course in Model.RecentCourses)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="course-name">
+                                            @course.Title
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        @course.InstructorName
+                                    </td>
+
+                                    <td>
+                                        @course.CategoryName
+                                    </td>
+
+                                    <td>
+                                        @course.EnrollmentCount
+                                    </td>
+
+                                    <td>
+                                        <span class="status-badge @(course.IsPublished ? "" : "draft")">
+                                            @(course.IsPublished
+                                                ? "Đã xuất bản"
+                                                : "Bản nháp")
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        @course.UpdatedAt
+                                            .ToLocalTime()
+                                            .ToString("dd/MM/yyyy")
+                                    </td>
+
+                                    <td>
+                                        <a asp-controller="AdminCourses"
+                                           asp-action="Index"
+                                           class="manage-link">
+                                            Quản lý →
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+
+                        </tbody>
+                    </table>
+
+                </div>
+            }
+            else
+            {
+                <div class="empty">
+                    Hệ thống chưa có khóa học.
+                </div>
+            }
+
+        </section>
+
+    </div>
+</section>

@@ -1,6 +1,4 @@
-﻿@model OnlineLearningPlatform.ViewModels.HomeIndexViewModel
-
-@{
+﻿@{
     ViewData["Title"] = "Trang chủ";
 
     bool isAuthenticated =
@@ -20,64 +18,9 @@
         User.IsInRole("Student") &&
         !isInstructor &&
         !isAdmin;
-
-    bool showLearningHome =
-        !isAuthenticated || isStudent;
-}
-
-@functions {
-    string GetCourseBadge(string title)
-    {
-        if (string.IsNullOrWhiteSpace(title))
-        {
-            return "IT";
-        }
-
-        if (title.Contains(
-            "ASP.NET",
-            StringComparison.OrdinalIgnoreCase))
-        {
-            return ".NET";
-        }
-
-        if (title.Contains(
-            "SQL",
-            StringComparison.OrdinalIgnoreCase))
-        {
-            return "SQL";
-        }
-
-        if (title.Contains(
-            "Git",
-            StringComparison.OrdinalIgnoreCase))
-        {
-            return "Git";
-        }
-
-        if (title.Contains(
-            "C#",
-            StringComparison.OrdinalIgnoreCase))
-        {
-            return "C#";
-        }
-
-        if (title.Contains(
-            "Python",
-            StringComparison.OrdinalIgnoreCase))
-        {
-            return "PY";
-        }
-
-        return "IT";
-    }
 }
 
 <style>
-
-    /* =========================================
-       HOME
-    ========================================= */
-
     .home-page {
         background: #ffffff;
     }
@@ -91,603 +34,226 @@
 
 
     /* =========================================
-       HERO
+       GUEST HERO
     ========================================= */
 
-    .hero-section {
-        padding: 72px 0 58px;
-
+    .guest-hero {
+        padding: 66px 0 62px;
         background:
             linear-gradient(
                 135deg,
                 #f7fbff 0%,
-                #eef5ff 55%,
+                #edf5ff 58%,
                 #ffffff 100%
             );
     }
 
-    .hero-wrapper {
+    .guest-hero-grid {
         display: grid;
-        grid-template-columns: 1.05fr 0.95fr;
-        gap: 58px;
+        grid-template-columns:
+            minmax(0, 1.05fr)
+            minmax(380px, .95fr);
+        gap: 54px;
         align-items: center;
     }
 
-    .hero-badge {
+    .guest-badge {
         display: inline-flex;
-        align-items: center;
-
-        padding: 8px 14px;
         margin-bottom: 18px;
-
+        padding: 8px 14px;
         border-radius: 30px;
-
         background: #e8f1ff;
         color: #0d6efd;
-
-        font-size: 13px;
-        font-weight: 700;
-    }
-
-    .hero-title {
-        margin: 0 0 20px;
-
-        color: #172033;
-
-        font-size: 48px;
-        line-height: 1.15;
+        font-size: 12px;
         font-weight: 800;
     }
 
-    .hero-title span {
+    .guest-title {
+        max-width: 610px;
+        margin: 0 0 20px;
+        color: #172033;
+        font-size: 48px;
+        font-weight: 800;
+        line-height: 1.15;
+    }
+
+    .guest-title span {
         color: #0d6efd;
     }
 
-    .hero-description {
-        max-width: 600px;
-
-        margin: 0 0 28px;
-
+    .guest-description {
+        max-width: 620px;
+        margin: 0 0 27px;
         color: #667085;
-
-        font-size: 17px;
+        font-size: 16px;
         line-height: 1.75;
     }
 
-    .hero-actions {
+    .guest-actions {
         display: flex;
         flex-wrap: wrap;
-
-        gap: 12px;
-
-        margin-bottom: 30px;
+        gap: 11px;
+        margin-bottom: 27px;
     }
 
-    .hero-primary,
-    .hero-secondary {
-        min-height: 48px;
-
-        padding: 0 22px;
-
+    .guest-primary,
+    .guest-secondary {
+        min-height: 46px;
+        padding: 0 20px;
+        border-radius: 9px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-
-        border-radius: 10px;
-
-        font-weight: 700;
-
+        font-size: 13px;
+        font-weight: 800;
         text-decoration: none;
-
-        transition: .2s ease;
     }
 
-    .hero-primary {
-        border: 1px solid #0d6efd;
-
+    .guest-primary {
         background: #0d6efd;
         color: #ffffff;
     }
 
-    .hero-primary:hover {
-        background: #0b5ed7;
-        color: #ffffff;
-    }
-
-    .hero-secondary {
-        border: 1px solid #d9dee7;
-
+    .guest-secondary {
+        border: 1px solid #d8dee8;
         background: #ffffff;
-        color: #374151;
+        color: #344054;
     }
 
-    .hero-secondary:hover {
-        border-color: #9fc4ff;
-        color: #0d6efd;
-    }
-
-    .hero-techs {
+    .guest-techs {
         display: flex;
         flex-wrap: wrap;
-
         gap: 8px;
     }
 
-    .hero-tech {
-        padding: 7px 12px;
-
-        border: 1px solid #e5e7eb;
-        border-radius: 30px;
-
+    .guest-tech {
+        padding: 7px 11px;
+        border: 1px solid #e1e6ed;
+        border-radius: 20px;
         background: #ffffff;
-
-        color: #5f6b7a;
-
-        font-size: 13px;
-        font-weight: 600;
+        color: #667085;
+        font-size: 10px;
+        font-weight: 700;
     }
 
 
     /* =========================================
-       PREVIEW
+       GUEST COURSE LEVEL CARD
     ========================================= */
 
-    .platform-preview {
+    .guest-course-box {
         padding: 22px;
-
-        border: 1px solid #e7ebf2;
-        border-radius: 22px;
-
+        border: 1px solid #e3e8ef;
+        border-radius: 20px;
         background: #ffffff;
-
         box-shadow:
-            0 20px 60px
-            rgba(38, 76, 140, .12);
+            0 18px 48px
+            rgba(38, 76, 140, .10);
     }
 
-    .preview-top {
+    .guest-course-box-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-
-        gap: 15px;
-
-        margin-bottom: 22px;
+        gap: 12px;
+        margin-bottom: 17px;
     }
 
-    .preview-title {
-        color: #1f2937;
-
-        font-size: 17px;
+    .guest-course-box-title {
+        color: #273142;
+        font-size: 16px;
         font-weight: 800;
     }
 
-    .preview-status {
-        padding: 5px 10px;
-
+    .guest-course-box-note {
+        padding: 5px 9px;
         border-radius: 20px;
-
         background: #edfdf2;
-        color: #16a34a;
-
-        font-size: 12px;
-        font-weight: 700;
-
-        white-space: nowrap;
+        color: #198754;
+        font-size: 9px;
+        font-weight: 800;
     }
 
-    .preview-status.blue {
-        background: #edf4ff;
-        color: #0d6efd;
-    }
-
-    .preview-status.purple {
-        background: #f5edff;
-        color: #7c3aed;
-    }
-
-
-    /* =========================================
-       COURSE PREVIEW STUDENT
-    ========================================= */
-
-    .preview-course {
+    .guest-level-list {
         display: grid;
-        grid-template-columns: 75px 1fr;
-
-        gap: 15px;
-
-        padding: 15px;
-        margin-bottom: 12px;
-
-        border: 1px solid #edf0f5;
-        border-radius: 14px;
-
-        background: #ffffff;
+        gap: 11px;
     }
 
-    .preview-course-link {
+    .guest-level-card {
+        display: grid;
+        grid-template-columns: 62px minmax(0, 1fr) auto;
+        gap: 13px;
+        align-items: center;
+        padding: 14px;
+        border: 1px solid #e7ebf2;
+        border-radius: 12px;
+        background: #ffffff;
         color: inherit;
         text-decoration: none;
-
-        cursor: pointer;
-
         transition:
-            transform .2s ease,
-            border-color .2s ease,
-            box-shadow .2s ease;
+            transform .18s ease,
+            border-color .18s ease,
+            box-shadow .18s ease;
     }
 
-    .preview-course-link:hover {
-        color: inherit;
-
+    .guest-level-card:hover {
         transform: translateY(-2px);
-
-        border-color: #bdd4fb;
-
+        border-color: #b9d4ff;
         box-shadow:
             0 8px 20px
-            rgba(13, 110, 253, .08);
+            rgba(13, 110, 253, .07);
     }
 
-    .preview-thumb {
-        min-height: 68px;
-
-        border-radius: 12px;
-
+    .guest-level-icon {
+        width: 62px;
+        height: 58px;
+        border-radius: 11px;
         background: #e8f1ff;
         color: #0d6efd;
-
         display: flex;
         align-items: center;
         justify-content: center;
-
-        font-size: 15px;
+        font-size: 12px;
         font-weight: 800;
     }
 
-    .preview-thumb.purple {
-        background: #f4edff;
-        color: #7c3aed;
+    .guest-level-icon.intermediate {
+        background: #f2edff;
+        color: #6f42c1;
     }
 
-    .preview-thumb.green {
-        background: #eaf8ef;
-        color: #198754;
+    .guest-level-icon.advanced {
+        background: #e5f8f5;
+        color: #087f73;
     }
 
-    .preview-course-title {
-        margin-bottom: 8px;
-
+    .guest-level-title {
+        margin-bottom: 4px;
         color: #273142;
-
-        font-size: 14px;
-        font-weight: 700;
-    }
-
-    .preview-description {
-        color: #7a8494;
-
-        font-size: 12px;
-        line-height: 1.6;
-    }
-
-    .progress-track {
-        height: 7px;
-
-        border-radius: 20px;
-
-        background: #edf1f6;
-
-        overflow: hidden;
-    }
-
-    .progress-value {
-        height: 100%;
-
-        border-radius: 20px;
-
-        background: #0d6efd;
-    }
-
-    .preview-meta {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-
-        gap: 12px;
-
-        margin-top: 7px;
-
-        color: #7a8494;
-
-        font-size: 11px;
-    }
-
-    .preview-course-state {
-        color: #0d6efd;
-
-        font-weight: 700;
-    }
-
-
-    /* =========================================
-       STUDENT SUMMARY
-    ========================================= */
-
-    .preview-summary {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-
-        gap: 10px;
-
-        margin-top: 20px;
-    }
-
-    .summary-card {
-        padding: 15px 10px;
-
-        border-radius: 12px;
-
-        background: #f8fafc;
-
-        text-align: center;
-    }
-
-    .summary-number {
-        color: #0d6efd;
-
-        font-size: 18px;
-        font-weight: 800;
-    }
-
-    .summary-number.word {
-        font-size: 13px;
-    }
-
-    .summary-label {
-        margin-top: 3px;
-
-        color: #7a8494;
-
-        font-size: 11px;
-    }
-
-
-    /* =========================================
-       EMPTY COURSES
-    ========================================= */
-
-    .home-course-empty {
-        padding: 28px 20px;
-
-        border: 1px dashed #cddcf2;
-        border-radius: 14px;
-
-        background: #f9fbff;
-
-        text-align: center;
-    }
-
-    .home-course-empty-icon {
-        width: 50px;
-        height: 50px;
-
-        margin: 0 auto 13px;
-
-        border-radius: 14px;
-
-        background: #e8f1ff;
-        color: #0d6efd;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        font-size: 16px;
-        font-weight: 800;
-    }
-
-    .home-course-empty-title {
-        margin-bottom: 6px;
-
-        color: #253047;
-
-        font-size: 14px;
-        font-weight: 800;
-    }
-
-    .home-course-empty-text {
-        max-width: 330px;
-
-        margin:
-            0
-            auto
-            16px;
-
-        color: #7a8494;
-
-        font-size: 12px;
-        line-height: 1.6;
-    }
-
-    .home-course-empty-button {
-        min-height: 40px;
-
-        padding: 0 16px;
-
-        border-radius: 9px;
-
-        background: #0d6efd;
-        color: #ffffff;
-
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-
-        font-size: 12px;
-        font-weight: 700;
-
-        text-decoration: none;
-    }
-
-    .home-course-empty-button:hover {
-        background: #0b5ed7;
-        color: #ffffff;
-    }
-
-
-    /* =========================================
-       INSTRUCTOR
-    ========================================= */
-
-    .instructor-section {
-        padding: 65px 0 80px;
-
-        background: #ffffff;
-    }
-
-    .role-section-header {
-        margin-bottom: 28px;
-    }
-
-    .role-section-title {
-        margin: 0;
-
-        color: #172033;
-
-        font-size: 30px;
-        font-weight: 800;
-    }
-
-    .role-section-description {
-        margin: 8px 0 0;
-
-        color: #7a8494;
-
-        line-height: 1.7;
-    }
-
-    .instructor-tool-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-
-        gap: 18px;
-    }
-
-    .instructor-tool-card {
-        min-height: 100%;
-
-        padding: 25px;
-
-        border: 1px solid #e8edf4;
-        border-radius: 16px;
-
-        background: #ffffff;
-
-        transition:
-            transform .2s ease,
-            border-color .2s ease,
-            box-shadow .2s ease;
-    }
-
-    .instructor-tool-card:hover {
-        transform: translateY(-3px);
-
-        border-color: #bfd5fb;
-
-        box-shadow:
-            0 12px 30px
-            rgba(38, 76, 140, .08);
-    }
-
-    .instructor-tool-link {
-        display: block;
-
-        color: inherit;
-
-        text-decoration: none;
-
-        cursor: pointer;
-    }
-
-    .instructor-tool-link:hover {
-        color: inherit;
-
-        text-decoration: none;
-    }
-
-    .instructor-tool-link:focus-visible {
-        outline: 3px solid rgba(13, 110, 253, .22);
-        outline-offset: 3px;
-    }
-
-    .instructor-tool-arrow {
-        margin-top: 18px;
-
-        color: #0d6efd;
-
         font-size: 12px;
         font-weight: 800;
     }
 
-    .instructor-tool-icon {
-        width: 46px;
-        height: 46px;
+    .guest-level-description {
+        color: #8992a3;
+        font-size: 9px;
+        line-height: 1.5;
+    }
 
-        margin-bottom: 17px;
-
-        border-radius: 12px;
-
-        background: #edf4ff;
+    .guest-level-arrow {
         color: #0d6efd;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
         font-size: 13px;
         font-weight: 800;
     }
 
-    .instructor-tool-icon.purple {
-        background: #f5edff;
-        color: #7c3aed;
-    }
-
-    .instructor-tool-icon.green {
-        background: #eaf8ef;
-        color: #198754;
-    }
-
-    .instructor-tool-title {
-        margin-bottom: 8px;
-
-        color: #273142;
-
-        font-size: 16px;
-        font-weight: 800;
-    }
-
-    .instructor-tool-description {
-        margin: 0;
-
-        color: #7a8494;
-
-        font-size: 13px;
-        line-height: 1.65;
-    }
-
 
     /* =========================================
-       STATS
+       HOME PUBLIC COMPONENT SHARED STYLE
     ========================================= */
 
     .stats-section {
-        padding: 28px 0;
-
+        padding: 26px 0;
         border-bottom: 1px solid #eef1f5;
-
         background: #ffffff;
     }
 
@@ -698,9 +264,7 @@
 
     .stat-item {
         padding: 10px;
-
         border-right: 1px solid #eceff3;
-
         text-align: center;
     }
 
@@ -710,197 +274,147 @@
 
     .stat-number {
         color: #172033;
-
         font-size: 25px;
         font-weight: 800;
     }
 
     .stat-label {
         margin-top: 3px;
-
         color: #7a8494;
-
-        font-size: 13px;
+        font-size: 12px;
     }
 
-
-    /* =========================================
-       COMMON
-    ========================================= */
-
     .home-section {
-        padding: 70px 0;
+        padding: 64px 0;
+    }
+
+    .category-section {
+        background: #f8fafc;
     }
 
     .section-header {
         display: flex;
         align-items: end;
         justify-content: space-between;
-
-        gap: 20px;
-
-        margin-bottom: 28px;
+        gap: 18px;
+        margin-bottom: 25px;
     }
 
     .section-title {
         margin: 0;
-
         color: #172033;
-
-        font-size: 30px;
+        font-size: 27px;
         font-weight: 800;
     }
 
     .section-description {
-        margin: 8px 0 0;
-
+        margin: 7px 0 0;
         color: #7a8494;
+        font-size: 12px;
+        line-height: 1.65;
     }
 
     .section-link {
         color: #0d6efd;
-
-        font-size: 14px;
-        font-weight: 700;
-
+        font-size: 11px;
+        font-weight: 800;
         text-decoration: none;
-    }
-
-
-    /* =========================================
-       CATEGORIES
-    ========================================= */
-
-    .category-section {
-        background: #f8fafc;
+        white-space: nowrap;
     }
 
     .category-grid {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-
-        gap: 16px;
+        gap: 14px;
     }
 
     .category-card {
-        padding: 22px;
-
+        padding: 20px;
         border: 1px solid #e9edf3;
-        border-radius: 15px;
-
+        border-radius: 14px;
         background: #ffffff;
-
+        color: inherit;
         text-decoration: none;
-
-        transition: .2s ease;
+        transition:
+            transform .18s ease,
+            border-color .18s ease,
+            box-shadow .18s ease;
     }
 
     .category-card:hover {
         transform: translateY(-3px);
-
         border-color: #b9d4ff;
-
         box-shadow:
-            0 10px 28px
-            rgba(50, 80, 120, .08);
+            0 10px 24px
+            rgba(50, 80, 120, .07);
     }
 
     .category-icon {
-        width: 44px;
-        height: 44px;
-
-        margin-bottom: 16px;
-
-        border-radius: 12px;
-
+        width: 42px;
+        height: 42px;
+        margin-bottom: 14px;
+        border-radius: 11px;
         background: #eaf2ff;
         color: #0d6efd;
-
         display: flex;
         align-items: center;
         justify-content: center;
-
+        font-size: 11px;
         font-weight: 800;
     }
 
     .category-name {
-        margin-bottom: 5px;
-
+        margin-bottom: 4px;
         color: #273142;
-
-        font-weight: 700;
+        font-size: 12px;
+        font-weight: 800;
     }
 
     .category-count {
         color: #8992a3;
-
-        font-size: 13px;
+        font-size: 9px;
     }
-
-
-    /* =========================================
-       FEATURED COURSES
-    ========================================= */
 
     .course-grid {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-
-        gap: 20px;
+        gap: 18px;
     }
 
     .course-card {
         display: block;
-
-        border: 1px solid #e8ebf0;
-        border-radius: 16px;
-
-        background: #ffffff;
-
         overflow: hidden;
-
-        text-decoration: none;
+        border: 1px solid #e8ebf0;
+        border-radius: 14px;
+        background: #ffffff;
         color: inherit;
-
-        transition: .2s ease;
+        text-decoration: none;
+        transition:
+            transform .18s ease,
+            box-shadow .18s ease;
     }
 
     .course-card:hover {
         color: inherit;
-
         transform: translateY(-4px);
-
         box-shadow:
-            0 14px 34px
-            rgba(33, 52, 84, .1);
+            0 13px 30px
+            rgba(33, 52, 84, .09);
     }
 
     .course-thumbnail {
-        height: 165px;
-
-        padding: 22px;
-
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-
+        height: 150px;
+        padding: 18px;
         background:
             linear-gradient(
                 135deg,
                 #0f55c9,
                 #488dff
             );
-
         color: #ffffff;
-    }
-
-    .course-thumbnail.dark {
-        background:
-            linear-gradient(
-                135deg,
-                #222b3c,
-                #4b5872
-            );
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
     }
 
     .course-thumbnail.purple {
@@ -921,203 +435,120 @@
             );
     }
 
-    .course-tech {
-        font-size: 12px;
-        font-weight: 700;
+    .course-thumbnail.dark {
+        background:
+            linear-gradient(
+                135deg,
+                #222b3c,
+                #4b5872
+            );
+    }
 
+    .course-tech {
+        font-size: 10px;
+        font-weight: 800;
         opacity: .9;
     }
 
     .course-tech-logo {
-        font-size: 30px;
+        font-size: 27px;
         font-weight: 800;
     }
 
     .course-body {
-        padding: 18px;
+        padding: 16px;
     }
 
     .course-level {
+        display: inline-flex;
         padding: 4px 8px;
-
         border-radius: 20px;
-
         background: #edf4ff;
         color: #0d6efd;
-
-        font-size: 11px;
-        font-weight: 700;
+        font-size: 9px;
+        font-weight: 800;
     }
 
     .course-name {
-        min-height: 46px;
-
-        margin: 12px 0 8px;
-
+        min-height: 42px;
+        margin: 10px 0 7px;
         color: #202938;
-
-        font-size: 16px;
-        font-weight: 700;
-        line-height: 1.45;
+        font-size: 13px;
+        font-weight: 800;
+        line-height: 1.5;
     }
 
     .course-instructor {
-        margin-bottom: 12px;
-
+        margin-bottom: 11px;
         color: #8992a3;
-
-        font-size: 12px;
-    }
-
-    .course-rating {
-        color: #f59e0b;
-
-        font-size: 13px;
-        font-weight: 700;
-    }
-
-    .course-students {
-        color: #8b95a5;
-
-        font-size: 12px;
+        font-size: 9px;
     }
 
     .course-footer {
         display: flex;
         align-items: center;
         justify-content: flex-end;
-
-        margin-top: 14px;
-
-        padding-top: 13px;
-
+        margin-top: 12px;
+        padding-top: 11px;
         border-top: 1px solid #eef0f3;
     }
 
     .course-detail {
         color: #0d6efd;
-
-        font-size: 13px;
-        font-weight: 700;
-    }
-
-
-    /* =========================================
-       BENEFITS
-    ========================================= */
-
-    .benefit-section {
-        background: #f8fafc;
-    }
-
-    .benefit-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-
-        gap: 18px;
-    }
-
-    .benefit-card {
-        padding: 25px;
-
-        border: 1px solid #e9edf3;
-        border-radius: 15px;
-
-        background: #ffffff;
-    }
-
-    .benefit-number {
-        width: 42px;
-        height: 42px;
-
-        margin-bottom: 16px;
-
-        border-radius: 12px;
-
-        background: #eaf2ff;
-        color: #0d6efd;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
+        font-size: 9px;
         font-weight: 800;
     }
 
-    .benefit-title {
-        margin-bottom: 8px;
-
-        color: #273142;
-
-        font-weight: 700;
-    }
-
-    .benefit-description {
-        margin: 0;
-
-        color: #7c8696;
-
-        font-size: 13px;
-        line-height: 1.6;
-    }
-
 
     /* =========================================
-       CTA
+       GUEST CTA
     ========================================= */
 
-    .cta-section {
-        padding: 60px 0 80px;
-
+    .guest-cta {
+        padding: 0 0 68px;
         background: #ffffff;
     }
 
-    .cta-box {
-        padding: 48px;
-
-        border-radius: 22px;
-
+    .guest-cta-box {
+        padding: 28px 30px;
+        border-radius: 18px;
         background:
             linear-gradient(
                 135deg,
                 #0d6efd,
-                #3d88ff
+                #4d8df7
             );
-
         color: #ffffff;
-
         display: flex;
         align-items: center;
         justify-content: space-between;
-
-        gap: 25px;
+        gap: 24px;
     }
 
-    .cta-title {
-        margin-bottom: 8px;
-
-        font-size: 29px;
+    .guest-cta-title {
+        margin-bottom: 6px;
+        font-size: 20px;
         font-weight: 800;
     }
 
-    .cta-description {
+    .guest-cta-text {
         margin: 0;
-
         opacity: .9;
+        font-size: 11px;
     }
 
-    .cta-button {
-        padding: 12px 22px;
-
-        border-radius: 10px;
-
+    .guest-cta-button {
+        min-height: 42px;
+        padding: 0 16px;
+        border-radius: 8px;
         background: #ffffff;
         color: #0d6efd;
-
-        font-weight: 700;
-
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 800;
         text-decoration: none;
-
         white-space: nowrap;
     }
 
@@ -1126,37 +557,24 @@
        RESPONSIVE
     ========================================= */
 
-    @@media (max-width: 991px) {
-
-        .hero-wrapper {
+    @@media (max-width: 980px) {
+        .guest-hero-grid {
             grid-template-columns: 1fr;
         }
 
-        .hero-title {
-            font-size: 40px;
+        .guest-course-box {
+            max-width: 700px;
         }
 
         .category-grid,
-        .course-grid,
-        .benefit-grid {
+        .course-grid {
             grid-template-columns: repeat(2, 1fr);
         }
-
-        .instructor-tool-grid {
-            grid-template-columns: 1fr;
-        }
-
     }
 
-
-    @@media (max-width: 600px) {
-
-        .hero-section {
-            padding-top: 50px;
-        }
-
-        .hero-title {
-            font-size: 34px;
+    @@media (max-width: 680px) {
+        .guest-title {
+            font-size: 38px;
         }
 
         .stats-grid {
@@ -1164,585 +582,224 @@
         }
 
         .stat-item {
-            border: none;
-
-            border-bottom: 1px solid #edf0f3;
+            border-right: none;
+            border-bottom: 1px solid #eceff3;
         }
 
         .category-grid,
-        .course-grid,
-        .benefit-grid {
+        .course-grid {
             grid-template-columns: 1fr;
         }
 
-        .section-header {
-            align-items: start;
+        .guest-level-card {
+            grid-template-columns: 54px minmax(0, 1fr) auto;
+        }
 
+        .guest-level-icon {
+            width: 54px;
+            height: 52px;
+        }
+
+        .guest-cta-box {
+            align-items: flex-start;
             flex-direction: column;
         }
-
-        .preview-summary {
-            grid-template-columns: 1fr;
-        }
-
-        .cta-box {
-            padding: 32px 25px;
-
-            flex-direction: column;
-
-            align-items: start;
-        }
-
     }
-
 </style>
 
 
 <div class="home-page">
 
-
-    <!-- =====================================================
-         INSTRUCTOR HOME
-    ====================================================== -->
-
-    @if (isInstructor)
-{
-    <!-- =====================================================
-         INSTRUCTOR HOME
-    ====================================================== -->
-
-    <section class="hero-section">
-
-        <div class="home-container">
-
-            <div class="hero-wrapper">
-
-
-                <!-- =========================================
-                     BÊN TRÁI
-                ========================================== -->
-
-                <div>
-
-
-                    <div class="hero-badge">
-
-                        Không gian giảng dạy EduLearn
-
-                    </div>
-
-
-                    <h1 class="hero-title">
-
-                        Quản lý nội dung,<br />
-
-                        <span>
-                            kết nối học viên
-                        </span>
-
-                    </h1>
-
-
-                    <p class="hero-description">
-
-                        Theo dõi các khóa học đang phụ trách,
-                        cập nhật bài giảng và hỗ trợ học viên
-                        trong suốt quá trình học tập.
-
-                    </p>
-
-
-                    <!--
-                        CHỈ GIỮ 1 CTA CHÍNH.
-                        Không lặp Hỏi đáp học viên ở đây.
-                    -->
-
-                    <div class="hero-actions">
-
-                        <a href="#instructor-tools"
-                           class="hero-primary">
-
-                            Công cụ giảng viên
-
-                        </a>
-
-                    </div>
-
-
-                    <!--
-                        CHIP chỉ mô tả phạm vi công việc.
-                        Không lặp "Hỏi đáp".
-                    -->
-
-                    <div class="hero-techs">
-
-                        <span class="hero-tech">
-                            Quản lý khóa học
-                        </span>
-
-                        <span class="hero-tech">
-                            Module & bài học
-                        </span>
-
-                        <span class="hero-tech">
-                            Cập nhật nội dung
-                        </span>
-
-                        <span class="hero-tech">
-                            Thông báo
-                        </span>
-
-                    </div>
-
-
-                </div>
-
-
-
-                <!-- =========================================
-                     BÊN PHẢI
-                ========================================== -->
-
-                <div class="platform-preview">
-
-
-                    <div class="preview-top">
-
-                        <div class="preview-title">
-
-                            Không gian giảng viên
-
-                        </div>
-
-
-                        <div class="preview-status blue">
-
-                            Giảng viên
-
-                        </div>
-
-                    </div>
-
-
-
-                    <!-- QUẢN LÝ KHÓA HỌC -->
-
-                    <div class="preview-course">
-
-                        <div class="preview-thumb">
-
-                            KH
-
-                        </div>
-
-
-                        <div>
-
-                            <div class="preview-course-title">
-
-                                Quản lý khóa học
-
-                            </div>
-
-
-                            <div class="preview-description">
-
-                                Tổ chức module, bài học,
-                                nội dung và tài liệu
-                                của khóa học đang phụ trách.
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-
-                    <!-- CẬP NHẬT BÀI GIẢNG -->
-
-                    <div class="preview-course">
-
-                        <div class="preview-thumb purple">
-
-                            UP
-
-                        </div>
-
-
-                        <div>
-
-                            <div class="preview-course-title">
-
-                                Cập nhật bài giảng
-
-                            </div>
-
-
-                            <div class="preview-description">
-
-                                Điều chỉnh nội dung,
-                                video và tài liệu
-                                của các bài học.
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-
-                    <!-- THÔNG BÁO -->
-
-                    <div class="preview-course">
-
-                        <div class="preview-thumb green">
-
-                            TB
-
-                        </div>
-
-
-                        <div>
-
-                            <div class="preview-course-title">
-
-                                Theo dõi hoạt động
-
-                            </div>
-
-
-                            <div class="preview-description">
-
-                                Kiểm tra thông báo mới
-                                và những nội dung
-                                đang cần xử lý.
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                </div>
-
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- =====================================================
-         CÔNG CỤ DÀNH CHO GIẢNG VIÊN
-    ====================================================== -->
-
-    <section class="instructor-section"
-             id="instructor-tools">
-
-        <div class="home-container">
-
-
-            <div class="role-section-header">
-
-
-                <h2 class="role-section-title">
-
-                    Công cụ dành cho giảng viên
-
-                </h2>
-
-
-                <p class="role-section-description">
-
-                    Truy cập nhanh các chức năng
-                    phục vụ quản lý nội dung
-                    và hỗ trợ học viên trên EduLearn.
-
-                </p>
-
-
-            </div>
-
-
-
-            <div class="instructor-tool-grid">
-
-
-                <!-- =====================================
-                     KHÓA HỌC
-                ====================================== -->
-
-                <a asp-controller="InstructorCourses"
-                   asp-action="Index"
-                   class="instructor-tool-card instructor-tool-link">
-
-
-                    <div class="instructor-tool-icon">
-
-                        KH
-
-                    </div>
-
-
-                    <div class="instructor-tool-title">
-
-                        Khóa học đang phụ trách
-
-                    </div>
-
-
-                    <p class="instructor-tool-description">
-
-                        Quản lý thông tin khóa học,
-                        chương học và các bài học
-                        thuộc khóa học của bạn.
-
-                    </p>
-
-
-                    <div class="instructor-tool-arrow">
-
-                        Mở quản lý khóa học →
-
-                    </div>
-
-
-                </a>
-
-
-
-                <!-- =====================================
-                     PHÂN TÍCH
-                ====================================== -->
-
-                <a asp-controller="InstructorAnalytics"
-                   asp-action="Index"
-                   class="instructor-tool-card instructor-tool-link">
-
-                    <div class="instructor-tool-icon green">
-                        PT
-                    </div>
-
-                    <div class="instructor-tool-title">
-                        Phân tích khóa học
-                    </div>
-
-                    <p class="instructor-tool-description">
-                        Theo dõi lượt đăng ký,
-                        tiến độ trung bình,
-                        tỷ lệ hoàn thành và đánh giá
-                        của các khóa học phụ trách.
-                    </p>
-
-                    <div class="instructor-tool-arrow">
-                        Xem phân tích →
-                    </div>
-
-                </a>
-
-
-
-                <!-- =====================================
-                     Q&A
-                ====================================== -->
-
-                <a asp-controller="LessonQuestions"
-                   asp-action="Index"
-                   class="instructor-tool-card instructor-tool-link">
-
-
-                    <div class="instructor-tool-icon purple">
-
-                        Q&A
-
-                    </div>
-
-
-                    <div class="instructor-tool-title">
-
-                        Hỏi đáp học viên
-
-                    </div>
-
-
-                    <p class="instructor-tool-description">
-
-                        Xem câu hỏi mới,
-                        phản hồi học viên
-                        và quản lý các câu hỏi đã nhận.
-
-                    </p>
-
-
-                    <div class="instructor-tool-arrow">
-
-                        Mở hỏi đáp →
-
-                    </div>
-
-
-                </a>
-
-
-
-                <!-- =====================================
-                     THÔNG BÁO
-                ====================================== -->
-
-                <a asp-controller="Notifications"
-                   asp-action="Index"
-                   class="instructor-tool-card instructor-tool-link">
-
-
-                    <div class="instructor-tool-icon green">
-
-                        TB
-
-                    </div>
-
-
-                    <div class="instructor-tool-title">
-
-                        Thông báo
-
-                    </div>
-
-
-                    <p class="instructor-tool-description">
-
-                        Theo dõi câu hỏi mới
-                        và các hoạt động cần xử lý
-                        trong quá trình giảng dạy.
-
-                    </p>
-
-
-                    <div class="instructor-tool-arrow">
-
-                        Xem thông báo →
-
-                    </div>
-
-
-                </a>
-
-
-            </div>
-
-
-        </div>
-
-    </section>
-}
-
-
-    <!-- =====================================================
-         ADMIN HOME
-    ====================================================== -->
-
-    @if (isAdmin)
+    @if (!isAuthenticated)
     {
-        <section class="hero-section">
+        <section class="guest-hero">
 
             <div class="home-container">
 
-                <div class="hero-wrapper">
+                <div class="guest-hero-grid">
 
                     <div>
 
-                        <div class="hero-badge">
-                            Quản trị hệ thống EduLearn
+                        <div class="guest-badge">
+                            Nền tảng khóa học Công nghệ thông tin
                         </div>
 
-                        <h1 class="hero-title">
-
-                            Quản lý nền tảng,<br />
-
+                        <h1 class="guest-title">
+                            Chia sẻ tri thức,<br />
                             <span>
-                                vận hành hệ thống
+                                kiến tạo tương lai
                             </span>
-
                         </h1>
 
-                        <p class="hero-description">
-
-                            Theo dõi người dùng,
-                            nội dung khóa học và các hoạt động
-                            trên toàn bộ hệ thống EduLearn.
-
+                        <p class="guest-description">
+                            Khám phá các khóa học Công nghệ thông tin
+                            từ cơ bản đến nâng cao, học theo tiến độ
+                            phù hợp và phát triển kỹ năng thực hành
+                            cùng EduLearn.
                         </p>
 
-                    </div>
+                        <div class="guest-actions">
 
+                            <a asp-controller="Courses"
+                               asp-action="Index"
+                               class="guest-primary">
+                                Khám phá khóa học
+                            </a>
 
-                    <div class="platform-preview">
-
-                        <div class="preview-top">
-
-                            <div class="preview-title">
-                                Khu vực quản trị
-                            </div>
-
-                            <div class="preview-status purple">
-                                Admin
-                            </div>
-
-                        </div>
-
-
-                        <div class="preview-course">
-
-                            <div class="preview-thumb purple">
-                                U
-                            </div>
-
-                            <div>
-
-                                <div class="preview-course-title">
-                                    Người dùng & phân quyền
-                                </div>
-
-                                <div class="preview-description">
-
-                                    Quản lý tài khoản Student,
-                                    Instructor và quyền truy cập hệ thống.
-
-                                </div>
-
-                            </div>
+                            <a asp-controller="Account"
+                               asp-action="Register"
+                               class="guest-secondary">
+                                Đăng ký ngay
+                            </a>
 
                         </div>
 
-
-                        <div class="preview-course">
-
-                            <div class="preview-thumb">
-                                KH
-                            </div>
-
-                            <div>
-
-                                <div class="preview-course-title">
-                                    Nội dung khóa học
-                                </div>
-
-                                <div class="preview-description">
-
-                                    Theo dõi khóa học,
-                                    danh mục và nội dung được xuất bản.
-
-                                </div>
-
-                            </div>
-
+                        <div class="guest-techs">
+                            <span class="guest-tech">ASP.NET Core</span>
+                            <span class="guest-tech">C#</span>
+                            <span class="guest-tech">JavaScript</span>
+                            <span class="guest-tech">Python</span>
+                            <span class="guest-tech">SQL Server</span>
+                            <span class="guest-tech">Git & GitHub</span>
                         </div>
 
                     </div>
+
+
+                    <div class="guest-course-box">
+
+                        <div class="guest-course-box-header">
+
+                            <div class="guest-course-box-title">
+                                Khám phá theo trình độ
+                            </div>
+
+                            <div class="guest-course-box-note">
+                                Bắt đầu học
+                            </div>
+
+                        </div>
+
+
+                        <div class="guest-level-list">
+
+                            <a asp-controller="Courses"
+                               asp-action="Index"
+                               asp-route-level="beginner"
+                               class="guest-level-card">
+
+                                <div class="guest-level-icon">
+                                    CB
+                                </div>
+
+                                <div>
+                                    <div class="guest-level-title">
+                                        Khóa học cơ bản
+                                    </div>
+
+                                    <div class="guest-level-description">
+                                        Xây dựng kiến thức nền tảng
+                                        và làm quen với công nghệ.
+                                    </div>
+                                </div>
+
+                                <div class="guest-level-arrow">
+                                    →
+                                </div>
+
+                            </a>
+
+
+                            <a asp-controller="Courses"
+                               asp-action="Index"
+                               asp-route-level="intermediate"
+                               class="guest-level-card">
+
+                                <div class="guest-level-icon intermediate">
+                                    TC
+                                </div>
+
+                                <div>
+                                    <div class="guest-level-title">
+                                        Khóa học trung cấp
+                                    </div>
+
+                                    <div class="guest-level-description">
+                                        Phát triển kỹ năng từ nền tảng
+                                        và tăng khả năng thực hành.
+                                    </div>
+                                </div>
+
+                                <div class="guest-level-arrow">
+                                    →
+                                </div>
+
+                            </a>
+
+
+                            <a asp-controller="Courses"
+                               asp-action="Index"
+                               asp-route-level="advanced"
+                               class="guest-level-card">
+
+                                <div class="guest-level-icon advanced">
+                                    NC
+                                </div>
+
+                                <div>
+                                    <div class="guest-level-title">
+                                        Khóa học nâng cao
+                                    </div>
+
+                                    <div class="guest-level-description">
+                                        Học chuyên sâu và hoàn thiện
+                                        kỹ năng xây dựng ứng dụng.
+                                    </div>
+                                </div>
+
+                                <div class="guest-level-arrow">
+                                    →
+                                </div>
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        @await Component.InvokeAsync(
+            "HomePublicData")
+
+
+        <section class="guest-cta">
+
+            <div class="home-container">
+
+                <div class="guest-cta-box">
+
+                    <div>
+                        <div class="guest-cta-title">
+                            Bắt đầu học cùng EduLearn
+                        </div>
+
+                        <p class="guest-cta-text">
+                            Tạo tài khoản để đăng ký khóa học,
+                            lưu yêu thích và theo dõi tiến độ học tập.
+                        </p>
+                    </div>
+
+                    <a asp-controller="Account"
+                       asp-action="Register"
+                       class="guest-cta-button">
+                        Đăng ký tài khoản →
+                    </a>
 
                 </div>
 
@@ -1750,745 +807,20 @@
 
         </section>
     }
-
-
-
-    <!-- =====================================================
-         STUDENT / PUBLIC
-    ====================================================== -->
-
-    @if (showLearningHome)
+    else if (isStudent)
     {
-
-        <section class="hero-section">
-
-            <div class="home-container">
-
-                <div class="hero-wrapper">
-
-
-                    <!-- BÊN TRÁI -->
-
-                    <div>
-
-                        <div class="hero-badge">
-                            Nền tảng học Công nghệ thông tin
-                        </div>
-
-                        <h1 class="hero-title">
-
-                            Chia sẻ tri thức,<br />
-
-                            <span>
-                                kiến tạo tương lai
-                            </span>
-
-                        </h1>
-
-                        <p class="hero-description">
-
-                            EduLearn giúp bạn tiếp cận các khóa học
-                            Công nghệ thông tin theo hướng thực tế,
-                            dễ học và có thể theo dõi tiến độ
-                            trong suốt quá trình học tập.
-
-                        </p>
-
-
-                        <div class="hero-actions">
-
-                            <a asp-controller="Courses"
-                               asp-action="Index"
-                               class="hero-primary">
-
-                                Khám phá khóa học
-
-                            </a>
-
-
-                            @if (!isAuthenticated)
-                            {
-                                <a asp-controller="Account"
-                                   asp-action="Register"
-                                   class="hero-secondary">
-
-                                    Bắt đầu học ngay
-
-                                </a>
-                            }
-
-
-                            @if (isStudent &&
-                                 Model.RegisteredCourseCount > 0)
-                            {
-                                <a asp-controller="Courses"
-                                   asp-action="MyCourses"
-                                   class="hero-secondary">
-
-                                    Tiếp tục học tập
-
-                                </a>
-                            }
-
-                        </div>
-
-
-                        <div class="hero-techs">
-
-                            <span class="hero-tech">
-                                ASP.NET Core
-                            </span>
-
-                            <span class="hero-tech">
-                                C#
-                            </span>
-
-                            <span class="hero-tech">
-                                JavaScript
-                            </span>
-
-                            <span class="hero-tech">
-                                Python
-                            </span>
-
-                            <span class="hero-tech">
-                                SQL Server
-                            </span>
-
-                            <span class="hero-tech">
-                                Git & GitHub
-                            </span>
-
-                        </div>
-
-                    </div>
-
-
-
-                    <!-- =====================================
-                         STUDENT - DỮ LIỆU THẬT
-                    ====================================== -->
-
-                    @if (isStudent)
-                    {
-                        <div class="platform-preview">
-
-                            <div class="preview-top">
-
-                                <div class="preview-title">
-                                    Khóa học của tôi
-                                </div>
-
-
-                                @if (Model.RegisteredCourseCount > 0)
-                                {
-                                    <div class="preview-status">
-                                        Đang học
-                                    </div>
-                                }
-                                else
-                                {
-                                    <div class="preview-status blue">
-                                        Chưa có khóa học
-                                    </div>
-                                }
-
-                            </div>
-
-
-                            @if (Model.StudentCourses.Any())
-                            {
-                                @foreach (var course in Model.StudentCourses)
-                                {
-                                    string? courseUrl;
-
-                                    if (course.ContinueLessonId.HasValue)
-                                    {
-                                        courseUrl =
-                                            Url.Action(
-                                                "Learn",
-                                                "Courses",
-                                                new
-                                                {
-                                                    courseId =
-                                                        course.CourseId,
-
-                                                    lessonId =
-                                                        course.ContinueLessonId.Value
-                                                });
-                                    }
-                                    else
-                                    {
-                                        courseUrl =
-                                            Url.Action(
-                                                "Details",
-                                                "Courses",
-                                                new
-                                                {
-                                                    slug =
-                                                        course.Slug
-                                                });
-                                    }
-
-
-                                    var progressWidth =
-                                        $"{course.Progress:0}%";
-
-
-                                    string progressState;
-
-                                    if (course.Progress >= 100)
-                                    {
-                                        progressState =
-                                            "Xem lại khóa học";
-                                    }
-                                    else if (course.Progress > 0)
-                                    {
-                                        progressState =
-                                            "Tiếp tục học";
-                                    }
-                                    else
-                                    {
-                                        progressState =
-                                            "Học ngay";
-                                    }
-
-
-                                    <a href="@courseUrl"
-                                       class="preview-course preview-course-link">
-
-                                        <div class="preview-thumb">
-
-                                            @GetCourseBadge(
-                                                course.Title)
-
-                                        </div>
-
-
-                                        <div>
-
-                                            <div class="preview-course-title">
-
-                                                @course.Title
-
-                                            </div>
-
-
-                                            <div class="progress-track">
-
-                                                <div class="progress-value"
-                                                     style="width:@progressWidth">
-                                                </div>
-
-                                            </div>
-
-
-                                            <div class="preview-meta">
-
-                                                <span>
-
-                                                    @course.CompletedLessonCount /
-                                                    @course.TotalLessonCount bài
-
-                                                </span>
-
-
-                                                <span>
-
-                                                    @course.Progress.ToString("0")%
-
-                                                </span>
-
-                                            </div>
-
-
-                                            <div class="preview-meta">
-
-                                                <span>
-                                                    Tiến độ
-                                                </span>
-
-
-                                                <span class="preview-course-state">
-
-                                                    @progressState →
-
-                                                </span>
-
-                                            </div>
-
-                                        </div>
-
-                                    </a>
-                                }
-
-
-                                <div class="preview-summary">
-
-                                    <div class="summary-card">
-
-                                        <div class="summary-number">
-
-                                            @Model.RegisteredCourseCount
-
-                                        </div>
-
-                                        <div class="summary-label">
-                                            Khóa học
-                                        </div>
-
-                                    </div>
-
-
-                                    <div class="summary-card">
-
-                                        <div class="summary-number">
-
-                                            @Model.CompletedLessonCount
-
-                                        </div>
-
-                                        <div class="summary-label">
-                                            Bài đã học
-                                        </div>
-
-                                    </div>
-
-
-                                    <div class="summary-card">
-
-                                        <div class="summary-number">
-
-                                            @Model.AverageProgress.ToString("0")%
-
-                                        </div>
-
-                                        <div class="summary-label">
-                                            Tiến độ TB
-                                        </div>
-
-                                    </div>
-
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="home-course-empty">
-
-                                    <div class="home-course-empty-icon">
-                                        KH
-                                    </div>
-
-                                    <div class="home-course-empty-title">
-
-                                        Bạn chưa có khóa học nào
-
-                                    </div>
-
-                                    <div class="home-course-empty-text">
-
-                                        Khám phá các khóa học
-                                        Công nghệ thông tin
-                                        và đăng ký khóa học phù hợp
-                                        để bắt đầu học tập.
-
-                                    </div>
-
-                                    <a asp-controller="Courses"
-                                       asp-action="Index"
-                                       class="home-course-empty-button">
-
-                                        Khám phá khóa học
-
-                                    </a>
-
-                                </div>
-
-
-                                <div class="preview-summary">
-
-                                    <div class="summary-card">
-
-                                        <div class="summary-number">
-                                            0
-                                        </div>
-
-                                        <div class="summary-label">
-                                            Khóa học
-                                        </div>
-
-                                    </div>
-
-
-                                    <div class="summary-card">
-
-                                        <div class="summary-number">
-                                            0
-                                        </div>
-
-                                        <div class="summary-label">
-                                            Bài đã học
-                                        </div>
-
-                                    </div>
-
-
-                                    <div class="summary-card">
-
-                                        <div class="summary-number">
-                                            0%
-                                        </div>
-
-                                        <div class="summary-label">
-                                            Tiến độ TB
-                                        </div>
-
-                                    </div>
-
-                                </div>
-                            }
-
-                        </div>
-                    }
-
-
-
-                    <!-- =====================================
-                         GUEST
-                    ====================================== -->
-
-                    @if (!isAuthenticated)
-                    {
-                        <div class="platform-preview">
-
-                            <div class="preview-top">
-
-                                <div class="preview-title">
-                                    Khám phá lộ trình học CNTT
-                                </div>
-
-                                <div class="preview-status">
-                                    Bắt đầu
-                                </div>
-
-                            </div>
-
-
-                            <div class="preview-course">
-
-                                <div class="preview-thumb">
-                                    01
-                                </div>
-
-                                <div>
-
-                                    <div class="preview-course-title">
-                                        Nền tảng lập trình
-                                    </div>
-
-                                    <div class="preview-meta">
-
-                                        <span>
-                                            C#, Python, JavaScript
-                                        </span>
-
-                                        <span>
-                                            Cơ bản
-                                        </span>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="preview-course">
-
-                                <div class="preview-thumb">
-                                    02
-                                </div>
-
-                                <div>
-
-                                    <div class="preview-course-title">
-                                        Phát triển Web
-                                    </div>
-
-                                    <div class="preview-meta">
-
-                                        <span>
-                                            ASP.NET Core, HTML, CSS
-                                        </span>
-
-                                        <span>
-                                            Thực hành
-                                        </span>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="preview-course">
-
-                                <div class="preview-thumb">
-                                    03
-                                </div>
-
-                                <div>
-
-                                    <div class="preview-course-title">
-                                        Cơ sở dữ liệu & Git
-                                    </div>
-
-                                    <div class="preview-meta">
-
-                                        <span>
-                                            SQL Server, GitHub
-                                        </span>
-
-                                        <span>
-                                            Ứng dụng
-                                        </span>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="preview-summary">
-
-                                <div class="summary-card">
-
-                                    <div class="summary-number">
-                                        IT
-                                    </div>
-
-                                    <div class="summary-label">
-                                        Nhiều lĩnh vực
-                                    </div>
-
-                                </div>
-
-
-                                <div class="summary-card">
-
-                                    <div class="summary-number">
-                                        ▶
-                                    </div>
-
-                                    <div class="summary-label">
-                                        Học trực tuyến
-                                    </div>
-
-                                </div>
-
-
-                                <div class="summary-card">
-
-                                    <div class="summary-number">
-                                        %
-                                    </div>
-
-                                    <div class="summary-label">
-                                        Theo dõi tiến độ
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-                    }
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-
-        <!-- =========================================
-             DỮ LIỆU PUBLIC TỪ DATABASE
-        ========================================== -->
-
-        @await Component.InvokeAsync("HomePublicData")
-
-
-        <!-- =========================================
-             BENEFITS
-        ========================================== -->
-
-        <section class="home-section benefit-section">
-
-            <div class="home-container">
-
-                <div class="section-header">
-
-                    <div>
-
-                        <h2 class="section-title">
-                            Tại sao chọn EduLearn?
-                        </h2>
-
-                        <p class="section-description">
-
-                            Học tập thuận tiện hơn với một nền tảng
-                            được thiết kế dành cho người học
-                            Công nghệ thông tin.
-
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div class="benefit-grid">
-
-                    <div class="benefit-card">
-
-                        <div class="benefit-number">
-                            01
-                        </div>
-
-                        <div class="benefit-title">
-                            Học theo tiến độ cá nhân
-                        </div>
-
-                        <p class="benefit-description">
-
-                            Theo dõi từng bài học
-                            và tiếp tục đúng vị trí
-                            bạn đã dừng lại.
-
-                        </p>
-
-                    </div>
-
-
-                    <div class="benefit-card">
-
-                        <div class="benefit-number">
-                            02
-                        </div>
-
-                        <div class="benefit-title">
-                            Nội dung thực tế
-                        </div>
-
-                        <p class="benefit-description">
-
-                            Các khóa học tập trung
-                            vào kiến thức và kỹ năng
-                            có thể áp dụng trong thực hành.
-
-                        </p>
-
-                    </div>
-
-
-                    <div class="benefit-card">
-
-                        <div class="benefit-number">
-                            03
-                        </div>
-
-                        <div class="benefit-title">
-                            Quản lý tiến độ
-                        </div>
-
-                        <p class="benefit-description">
-
-                            Hệ thống ghi nhận bài học
-                            hoàn thành và tổng hợp tiến độ
-                            cho từng khóa học.
-
-                        </p>
-
-                    </div>
-
-
-                    <div class="benefit-card">
-
-                        <div class="benefit-number">
-                            04
-                        </div>
-
-                        <div class="benefit-title">
-                            Học mọi lúc, mọi nơi
-                        </div>
-
-                        <p class="benefit-description">
-
-                            Giao diện responsive giúp bạn
-                            truy cập EduLearn trên máy tính
-                            hoặc thiết bị di động.
-
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-
-        <!-- =========================================
-             CTA GUEST
-        ========================================== -->
-
-        @if (!isAuthenticated)
-        {
-            <section class="cta-section">
-
-                <div class="home-container">
-
-                    <div class="cta-box">
-
-                        <div>
-
-                            <div class="cta-title">
-
-                                Bắt đầu hành trình học tập
-                                cùng EduLearn
-
-                            </div>
-
-                            <p class="cta-description">
-
-                                Tạo tài khoản miễn phí
-                                và khám phá các khóa học
-                                Công nghệ thông tin phù hợp với bạn.
-
-                            </p>
-
-                        </div>
-
-                        <a asp-controller="Account"
-                           asp-action="Register"
-                           class="cta-button">
-
-                            Đăng ký ngay
-
-                        </a>
-
-                    </div>
-
-                </div>
-
-            </section>
-        }
-
+        @await Component.InvokeAsync(
+            "StudentHomeDashboard")
+    }
+    else if (isInstructor)
+    {
+        @await Component.InvokeAsync(
+            "InstructorHomeDashboard")
+    }
+    else if (isAdmin)
+    {
+        @await Component.InvokeAsync(
+            "AdminHomeDashboard")
     }
 
 </div>
