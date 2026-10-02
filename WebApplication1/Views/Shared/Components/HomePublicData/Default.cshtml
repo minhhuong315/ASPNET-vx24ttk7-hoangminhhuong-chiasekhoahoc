@@ -8,6 +8,45 @@
 }
 
 
+<style>
+    /* =========================================
+       MÀU KHÓA HỌC NỔI BẬT THEO TRÌNH ĐỘ
+    ========================================= */
+
+    .featured-level-basic {
+        background: linear-gradient(135deg, #0f55c9, #488dff) !important;
+    }
+
+    .featured-level-intermediate {
+        background: linear-gradient(135deg, #6246cc, #8c79e8) !important;
+    }
+
+    .featured-level-advanced {
+        background: linear-gradient(135deg, #087f8c, #2bb4b8) !important;
+    }
+
+    .course-level.level-basic {
+        background: #edf4ff;
+        color: #0d6efd;
+    }
+
+    .course-level.level-intermediate {
+        background: #f2edff;
+        color: #6f42c1;
+    }
+
+    .course-level.level-advanced {
+        background: #e5f8f5;
+        color: #087f73;
+    }
+
+    .course-thumbnail {
+        position: relative;
+        overflow: hidden;
+    }
+
+</style>
+
 <!-- =========================================
      THỐNG KÊ NỀN TẢNG - DỮ LIỆU THẬT
 ========================================== -->
@@ -190,19 +229,25 @@
         {
             <div class="course-grid">
 
-                @{
-                    int courseIndex = 0;
-                }
-
                 @foreach (var course in Model.FeaturedCourses)
                 {
                     string thumbnailClass =
-                        courseIndex switch
+                        course.Level switch
                         {
-                            1 => "purple",
-                            2 => "teal",
-                            3 => "dark",
-                            _ => string.Empty
+                            "Beginner" => "featured-level-basic",
+                            "Intermediate" => "featured-level-intermediate",
+                            "Advanced" => "featured-level-advanced",
+                            _ => "featured-level-basic"
+                        };
+
+
+                    string levelClass =
+                        course.Level switch
+                        {
+                            "Beginner" => "level-basic",
+                            "Intermediate" => "level-intermediate",
+                            "Advanced" => "level-advanced",
+                            _ => "level-basic"
                         };
 
 
@@ -230,13 +275,12 @@
                             <div class="course-tech-logo">
                                 @course.CategoryIcon
                             </div>
-
-                        </div>
+</div>
 
 
                         <div class="course-body">
 
-                            <span class="course-level">
+                            <span class="course-level @levelClass">
                                 @levelText
                             </span>
 
@@ -260,8 +304,6 @@
 
                     </a>
 
-
-                    courseIndex++;
                 }
 
             </div>
