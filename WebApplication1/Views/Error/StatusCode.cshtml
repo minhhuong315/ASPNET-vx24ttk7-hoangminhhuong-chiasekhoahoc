@@ -1,0 +1,126 @@
+﻿@{
+    int statusCode =
+        ViewBag.StatusCode is int code
+            ? code
+            : 404;
+
+    string title =
+        ViewBag.Title as string
+        ?? "Đã xảy ra lỗi";
+
+    string message =
+        ViewBag.Message as string
+        ?? "Yêu cầu không thể được xử lý.";
+
+    ViewData["Title"] =
+        title;
+}
+
+<style>
+    .error-page {
+        min-height: 74vh;
+        padding: 60px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8fafc;
+    }
+
+    .error-card {
+        width: 100%;
+        max-width: 650px;
+        padding: 44px 34px;
+        border: 1px solid #e2e7ee;
+        border-radius: 18px;
+        background: #ffffff;
+        text-align: center;
+        box-shadow: 0 14px 38px rgba(0, 0, 0, .06);
+    }
+
+    .error-number {
+        margin-bottom: 8px;
+        color: #0d6efd;
+        font-size: 54px;
+        font-weight: 900;
+        line-height: 1;
+    }
+
+    .error-title {
+        margin: 0 0 10px;
+        color: #172033;
+        font-size: 29px;
+        font-weight: 800;
+    }
+
+    .error-text {
+        max-width: 510px;
+        margin: 0 auto 25px;
+        color: #7c8798;
+        font-size: 13px;
+        line-height: 1.75;
+    }
+
+    .error-actions {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .error-button {
+        min-height: 42px;
+        padding: 0 17px;
+        border-radius: 9px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+        .error-button.primary {
+            background: #0d6efd;
+            color: #ffffff;
+        }
+
+        .error-button.secondary {
+            border: 1px solid #dce2ea;
+            background: #ffffff;
+            color: #667085;
+        }
+</style>
+
+<div class="error-page">
+    <div class="error-card">
+
+        <div class="error-number">
+            @statusCode
+        </div>
+
+        <h1 class="error-title">
+            @title
+        </h1>
+
+        <p class="error-text">
+            @message
+        </p>
+
+        <div class="error-actions">
+
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="error-button primary">
+                Về trang chủ
+            </a>
+
+            <a asp-controller="Courses"
+               asp-action="Index"
+               class="error-button secondary">
+                Xem khóa học
+            </a>
+
+        </div>
+
+    </div>
+</div>

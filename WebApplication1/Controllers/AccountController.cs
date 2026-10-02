@@ -441,6 +441,22 @@ namespace OnlineLearningPlatform.Controllers
 
 
         // =========================
+        // KHÔNG CÓ QUYỀN TRUY CẬP
+        // =========================
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult AccessDenied()
+        {
+            Response.StatusCode =
+                StatusCodes.Status403Forbidden;
+
+            return View();
+        }
+
+
+
+        // =========================
         // ĐĂNG XUẤT
         // =========================
 

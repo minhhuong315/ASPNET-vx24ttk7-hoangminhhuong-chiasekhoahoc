@@ -1,0 +1,114 @@
+﻿@{
+    ViewData["Title"] = "Không có quyền truy cập";
+}
+
+<style>
+    .error-page {
+        min-height: 74vh;
+        padding: 60px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8fafc;
+    }
+
+    .error-card {
+        width: 100%;
+        max-width: 650px;
+        padding: 44px 34px;
+        border: 1px solid #e2e7ee;
+        border-radius: 18px;
+        background: #ffffff;
+        text-align: center;
+        box-shadow: 0 14px 38px rgba(0, 0, 0, .06);
+    }
+
+    .error-code {
+        margin-bottom: 8px;
+        color: #dc3545;
+        font-size: 13px;
+        font-weight: 900;
+        letter-spacing: .08em;
+    }
+
+    .error-title {
+        margin: 0 0 10px;
+        color: #172033;
+        font-size: 30px;
+        font-weight: 800;
+    }
+
+    .error-text {
+        max-width: 500px;
+        margin: 0 auto 25px;
+        color: #7c8798;
+        font-size: 13px;
+        line-height: 1.75;
+    }
+
+    .error-actions {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .error-button {
+        min-height: 42px;
+        padding: 0 17px;
+        border-radius: 9px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+        .error-button.primary {
+            background: #0d6efd;
+            color: #ffffff;
+        }
+
+        .error-button.secondary {
+            border: 1px solid #dce2ea;
+            background: #ffffff;
+            color: #667085;
+        }
+</style>
+
+<div class="error-page">
+    <div class="error-card">
+
+        <div class="error-code">
+            403 · ACCESS DENIED
+        </div>
+
+        <h1 class="error-title">
+            Bạn không có quyền truy cập
+        </h1>
+
+        <p class="error-text">
+            Tài khoản hiện tại không được phép sử dụng
+            chức năng này. Hãy quay về trang chủ hoặc
+            truy cập khu vực phù hợp với vai trò của bạn.
+        </p>
+
+        <div class="error-actions">
+
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="error-button primary">
+                Về trang chủ
+            </a>
+
+            <a asp-controller="Courses"
+               asp-action="Index"
+               class="error-button secondary">
+                Xem khóa học
+            </a>
+
+        </div>
+
+    </div>
+</div>

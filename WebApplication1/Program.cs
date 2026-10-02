@@ -27,11 +27,16 @@ var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
+    app.UseExceptionHandler("/Error/ServerError");
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
+
+app.UseStatusCodePagesWithReExecute(
+    "/Error/StatusCode",
+    "?code={0}");
+
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
