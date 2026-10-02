@@ -25,6 +25,21 @@ namespace OnlineLearningPlatform.Controllers
         }
 
 
+        private static string NormalizeInstructorFilter(
+            string? filter)
+        {
+            filter =
+                filter?
+                    .Trim()
+                    .ToLowerInvariant();
+
+            return filter == "waiting" ||
+                   filter == "answered"
+                ? filter
+                : "all";
+        }
+
+
         // =====================================================
         // INSTRUCTOR / ADMIN
         // DANH SÁCH CÂU HỎI
@@ -33,6 +48,7 @@ namespace OnlineLearningPlatform.Controllers
         [HttpGet]
         [Authorize(Roles = "Instructor,Admin")]
         public async Task<IActionResult> Index(
+            string? filter,
             int? selectedQuestionId)
         {
             var userId =
@@ -43,6 +59,11 @@ namespace OnlineLearningPlatform.Controllers
             {
                 return Challenge();
             }
+
+
+            filter =
+                NormalizeInstructorFilter(
+                    filter);
 
 
             var query =
@@ -66,33 +87,59 @@ namespace OnlineLearningPlatform.Controllers
             }
 
 
-            var questions =
+            var allQuestions =
                 await query
                     .OrderBy(q => q.IsResolved)
                     .ThenByDescending(q => q.CreatedAt)
                     .ToListAsync();
 
 
+            IEnumerable<LessonQuestion>
+                filteredQuestions =
+                    allQuestions;
+
+
+            if (filter == "waiting")
+            {
+                filteredQuestions =
+                    filteredQuestions.Where(q =>
+                        !q.IsResolved);
+            }
+
+
+            if (filter == "answered")
+            {
+                filteredQuestions =
+                    filteredQuestions.Where(q =>
+                        q.IsResolved);
+            }
+
+
             var model =
                 new InstructorQuestionsViewModel
                 {
                     Questions =
-                        questions,
+                        filteredQuestions
+                            .ToList(),
 
                     TotalQuestions =
-                        questions.Count,
+                        allQuestions.Count,
 
                     UnansweredQuestions =
-                        questions.Count(q =>
+                        allQuestions.Count(q =>
                             !q.IsResolved),
 
                     AnsweredQuestions =
-                        questions.Count(q =>
+                        allQuestions.Count(q =>
                             q.IsResolved),
 
                     SelectedQuestionId =
                         selectedQuestionId
                 };
+
+
+            ViewBag.QuestionFilter =
+                filter;
 
 
             return View(model);
@@ -799,7 +846,8 @@ namespace OnlineLearningPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Answer(
             int questionId,
-            string? content)
+            string? content,
+            string? returnFilter = null)
         {
             var userId =
                 _userManager.GetUserId(User);
@@ -809,6 +857,11 @@ namespace OnlineLearningPlatform.Controllers
             {
                 return Challenge();
             }
+
+
+            var normalizedReturnFilter =
+                NormalizeInstructorFilter(
+                    returnFilter);
 
 
             await using var transaction =
@@ -870,7 +923,10 @@ namespace OnlineLearningPlatform.Controllers
                     new
                     {
                         selectedQuestionId =
-                            question.Id
+                            question.Id,
+
+                        filter =
+                            normalizedReturnFilter
                     });
             }
 
@@ -893,7 +949,10 @@ namespace OnlineLearningPlatform.Controllers
                     new
                     {
                         selectedQuestionId =
-                            questionId
+                            questionId,
+
+                        filter =
+                            normalizedReturnFilter
                     });
             }
 
@@ -911,7 +970,10 @@ namespace OnlineLearningPlatform.Controllers
                     new
                     {
                         selectedQuestionId =
-                            questionId
+                            questionId,
+
+                        filter =
+                            normalizedReturnFilter
                     });
             }
 
@@ -954,7 +1016,10 @@ namespace OnlineLearningPlatform.Controllers
                     new
                     {
                         selectedQuestionId =
-                            question.Id
+                            question.Id,
+
+                        filter =
+                            normalizedReturnFilter
                     });
 
 
@@ -1019,7 +1084,8 @@ namespace OnlineLearningPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditAnswer(
             int answerId,
-            string? content)
+            string? content,
+            string? returnFilter = null)
         {
             var userId =
                 _userManager.GetUserId(User);
@@ -1029,6 +1095,11 @@ namespace OnlineLearningPlatform.Controllers
             {
                 return Challenge();
             }
+
+
+            var normalizedReturnFilter =
+                NormalizeInstructorFilter(
+                    returnFilter);
 
 
             var answer =
@@ -1081,7 +1152,10 @@ namespace OnlineLearningPlatform.Controllers
                     new
                     {
                         selectedQuestionId =
-                            answer.QuestionId
+                            answer.QuestionId,
+
+                        filter =
+                            normalizedReturnFilter
                     });
             }
 
@@ -1097,7 +1171,10 @@ namespace OnlineLearningPlatform.Controllers
                     new
                     {
                         selectedQuestionId =
-                            answer.QuestionId
+                            answer.QuestionId,
+
+                        filter =
+                            normalizedReturnFilter
                     });
             }
 
@@ -1131,7 +1208,8 @@ namespace OnlineLearningPlatform.Controllers
         [Authorize(Roles = "Instructor,Admin")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteAnswer(
-            int answerId)
+            int answerId,
+            string? returnFilter = null)
         {
             var userId =
                 _userManager.GetUserId(User);
@@ -1141,6 +1219,11 @@ namespace OnlineLearningPlatform.Controllers
             {
                 return Challenge();
             }
+
+
+            var normalizedReturnFilter =
+                NormalizeInstructorFilter(
+                    returnFilter);
 
 
             var answer =
@@ -1209,7 +1292,10 @@ namespace OnlineLearningPlatform.Controllers
                 new
                 {
                     selectedQuestionId =
-                        question.Id
+                        question.Id,
+
+                    filter =
+                        normalizedReturnFilter
                 });
         }
     }

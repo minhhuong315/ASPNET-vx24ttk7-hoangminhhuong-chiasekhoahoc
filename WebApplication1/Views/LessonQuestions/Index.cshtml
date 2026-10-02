@@ -13,40 +13,50 @@
 
     bool isAdmin =
         User.IsInRole("Admin");
+
+    string currentFilter =
+        ViewBag.QuestionFilter as string
+        ?? "all";
+
+    string currentFilterLabel =
+        currentFilter switch
+        {
+            "waiting" =>
+                "Chưa trả lời",
+
+            "answered" =>
+                "Đã trả lời",
+
+            _ =>
+                "Tất cả câu hỏi"
+        };
 }
 
 <style>
 
     .questions-page {
         min-height: 80vh;
-
         padding: 42px 0 75px;
-
         background: #f8fafc;
     }
 
 
     .questions-container {
         max-width: 1100px;
-
         margin: 0 auto;
-
         padding: 0 20px;
     }
 
 
     /* =========================================
-       HEADER
-    ========================================= */
+           HEADER
+        ========================================= */
 
     .questions-eyebrow {
         margin-bottom: 6px;
-
         color: #0d6efd;
-
         font-size: 12px;
         font-weight: 800;
-
         text-transform: uppercase;
         letter-spacing: .4px;
     }
@@ -54,9 +64,7 @@
 
     .questions-title {
         margin: 0;
-
         color: #172033;
-
         font-size: 32px;
         font-weight: 800;
     }
@@ -64,88 +72,128 @@
 
     .questions-description {
         max-width: 720px;
-
         margin: 7px 0 26px;
-
         color: #7a8494;
-
         line-height: 1.7;
     }
 
 
     /* =========================================
-       STATS
-    ========================================= */
+           STATS
+        ========================================= */
 
     .questions-stats {
         display: grid;
-
-        grid-template-columns:
-            repeat(3, 1fr);
-
+        grid-template-columns: repeat(3, 1fr);
         gap: 15px;
-
         margin-bottom: 28px;
     }
 
 
     .stat-card {
+        display: block;
         padding: 20px;
-
         border: 1px solid #e3e8ef;
         border-radius: 14px;
-
         background: #ffffff;
+        color: inherit;
+        text-decoration: none;
+        cursor: pointer;
+        transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease, background .18s ease;
     }
+
+
+        .stat-card:hover {
+            border-color: #9fc1ff;
+            box-shadow: 0 8px 22px rgba(13, 110, 253, .08);
+            transform: translateY(-2px);
+        }
+
+
+        .stat-card.active {
+            border-color: #0d6efd;
+            background: #f5f9ff;
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, .08);
+        }
+
+
+        .stat-card.waiting-filter.active {
+            border-color: #e3a23a;
+            background: #fffaf1;
+            box-shadow: 0 0 0 3px rgba(212, 119, 0, .08);
+        }
+
+
+        .stat-card.answered-filter.active {
+            border-color: #5ebc82;
+            background: #f3fbf6;
+            box-shadow: 0 0 0 3px rgba(25, 135, 84, .08);
+        }
 
 
     .stat-label {
         margin-bottom: 7px;
-
         color: #7e8898;
-
         font-size: 12px;
     }
 
 
     .stat-value {
         color: #172033;
-
         font-size: 27px;
         font-weight: 800;
     }
 
 
-    .stat-value.waiting {
-        color: #d47700;
+        .stat-value.waiting {
+            color: #d47700;
+        }
+
+
+        .stat-value.answered {
+            color: #198754;
+        }
+
+
+    .stat-hint {
+        margin-top: 8px;
+        color: #98a2b3;
+        font-size: 10px;
+        font-weight: 700;
     }
 
 
-    .stat-value.answered {
+    .stat-card.active .stat-hint {
+        color: #0d6efd;
+    }
+
+
+    .stat-card.waiting-filter.active .stat-hint {
+        color: #bd6800;
+    }
+
+
+    .stat-card.answered-filter.active .stat-hint {
         color: #198754;
     }
 
 
     /* =========================================
-       LIST HEADER
-    ========================================= */
+           LIST HEADER
+        ========================================= */
 
     .list-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-
         gap: 15px;
-
         margin-bottom: 13px;
     }
 
 
     .list-title {
         margin: 0;
-
         color: #172033;
-
         font-size: 18px;
         font-weight: 800;
     }
@@ -153,49 +201,36 @@
 
     .list-count {
         color: #8b95a5;
-
         font-size: 11px;
     }
 
 
     /* =========================================
-       QUESTION
-    ========================================= */
+           QUESTION
+        ========================================= */
 
     .question-card {
         margin-bottom: 17px;
-
         padding: 21px;
-
         border: 1px solid #e1e7ef;
         border-radius: 15px;
-
         background: #ffffff;
-
         scroll-margin-top: 105px;
-
-        transition:
-            border-color .2s ease,
-            box-shadow .2s ease;
+        transition: border-color .2s ease, box-shadow .2s ease;
     }
 
 
-    .question-card.selected {
-        border-color: #69a3ff;
-
-        box-shadow:
-            0 0 0 3px
-            rgba(13, 110, 253, .10);
-    }
+        .question-card.selected {
+            border-color: #69a3ff;
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, .10);
+        }
 
 
     .question-header {
         display: flex;
         align-items: flex-start;
         justify-content: space-between;
-
         gap: 15px;
-
         margin-bottom: 15px;
     }
 
@@ -203,7 +238,6 @@
     .student-info {
         display: flex;
         align-items: center;
-
         gap: 11px;
     }
 
@@ -211,18 +245,13 @@
     .student-avatar {
         width: 42px;
         height: 42px;
-
         flex: 0 0 42px;
-
         border-radius: 11px;
-
         background: #eaf2ff;
         color: #0d6efd;
-
         display: flex;
         align-items: center;
         justify-content: center;
-
         font-size: 14px;
         font-weight: 800;
     }
@@ -230,9 +259,7 @@
 
     .student-name {
         margin-bottom: 2px;
-
         color: #273142;
-
         font-size: 13px;
         font-weight: 800;
     }
@@ -240,84 +267,71 @@
 
     .question-date {
         color: #98a2b3;
-
         font-size: 10px;
     }
 
 
     .question-status {
         padding: 6px 10px;
-
         border-radius: 20px;
-
         font-size: 10px;
         font-weight: 800;
-
         white-space: nowrap;
     }
 
 
-    .question-status.waiting {
-        background: #fff4df;
-        color: #bd6800;
-    }
+        .question-status.waiting {
+            background: #fff4df;
+            color: #bd6800;
+        }
 
 
-    .question-status.answered {
-        background: #eaf8ef;
-        color: #198754;
-    }
+        .question-status.answered {
+            background: #eaf8ef;
+            color: #198754;
+        }
 
 
     /* =========================================
-       META
-    ========================================= */
+           META
+        ========================================= */
 
     .question-meta {
         display: flex;
         flex-wrap: wrap;
-
         gap: 8px;
-
         margin-bottom: 13px;
     }
 
 
     .question-meta-item {
         padding: 6px 9px;
-
         border-radius: 8px;
-
         background: #f3f5f8;
         color: #626d7e;
-
         font-size: 11px;
     }
 
 
-    .question-meta-item strong {
-        color: #273142;
-    }
+        .question-meta-item strong {
+            color: #273142;
+        }
 
 
     .question-content {
         padding: 14px 16px;
-
         border-radius: 10px;
-
         background: #f8fafc;
         color: #445064;
-
         font-size: 13px;
         line-height: 1.7;
-
         white-space: pre-wrap;
     }
 
 
     /* =========================================
-       ANSWERS
-    ========================================= */
+           ANSWERS
+        ========================================= */
 
     .answers-block {
         margin-top: 17px;
@@ -326,9 +340,7 @@
 
     .answers-title {
         margin-bottom: 10px;
-
         color: #273142;
-
         font-size: 12px;
         font-weight: 800;
     }
@@ -336,12 +348,9 @@
 
     .answer-card {
         margin-top: 9px;
-
         padding: 15px 16px;
-
         border-left: 3px solid #0d6efd;
         border-radius: 0 10px 10px 0;
-
         background: #f4f8ff;
     }
 
@@ -350,9 +359,7 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-
         gap: 14px;
-
         margin-bottom: 8px;
     }
 
@@ -361,14 +368,12 @@
         display: flex;
         align-items: center;
         flex-wrap: wrap;
-
         gap: 8px;
     }
 
 
     .answer-author {
         color: #273142;
-
         font-size: 11px;
         font-weight: 800;
     }
@@ -376,12 +381,9 @@
 
     .answer-label {
         padding: 3px 7px;
-
         border-radius: 20px;
-
         background: #e3efff;
         color: #0d6efd;
-
         font-size: 9px;
         font-weight: 800;
     }
@@ -389,38 +391,32 @@
 
     .answer-date {
         color: #98a2b3;
-
         font-size: 10px;
     }
 
 
     .answer-content {
         color: #536075;
-
         font-size: 12px;
         line-height: 1.7;
-
         white-space: pre-wrap;
     }
 
 
     /* =========================================
-       SỬA / XÓA
-    ========================================= */
+           SỬA / XÓA
+        ========================================= */
 
     .answer-actions {
         display: flex;
         align-items: center;
-
         gap: 7px;
-
         flex: 0 0 auto;
     }
 
 
     .answer-action-form {
         display: inline-flex;
-
         margin: 0;
         padding: 0;
     }
@@ -429,81 +425,63 @@
     .answer-action-button {
         height: 32px;
         min-width: 43px;
-
         margin: 0;
         padding: 0 10px;
-
         border: 1px solid #d7dee8;
         border-radius: 7px;
-
         background: #ffffff;
         color: #5b6678;
-
         display: inline-flex;
         align-items: center;
         justify-content: center;
-
         font-family: inherit;
-
         font-size: 10px;
         font-weight: 700;
-
         line-height: 1;
-
         cursor: pointer;
     }
 
 
-    .answer-action-button:hover {
-        border-color: #a9c8f7;
+        .answer-action-button:hover {
+            border-color: #a9c8f7;
+            color: #0d6efd;
+        }
 
-        color: #0d6efd;
-    }
 
-
-    .answer-action-button.delete {
-        border-color: #efc5ca;
-
-        color: #dc3545;
-    }
+        .answer-action-button.delete {
+            border-color: #efc5ca;
+            color: #dc3545;
+        }
 
 
     /* =========================================
-       EDIT
-    ========================================= */
+           EDIT
+        ========================================= */
 
     .answer-edit-panel {
         display: none;
-
         margin-top: 12px;
         padding: 13px;
-
         border: 1px solid #dce4ee;
         border-radius: 9px;
-
         background: #ffffff;
     }
 
 
-    .answer-edit-panel.open {
-        display: block;
-    }
+        .answer-edit-panel.open {
+            display: block;
+        }
 
 
     .answer-edit-textarea {
         width: 100%;
         min-height: 85px;
-
         padding: 10px 11px;
-
         border: 1px solid #d8dfe8;
         border-radius: 8px;
-
         outline: none;
         resize: vertical;
-
         color: #445064;
-
         font-size: 12px;
     }
 
@@ -511,50 +489,39 @@
     .answer-edit-footer {
         display: flex;
         justify-content: flex-end;
-
         margin-top: 8px;
     }
 
 
     .save-answer-button {
         min-height: 34px;
-
         padding: 0 13px;
-
         border: none;
         border-radius: 7px;
-
         background: #0d6efd;
         color: #ffffff;
-
         font-size: 10px;
         font-weight: 800;
-
         cursor: pointer;
     }
 
 
     /* =========================================
-       FORM TRẢ LỜI
-    ========================================= */
+           FORM TRẢ LỜI
+        ========================================= */
 
     .answer-form {
         margin-top: 18px;
-
         padding: 15px;
-
         border: 1px solid #dfe6ef;
         border-radius: 11px;
-
         background: #fafcff;
     }
 
 
     .answer-form-title {
         margin-bottom: 8px;
-
         color: #273142;
-
         font-size: 12px;
         font-weight: 800;
     }
@@ -563,15 +530,11 @@
     .answer-textarea {
         width: 100%;
         min-height: 95px;
-
         padding: 11px 12px;
-
         border: 1px solid #d9e0e9;
         border-radius: 9px;
-
         resize: vertical;
         outline: none;
-
         font-size: 12px;
     }
 
@@ -579,136 +542,104 @@
     .answer-submit-row {
         display: flex;
         justify-content: flex-end;
-
         margin-top: 9px;
     }
 
 
     .answer-submit {
         min-height: 37px;
-
         padding: 0 15px;
-
         border: none;
         border-radius: 8px;
-
         background: #0d6efd;
         color: #ffffff;
-
         font-size: 11px;
         font-weight: 800;
-
         cursor: pointer;
     }
 
 
     /* =========================================
-       QUESTION FOOTER
-       Đồng nhất với trang Student
-    ========================================= */
+           QUESTION FOOTER
+           Đồng nhất với trang Student
+        ========================================= */
 
     .question-footer {
         display: flex;
         align-items: center;
         justify-content: space-between;
         flex-wrap: wrap;
-
         gap: 10px;
-
         margin-top: 15px;
     }
 
 
     .lesson-link {
         min-height: 34px;
-
         padding: 0 12px;
-
         border: 1px solid #0d6efd;
         border-radius: 8px;
-
         background: #0d6efd;
         color: #ffffff;
-
         display: inline-flex;
         align-items: center;
         justify-content: center;
-
         font-size: 10px;
         font-weight: 800;
-
         text-decoration: none;
     }
 
 
-    .lesson-link:hover {
-        background: #0b5ed7;
-        color: #ffffff;
-    }
+        .lesson-link:hover {
+            background: #0b5ed7;
+            color: #ffffff;
+        }
 
 
     /* =========================================
-       EMPTY
-    ========================================= */
+           EMPTY
+        ========================================= */
 
     .questions-empty {
         padding: 55px 20px;
-
         border: 1px solid #e2e7ee;
         border-radius: 15px;
-
         background: #ffffff;
         color: #8992a3;
-
         text-align: center;
     }
 
 
     /* =========================================
-       TOAST
-    ========================================= */
+           TOAST
+        ========================================= */
 
     .question-toast {
         position: fixed;
-
         left: 24px;
         bottom: 24px;
-
         z-index: 2000;
-
-        width:
-            min(
-                370px,
-                calc(100vw - 48px)
-            );
-
+        width: min( 370px, calc(100vw - 48px) );
         padding: 14px 16px;
-
         border-radius: 11px;
-
         background: #ffffff;
-
-        box-shadow:
-            0 12px 35px
-            rgba(31, 42, 64, .17);
+        box-shadow: 0 12px 35px rgba(31, 42, 64, .17);
     }
 
 
-    .question-toast.success {
-        border-left: 4px solid #198754;
-    }
+        .question-toast.success {
+            border-left: 4px solid #198754;
+        }
 
 
-    .question-toast.info {
-        border-left: 4px solid #0d6efd;
-    }
+        .question-toast.info {
+            border-left: 4px solid #0d6efd;
+        }
 
 
     .toast-title {
         margin-bottom: 3px;
-
         color: #273142;
-
         font-size: 12px;
         font-weight: 800;
     }
@@ -716,7 +647,6 @@
 
     .toast-text {
         color: #697386;
-
         font-size: 12px;
     }
 
@@ -731,17 +661,14 @@
         .question-header,
         .answer-header {
             align-items: flex-start;
-
             flex-direction: column;
         }
 
 
         .question-footer {
             align-items: flex-start;
-
             flex-direction: column;
         }
-
     }
 
 </style>
@@ -779,7 +706,10 @@
         <div class="questions-stats">
 
 
-            <div class="stat-card">
+            <a asp-controller="LessonQuestions"
+               asp-action="Index"
+               asp-route-filter="all"
+               class="stat-card @(currentFilter == "all" ? "active" : "")">
 
                 <div class="stat-label">
                     Tổng câu hỏi
@@ -789,10 +719,17 @@
                     @Model.TotalQuestions
                 </div>
 
-            </div>
+                <div class="stat-hint">
+                    Xem tất cả →
+                </div>
+
+            </a>
 
 
-            <div class="stat-card">
+            <a asp-controller="LessonQuestions"
+               asp-action="Index"
+               asp-route-filter="waiting"
+               class="stat-card waiting-filter @(currentFilter == "waiting" ? "active" : "")">
 
                 <div class="stat-label">
                     Chưa trả lời
@@ -802,10 +739,17 @@
                     @Model.UnansweredQuestions
                 </div>
 
-            </div>
+                <div class="stat-hint">
+                    Xem câu cần xử lý →
+                </div>
+
+            </a>
 
 
-            <div class="stat-card">
+            <a asp-controller="LessonQuestions"
+               asp-action="Index"
+               asp-route-filter="answered"
+               class="stat-card answered-filter @(currentFilter == "answered" ? "active" : "")">
 
                 <div class="stat-label">
                     Đã trả lời
@@ -815,11 +759,14 @@
                     @Model.AnsweredQuestions
                 </div>
 
-            </div>
+                <div class="stat-hint">
+                    Xem câu đã xử lý →
+                </div>
+
+            </a>
 
 
         </div>
-
 
 
         <div class="list-header">
@@ -829,7 +776,8 @@
             </h2>
 
             <div class="list-count">
-                @Model.TotalQuestions câu hỏi
+                @currentFilterLabel ·
+                @Model.Questions.Count câu hỏi
             </div>
 
         </div>
@@ -983,9 +931,8 @@
                     <!-- =================================
                          ANSWERS
                     ================================== -->
-
                     @if (question.Answers != null &&
-                         question.Answers.Any())
+                                             question.Answers.Any())
                     {
                         <div class="answers-block">
 
@@ -1079,6 +1026,10 @@
                                                            name="answerId"
                                                            value="@answer.Id" />
 
+                                                    <input type="hidden"
+                                                           name="returnFilter"
+                                                           value="@currentFilter" />
+
 
                                                     <button type="submit"
                                                             class="answer-action-button delete">
@@ -1121,6 +1072,10 @@
                                                        name="answerId"
                                                        value="@answer.Id" />
 
+                                                <input type="hidden"
+                                                       name="returnFilter"
+                                                       value="@currentFilter" />
+
 
                                                 <textarea name="content"
                                                           maxlength="2000"
@@ -1161,7 +1116,6 @@
                     <!-- =================================
                          FORM TRẢ LỜI
                     ================================== -->
-
                     @if (!question.IsResolved)
                     {
                         <form asp-controller="LessonQuestions"
@@ -1176,6 +1130,10 @@
                             <input type="hidden"
                                    name="questionId"
                                    value="@question.Id" />
+
+                            <input type="hidden"
+                                   name="returnFilter"
+                                   value="@currentFilter" />
 
 
                             <div class="answer-form-title">
@@ -1239,7 +1197,24 @@
         {
             <div class="questions-empty">
 
-                Hiện chưa có câu hỏi nào từ học viên.
+                @if (currentFilter == "waiting")
+                {
+                    <span>
+                        Hiện không có câu hỏi nào đang chờ phản hồi.
+                    </span>
+                }
+                else if (currentFilter == "answered")
+                {
+                    <span>
+                        Hiện chưa có câu hỏi nào đã được trả lời.
+                    </span>
+                }
+                else
+                {
+                    <span>
+                        Hiện chưa có câu hỏi nào từ học viên.
+                    </span>
+                }
 
             </div>
         }
