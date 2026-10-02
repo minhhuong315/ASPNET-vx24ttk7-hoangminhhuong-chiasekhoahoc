@@ -124,6 +124,33 @@
         color: #6c757d;
     }
 
+
+    .login-validation.validation-summary-errors {
+        margin: 0 0 18px;
+        padding: 0;
+        border: none;
+        background: transparent;
+        color: #dc3545;
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1.5;
+    }
+
+    .login-validation.validation-summary-errors ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .login-validation.validation-summary-errors li {
+        margin: 0;
+        padding: 0;
+    }
+
+    .login-validation.validation-summary-valid {
+        display: none;
+    }
+
     @@media (max-width: 768px) {
         .login-wrapper {
             grid-template-columns: 1fr;
@@ -194,7 +221,7 @@
                        value="@ViewData["ReturnUrl"]" />
 
                 <div asp-validation-summary="ModelOnly"
-                     class="alert alert-danger"></div>
+                     class="login-validation"></div>
 
                 <div class="mb-3">
 
