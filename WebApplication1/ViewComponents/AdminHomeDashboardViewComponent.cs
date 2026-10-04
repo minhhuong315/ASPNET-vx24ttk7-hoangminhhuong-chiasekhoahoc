@@ -41,6 +41,11 @@ namespace OnlineLearningPlatform.ViewComponents
                     .GetUsersInRoleAsync(
                         "Instructor");
 
+            var admins =
+                await _userManager
+                    .GetUsersInRoleAsync(
+                        "Admin");
+
 
             var totalUsers =
                 await _context.Users
@@ -81,6 +86,50 @@ namespace OnlineLearningPlatform.ViewComponents
                         !q.IsResolved);
 
 
+            var trendStartDate =
+                DateTime.UtcNow
+                    .Date
+                    .AddDays(-6);
+
+
+            var recentEnrollmentDates =
+                await _context.Enrollments
+                    .AsNoTracking()
+                    .Where(e =>
+                        e.EnrolledAt >=
+                        trendStartDate)
+                    .Select(e =>
+                        e.EnrolledAt)
+                    .ToListAsync();
+
+
+            var enrollmentTrend =
+                Enumerable.Range(0, 7)
+                    .Select(offset =>
+                    {
+                        var date =
+                            trendStartDate
+                                .AddDays(offset);
+
+                        return new AdminEnrollmentTrendItemViewModel
+                        {
+                            Date =
+                                date,
+
+                            Label =
+                                date.ToString(
+                                    "dd/MM"),
+
+                            Count =
+                                recentEnrollmentDates
+                                    .Count(value =>
+                                        value.Date ==
+                                        date.Date)
+                        };
+                    })
+                    .ToList();
+
+
             var recentCourses =
                 await _context.Courses
                     .AsNoTracking()
@@ -113,6 +162,9 @@ namespace OnlineLearningPlatform.ViewComponents
                             CategoryName =
                                 c.Category.Name,
 
+                            ThumbnailUrl =
+                                c.ThumbnailUrl,
+
                             IsPublished =
                                 c.IsPublished,
 
@@ -139,6 +191,10 @@ namespace OnlineLearningPlatform.ViewComponents
                         instructors.Count(u =>
                             u.IsActive),
 
+                    AdminCount =
+                        admins.Count(u =>
+                            u.IsActive),
+
                     TotalCourses =
                         totalCourses,
 
@@ -157,6 +213,9 @@ namespace OnlineLearningPlatform.ViewComponents
 
                     PendingQuestions =
                         pendingQuestions,
+
+                    EnrollmentTrend =
+                        enrollmentTrend,
 
                     RecentCourses =
                         recentCourses

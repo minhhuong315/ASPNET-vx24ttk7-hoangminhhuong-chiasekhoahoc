@@ -98,7 +98,7 @@ namespace OnlineLearningPlatform.ViewComponents
                         c.EnrollmentCount)
                     .ThenByDescending(c =>
                         c.PublishedAt)
-                    .Take(3)
+                    .Take(2)
                     .Select(c =>
                         new StudentHomeExploreCourseViewModel
                         {
@@ -118,6 +118,9 @@ namespace OnlineLearningPlatform.ViewComponents
                                 c.Category.Icon
                                 ?? "IT",
 
+                            ThumbnailUrl =
+                                c.ThumbnailUrl,
+
                             Level =
                                 c.Level,
 
@@ -125,6 +128,17 @@ namespace OnlineLearningPlatform.ViewComponents
                                 c.EnrollmentCount
                         })
                     .ToListAsync();
+
+
+            decimal averageProgress =
+                enrollments.Count > 0
+                    ? Math.Round(
+                        enrollments.Average(e =>
+                            e.Progress),
+                        0,
+                        MidpointRounding
+                            .AwayFromZero)
+                    : 0m;
 
 
             var model =
@@ -147,9 +161,12 @@ namespace OnlineLearningPlatform.ViewComponents
                     OpenQuestionCount =
                         openQuestionCount,
 
+                    AverageProgress =
+                        averageProgress,
+
                     RecentCourses =
                         enrollments
-                            .Take(3)
+                            .Take(4)
                             .Select(e =>
                                 new StudentHomeCourseItemViewModel
                                 {
@@ -168,6 +185,9 @@ namespace OnlineLearningPlatform.ViewComponents
                                     CategoryIcon =
                                         e.Course.Category.Icon
                                         ?? "IT",
+
+                                    ThumbnailUrl =
+                                        e.Course.ThumbnailUrl,
 
                                     Progress =
                                         e.Progress,

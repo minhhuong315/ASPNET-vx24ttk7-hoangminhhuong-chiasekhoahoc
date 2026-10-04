@@ -1,0 +1,26 @@
+﻿EduLearn Workspace Final Integrated
+
+Bản này đồng bộ lại toàn bộ workspace sau khi đã duyệt mockup.
+
+SỬA CÁC LỖI:
+- Trang Home của Student / Instructor / Admin KHÔNG còn sidebar riêng cũ với chữ KH/HV/PT.
+- Tất cả trang nội bộ dùng chung _RoleSidebar.cshtml với icon SVG.
+- Nút 3 gạch + EduLearn nằm trong cùng cột trái với sidebar.
+- Header workspace full width và sticky khi cuộn.
+- Khi thu sidebar: cột trái header cũng thu 220px -> 72px và ẩn logo, chỉ còn hamburger.
+- Sidebar thu gọn chỉ còn icon, không còn số count.
+- Nền workspace liên tục màu trắng, không còn mảng trắng/xanh lửng lơ.
+- 4 metric Student/Instructor giữ 1 hàng cho tới khi màn hình thực sự hẹp.
+- Footer vẫn còn EduLearn.
+
+THAY ĐỒNG BỘ 7 FILE:
+1. Views/Shared/_Layout.cshtml
+2. Views/Shared/_RoleSidebar.cshtml
+3. Views/Shared/Components/StudentHomeDashboard/Default.cshtml
+4. Views/Shared/Components/InstructorHomeDashboard/Default.cshtml
+5. Views/Shared/Components/AdminHomeDashboard/Default.cshtml
+6. wwwroot/css/dashboard-role.css
+7. wwwroot/js/dashboard-sidebar.js
+
+Không cần Migration.
+Sau khi chép: Ctrl+S -> Ctrl+Shift+B -> F5 -> Ctrl+F5.

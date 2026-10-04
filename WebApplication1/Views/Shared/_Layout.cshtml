@@ -91,6 +91,66 @@
         User.IsInRole("Admin");
 
 
+    bool isRoleHomeDashboard =
+        isAuthenticated &&
+        isHomePage;
+
+
+    bool isNotificationsPage =
+        currentController == "Notifications";
+
+
+    bool isStudentWorkspacePage =
+        isStudent &&
+        (
+            isHomePage ||
+            isWishlistPage ||
+            isProfilePage ||
+            isQuestionsPage ||
+            isNotificationsPage ||
+            (
+                currentController == "Courses" &&
+                (
+                    currentAction == "MyCourses" ||
+                    currentAction == "Learn"
+                )
+            )
+        );
+
+
+    bool isInstructorWorkspacePage =
+        isInstructor &&
+        (
+            isHomePage ||
+            isInstructorCoursesPage ||
+            isInstructorStudentsPage ||
+            isInstructorAnalyticsPage ||
+            isQuestionsPage ||
+            isNotificationsPage ||
+            isProfilePage
+        );
+
+
+    bool isAdminWorkspacePage =
+        isAdmin &&
+        (
+            isHomePage ||
+            isAdminDashboardPage ||
+            isAdminUsersPage ||
+            isAdminCoursesPage ||
+            isAdminCategoriesPage ||
+            isQuestionsPage ||
+            isNotificationsPage ||
+            isProfilePage
+        );
+
+
+    bool isRoleWorkspacePage =
+        isStudentWorkspacePage ||
+        isInstructorWorkspacePage ||
+        isAdminWorkspacePage;
+
+
     // =========================================
     // CẤP ĐỘ ĐANG CHỌN
     // =========================================
@@ -162,9 +222,7 @@
     <link rel="stylesheet"
           href="~/css/site.css"
           asp-append-version="true" />
-
-
-    <style>
+<style>
 
         html,
         body {
@@ -196,13 +254,18 @@
 
 
         .edulearn-nav-container {
-            max-width: 1180px;
+            width: min(
+                1280px,
+                calc(100% - 32px)
+            );
+
+            max-width: none;
 
             min-height: 82px;
 
             margin: 0 auto;
 
-            padding: 0 20px;
+            padding: 0;
 
             display: flex;
             align-items: center;
@@ -526,6 +589,8 @@
         ========================================= */
 
         .account-area {
+            margin-left: auto;
+
             display: flex;
             align-items: center;
 
@@ -579,7 +644,7 @@
 
 
         .account-dropdown-button {
-            height: 44px;
+            min-height: 50px;
 
             max-width: 240px;
 
@@ -638,14 +703,185 @@
         }
 
 
+        .account-copy {
+            min-width: 0;
+
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+
+            line-height: 1.15;
+        }
+
+
         .account-name {
-            max-width: 160px;
+            max-width: 170px;
 
             overflow: hidden;
 
             text-overflow: ellipsis;
 
             white-space: nowrap;
+        }
+
+
+        .account-role-inline {
+            margin-top: 3px;
+
+            color: #8a95a6;
+
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+
+        .dashboard-sidebar-toggle {
+            width: 42px;
+            height: 42px;
+
+            flex: 0 0 42px;
+
+            padding: 0;
+
+            border: 0;
+            border-radius: 10px;
+
+            background: transparent;
+            color: #172033;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            cursor: pointer;
+
+            transition:
+                background .18s ease,
+                color .18s ease;
+        }
+
+
+        .dashboard-sidebar-toggle:hover {
+            background: #eef5ff;
+            color: #126bff;
+        }
+
+
+        .dashboard-sidebar-toggle-lines {
+            width: 21px;
+            height: 16px;
+
+            position: relative;
+
+            display: block;
+        }
+
+
+        .dashboard-sidebar-toggle-lines::before,
+        .dashboard-sidebar-toggle-lines::after,
+        .dashboard-sidebar-toggle-lines span {
+            content: "";
+
+            position: absolute;
+            left: 0;
+
+            width: 21px;
+            height: 2px;
+
+            border-radius: 20px;
+
+            background: currentColor;
+
+            transition:
+                width .18s ease;
+        }
+
+
+        .dashboard-sidebar-toggle-lines::before {
+            top: 0;
+        }
+
+
+        .dashboard-sidebar-toggle-lines span {
+            top: 7px;
+        }
+
+
+        .dashboard-sidebar-toggle-lines::after {
+            bottom: 0;
+        }
+
+
+        .dashboard-sidebar-toggle.is-collapsed
+        .dashboard-sidebar-toggle-lines::before,
+        .dashboard-sidebar-toggle.is-collapsed
+        .dashboard-sidebar-toggle-lines::after {
+            width: 15px;
+        }
+
+
+        .dashboard-header-search {
+            min-width: 260px;
+            max-width: 600px;
+
+            flex: 1;
+
+            margin-left: 22px;
+        }
+
+
+        .dashboard-header-search-form {
+            width: 100%;
+
+            position: relative;
+        }
+
+
+        .dashboard-header-search-input {
+            width: 100%;
+            height: 44px;
+
+            padding: 0 18px 0 42px;
+
+            border: 1px solid #e1e8f2;
+            border-radius: 11px;
+
+            outline: none;
+
+            background: #f6f9fd;
+            color: #273142;
+
+            font-family: inherit;
+            font-size: 12px;
+
+            transition:
+                border-color .2s ease,
+                box-shadow .2s ease,
+                background .2s ease;
+        }
+
+
+        .dashboard-header-search-input:focus {
+            border-color: #a8c8fb;
+
+            background: #ffffff;
+
+            box-shadow: 0 0 0 3px rgba(18, 107, 255, .08);
+        }
+
+
+        .dashboard-header-search-icon {
+            position: absolute;
+
+            left: 15px;
+            top: 50%;
+
+            transform: translateY(-50%);
+
+            color: #6f7d90;
+
+            font-size: 15px;
+            pointer-events: none;
         }
 
 
@@ -897,6 +1133,124 @@
 
 
         /* =========================================
+           WORKSPACE HEADER
+           Cột trái của header nối liền với sidebar.
+        ========================================= */
+
+        .role-workspace-page {
+            --workspace-sidebar-width: 220px;
+            --workspace-sidebar-collapsed-width: 72px;
+        }
+
+
+        .role-workspace-page .edulearn-navbar {
+            position: sticky !important;
+            top: 0;
+            left: 0;
+            right: 0;
+
+            width: 100%;
+
+            z-index: 1700;
+
+            background: #ffffff;
+        }
+
+
+        .role-workspace-page .edulearn-nav-container {
+            width: 100% !important;
+            max-width: none !important;
+            min-height: 82px;
+
+            margin: 0 !important;
+            padding: 0 !important;
+
+            display: grid;
+            grid-template-columns:
+                var(--workspace-sidebar-width)
+                minmax(320px, 1fr)
+                auto;
+
+            gap: 0 !important;
+
+            align-items: center;
+
+            transition:
+                grid-template-columns .2s ease;
+        }
+
+
+        .role-workspace-page .workspace-brand-zone {
+            align-self: stretch;
+
+            padding: 0 18px;
+
+            border-right: 1px solid #e2e9f2;
+
+            display: flex;
+            align-items: center;
+
+            gap: 16px;
+
+            background: #ffffff;
+        }
+
+
+        .role-workspace-page .workspace-brand-zone
+        .dashboard-sidebar-toggle {
+            flex: 0 0 42px;
+        }
+
+
+        .role-workspace-page .workspace-logo {
+            min-width: 0;
+
+            overflow: hidden;
+
+            transition:
+                opacity .15s ease,
+                width .2s ease;
+        }
+
+
+        .role-workspace-page .dashboard-header-search {
+            width: min(100%, 760px);
+            max-width: 760px;
+
+            margin: 0 !important;
+            padding-left: 24px;
+
+            justify-self: start;
+        }
+
+
+        .role-workspace-page .account-area {
+            margin: 0 !important;
+            padding: 0 24px;
+
+            justify-self: end;
+        }
+
+
+        .role-workspace-page.workspace-sidebar-collapsed
+        .edulearn-nav-container {
+            grid-template-columns:
+                var(--workspace-sidebar-width)
+                minmax(320px, 1fr)
+                auto;
+        }
+
+
+
+        .role-workspace-page.workspace-sidebar-collapsed
+        .workspace-brand-zone {
+            padding: 0 18px;
+            justify-content: flex-start;
+        }
+
+
+
+        /* =========================================
            FOOTER
         ========================================= */
 
@@ -908,13 +1262,18 @@
 
 
         .footer-container {
-            max-width: 1180px;
+            width: min(
+                1280px,
+                calc(100% - 32px)
+            );
+
+            max-width: none;
 
             min-height: 78px;
 
             margin: 0 auto;
 
-            padding: 0 20px;
+            padding: 0;
 
             display: flex;
             align-items: center;
@@ -959,7 +1318,14 @@
 
         @@media (max-width: 850px) {
 
+
+
             .edulearn-nav-container {
+                width: min(
+                    100% - 24px,
+                    1280px
+                );
+
                 padding-top: 14px;
                 padding-bottom: 14px;
 
@@ -975,6 +1341,17 @@
                 overflow-x: auto;
 
                 padding-bottom: 3px;
+            }
+
+
+            .dashboard-header-search {
+                order: 3;
+
+                width: 100%;
+                max-width: none;
+                min-width: 0;
+
+                margin-left: 0;
             }
 
 
@@ -996,7 +1373,7 @@
             }
 
 
-            .account-name {
+            .account-copy {
                 display: none;
             }
 
@@ -1037,12 +1414,83 @@
             }
         }
 
+
+        /* =========================================
+           WORKSPACE HEADER RESPONSIVE
+        ========================================= */
+
+        @@media (max-width: 1080px) {
+
+            .role-workspace-page .edulearn-nav-container {
+                grid-template-columns:
+                    auto
+                    minmax(180px, 1fr)
+                    auto;
+            }
+
+            .role-workspace-page .workspace-brand-zone {
+                padding: 0 12px;
+
+                border-right: none;
+            }
+
+            .role-workspace-page .dashboard-header-search {
+                width: 100%;
+                max-width: none;
+
+                padding-left: 8px;
+            }
+
+            .role-workspace-page .account-area {
+                padding: 0 12px;
+            }
+        }
+
+
+        @@media (max-width: 680px) {
+
+            .role-workspace-page .workspace-logo {
+                display: none;
+            }
+
+            .role-workspace-page .workspace-brand-zone {
+                padding: 0 8px;
+            }
+
+            .role-workspace-page .edulearn-nav-container {
+                grid-template-columns:
+                    58px
+                    minmax(140px, 1fr)
+                    auto;
+            }
+
+            .role-workspace-page .account-copy {
+                display: none;
+            }
+        }
+
     </style>
+
+
+
+    @if (isRoleWorkspacePage)
+    {
+        <link rel="stylesheet"
+              href="~/css/workspace-shell.css"
+              asp-append-version="true" />
+    }
+
+    @if (isRoleHomeDashboard)
+    {
+        <link rel="stylesheet"
+              href="~/css/dashboard-role.css"
+              asp-append-version="true" />
+    }
 
 </head>
 
 
-<body>
+<body class="@(isRoleWorkspacePage ? "role-workspace-page" : "")">
 
 
     <!-- =========================================
@@ -1055,21 +1503,70 @@
         <div class="edulearn-nav-container">
 
 
-            <!-- LOGO -->
+            @if (isRoleWorkspacePage)
+            {
+                <div class="workspace-brand-zone">
 
-            <a asp-controller="Home"
-               asp-action="Index"
-               class="edulearn-logo">
+                    <button type="button"
+                            class="dashboard-sidebar-toggle"
+                            data-dashboard-sidebar-toggle
+                            aria-label="Thu gọn menu tác vụ"
+                            aria-expanded="true"
+                            title="Thu gọn menu tác vụ">
 
-                EduLearn
+                        <span class="dashboard-sidebar-toggle-lines">
+                            <span></span>
+                        </span>
 
-            </a>
+                    </button>
+
+                    <a asp-controller="Home"
+                       asp-action="Index"
+                       class="edulearn-logo workspace-logo">
+                        EduLearn
+                    </a>
+
+                </div>
+            }
+            else
+            {
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   class="edulearn-logo">
+                    EduLearn
+                </a>
+            }
 
 
 
             <!-- =================================
                  MENU
             ================================== -->
+
+            @if (isRoleWorkspacePage)
+            {
+                <div class="dashboard-header-search">
+
+                    <form asp-controller="Courses"
+                          asp-action="Index"
+                          method="get"
+                          class="dashboard-header-search-form">
+
+                        <span class="dashboard-header-search-icon">
+                            ⌕
+                        </span>
+
+                        <input type="search"
+                               name="search"
+                               class="dashboard-header-search-input"
+                               placeholder="Tìm kiếm khóa học..." />
+
+                    </form>
+
+                </div>
+            }
+            else
+            {
 
             <nav class="edulearn-nav-links">
 
@@ -1239,6 +1736,8 @@
 
 
             </nav>
+            }
+
 
 
 
@@ -1282,9 +1781,19 @@
                             </span>
 
 
-                            <span class="account-name">
+                            <span class="account-copy">
 
-                                @displayName
+                                <span class="account-name">
+
+                                    @displayName
+
+                                </span>
+
+                                <span class="account-role-inline">
+
+                                    @roleLabel
+
+                                </span>
 
                             </span>
 
@@ -1613,38 +2122,72 @@
 
 
 
-    <main>
+    @if (isRoleWorkspacePage)
+    {
+        <div class="role-workspace">
 
-        @RenderBody()
+            <partial name="_RoleSidebar" />
 
-    </main>
+            <main class="role-workspace-main">
 
+                @RenderBody()
 
+            </main>
 
-    <footer class="edulearn-footer">
+            <footer class="edulearn-footer role-workspace-footer">
 
-        <div class="footer-container">
+                <div class="footer-container">
 
-            <div>
+                    <div>
+                        © 2026
+                        <span class="footer-brand">EduLearn</span>
+                        - Chia sẻ tri thức, kiến tạo tương lai
+                    </div>
 
-                © 2026
+                    <div>
+                        Nền tảng khóa học Công nghệ thông tin
+                    </div>
 
-                <span class="footer-brand">
-                    EduLearn
-                </span>
+                </div>
 
-                - Chia sẻ tri thức, kiến tạo tương lai
-
-            </div>
-
-
-            <div>
-                Nền tảng khóa học Công nghệ thông tin
-            </div>
+            </footer>
 
         </div>
+    }
+    else
+    {
+        <main>
 
-    </footer>
+            @RenderBody()
+
+        </main>
+
+
+        <footer class="edulearn-footer">
+
+            <div class="footer-container">
+
+                <div>
+
+                    © 2026
+
+                    <span class="footer-brand">
+                        EduLearn
+                    </span>
+
+                    - Chia sẻ tri thức, kiến tạo tương lai
+
+                </div>
+
+
+                <div>
+                    Nền tảng khóa học Công nghệ thông tin
+                </div>
+
+            </div>
+
+        </footer>
+    }
 
 
 
@@ -1810,6 +2353,14 @@
         );
 
     </script>
+
+
+    @if (isRoleWorkspacePage)
+    {
+        <script src="~/js/dashboard-sidebar.js"
+                asp-append-version="true">
+        </script>
+    }
 
 
     @await RenderSectionAsync(

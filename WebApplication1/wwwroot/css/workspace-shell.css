@@ -1,0 +1,256 @@
+﻿/* =========================================================
+   EduLearn Workspace Shell
+   Chỉ quản lý HEADER + SIDEBAR + vùng nội bộ.
+   Không style course/table/card của các trang chức năng.
+========================================================= */
+
+:root {
+    --ed-blue: #126bff;
+    --ed-blue-soft: #eaf3ff;
+    --ed-purple: #7c4dff;
+    --ed-purple-soft: #f1ebff;
+    --ed-border: #e8edf4;
+    --ed-sidebar: 220px;
+    --ed-sidebar-collapsed: 72px;
+    --ed-header-height: 82px;
+}
+
+/* ---------- header ---------- */
+.role-workspace-page .edulearn-navbar {
+    position: sticky !important;
+    top: 0;
+    z-index: 1700;
+    width: 100%;
+    background: #fff;
+}
+
+.role-workspace-page .edulearn-nav-container {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Hamburger + EduLearn cùng một mảng trắng với sidebar, không có vạch dọc. */
+.role-workspace-page .workspace-brand-zone {
+    border-right: 0 !important;
+    background: #fff !important;
+}
+
+/* ---------- page shell ---------- */
+.role-workspace {
+    min-height: calc(100vh - var(--ed-header-height));
+    background: #f6f9fd;
+}
+
+.role-workspace-main {
+    min-width: 0;
+    min-height: calc(100vh - var(--ed-header-height) - 78px);
+    margin-left: var(--ed-sidebar);
+    padding: 22px 28px 46px;
+    background: #f6f9fd;
+    transition: margin-left .2s ease;
+}
+
+.role-workspace-footer {
+    margin-left: var(--ed-sidebar);
+    background: #fff;
+    transition: margin-left .2s ease;
+}
+
+.role-workspace-footer .footer-container {
+    width: 100%;
+    max-width: 1560px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* ---------- fixed sidebar ---------- */
+.role-sidebar {
+    position: fixed;
+    top: var(--ed-header-height);
+    bottom: 0;
+    left: 0;
+    z-index: 1450;
+    width: var(--ed-sidebar);
+    overflow-y: auto;
+    overflow-x: hidden;
+    border: 0 !important;
+    border-right: 0 !important;
+    border-radius: 0;
+    background: #fff;
+    box-shadow: none;
+    scrollbar-width: thin;
+    transition: width .2s ease, transform .2s ease;
+}
+
+.role-sidebar::-webkit-scrollbar {
+    width: 5px;
+}
+
+.role-sidebar::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: #d9e2ee;
+}
+
+.role-sidebar__nav {
+    padding: 14px 10px 24px;
+}
+
+.role-nav-link {
+    min-height: 46px;
+    margin-bottom: 4px;
+    padding: 0 11px;
+    border-radius: 10px;
+    color: #526079;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+    text-decoration: none;
+    font-size: 10px;
+    font-weight: 700;
+    transition: background .16s ease, color .16s ease;
+}
+
+.role-nav-link:hover {
+    color: var(--ed-blue);
+    background: #f3f7fc;
+}
+
+.role-sidebar--admin .role-nav-link:hover {
+    color: var(--ed-purple);
+    background: #f7f4ff;
+}
+
+.role-nav-link.active {
+    color: var(--ed-blue);
+    background: var(--ed-blue-soft);
+}
+
+.role-sidebar--admin .role-nav-link.active {
+    color: var(--ed-purple);
+    background: var(--ed-purple-soft);
+}
+
+/* Tất cả icon có cùng nền/kích thước, không còn KH/HV/count khác màu lộn xộn. */
+.role-nav-icon {
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+    border-radius: 9px;
+    background: #f2f6fb;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: currentColor;
+}
+
+.role-nav-icon svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.role-nav-link.active .role-nav-icon {
+    background: #fff;
+    box-shadow: 0 3px 9px rgba(38, 74, 120, .07);
+}
+
+.role-nav-count {
+    display: none !important;
+}
+
+/* ---------- collapsed desktop ---------- */
+@media (min-width: 1081px) {
+    .role-workspace--sidebar-collapsed .role-sidebar {
+        width: var(--ed-sidebar-collapsed);
+    }
+
+    .role-workspace--sidebar-collapsed .role-workspace-main,
+    .role-workspace--sidebar-collapsed .role-workspace-footer {
+        margin-left: var(--ed-sidebar-collapsed);
+    }
+
+    .role-workspace--sidebar-collapsed .role-sidebar__nav {
+        padding: 14px 8px 24px;
+    }
+
+    .role-workspace--sidebar-collapsed .role-nav-link {
+        min-height: 52px;
+        padding: 0;
+        justify-content: center;
+        gap: 0;
+    }
+
+    .role-workspace--sidebar-collapsed .role-nav-icon {
+        width: 42px;
+        height: 42px;
+        flex: 0 0 42px;
+        border-radius: 11px;
+    }
+
+    .role-workspace--sidebar-collapsed .role-nav-text,
+    .role-workspace--sidebar-collapsed .role-nav-count {
+        display: none !important;
+    }
+}
+
+/* ---------- mobile off-canvas ---------- */
+.dashboard-sidebar-backdrop {
+    display: none;
+}
+
+@media (max-width: 1080px) {
+    body.dashboard-mobile-sidebar-open {
+        overflow: hidden;
+    }
+
+    .role-workspace-main,
+    .role-workspace-footer {
+        margin-left: 0;
+    }
+
+    .role-workspace-main {
+        padding: 14px 12px 36px;
+    }
+
+    .role-sidebar {
+        width: min(280px, calc(100vw - 56px));
+        transform: translateX(-105%);
+        box-shadow: 12px 0 32px rgba(29, 53, 87, .14);
+    }
+
+    .role-workspace--mobile-sidebar-open .role-sidebar {
+        transform: translateX(0);
+    }
+
+    .dashboard-sidebar-backdrop {
+        position: fixed;
+        top: var(--ed-header-height);
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1400;
+        display: block;
+        background: rgba(15, 29, 56, .28);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity .2s ease, visibility .2s ease;
+    }
+
+    .dashboard-sidebar-backdrop.is-visible {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+@media (max-width: 520px) {
+    .role-sidebar {
+        width: min(270px, calc(100vw - 44px));
+    }
+}

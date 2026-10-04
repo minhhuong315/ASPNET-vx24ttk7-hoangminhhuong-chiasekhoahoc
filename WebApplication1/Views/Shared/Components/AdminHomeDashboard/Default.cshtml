@@ -1,595 +1,616 @@
 ﻿@model OnlineLearningPlatform.ViewModels.AdminHomeDashboardViewModel
 
-<style>
-    .admin-home {
-        min-height: 78vh;
-        padding: 48px 0 72px;
-        background: #f8fafc;
-    }
+@{
+    string GetFallbackThumbnail(string title)
+    {
+        string value =
+            title.ToLowerInvariant();
 
-    .admin-home-container {
-        max-width: 1180px;
-        margin: 0 auto;
-        padding: 0 20px;
-    }
-
-    .dashboard-heading {
-        margin-bottom: 24px;
-    }
-
-    .dashboard-eyebrow {
-        margin-bottom: 6px;
-        color: #7c3aed;
-        font-size: 11px;
-        font-weight: 800;
-        text-transform: uppercase;
-    }
-
-    .dashboard-title {
-        margin: 0 0 7px;
-        color: #172033;
-        font-size: 32px;
-        font-weight: 800;
-    }
-
-    .dashboard-description {
-        margin: 0;
-        color: #7c8798;
-        font-size: 13px;
-        line-height: 1.7;
-    }
-
-    .admin-stats {
-        display: grid;
-        grid-template-columns: repeat(6, 1fr);
-        gap: 12px;
-        margin-bottom: 28px;
-    }
-
-    .admin-stat {
-        display: block;
-        padding: 18px;
-        border: 1px solid #e3e8ef;
-        border-radius: 13px;
-        background: #ffffff;
-        color: inherit;
-        text-decoration: none;
-        cursor: pointer;
-        transition:
-            transform .18s ease,
-            border-color .18s ease,
-            box-shadow .18s ease;
-    }
-
-    .admin-stat:hover {
-        color: inherit;
-        transform: translateY(-2px);
-        border-color: #c9b8f7;
-        box-shadow:
-            0 8px 22px
-            rgba(124, 58, 237, .08);
-    }
-
-    .stat-label {
-        margin-bottom: 7px;
-        color: #7c8798;
-        font-size: 9px;
-        font-weight: 700;
-    }
-
-    .stat-number {
-        color: #172033;
-        font-size: 24px;
-        font-weight: 800;
-    }
-
-    .admin-grid {
-        display: grid;
-        grid-template-columns: minmax(0, 1.35fr) minmax(300px, .75fr);
-        gap: 18px;
-        margin-bottom: 28px;
-        align-items: start;
-    }
-
-    .panel {
-        overflow: hidden;
-        border: 1px solid #e3e8ef;
-        border-radius: 15px;
-        background: #ffffff;
-    }
-
-    .panel-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 19px 21px;
-        border-bottom: 1px solid #eef1f5;
-    }
-
-    .panel-title {
-        margin: 0;
-        color: #273142;
-        font-size: 16px;
-        font-weight: 800;
-    }
-
-    .panel-link {
-        color: #0d6efd;
-        font-size: 10px;
-        font-weight: 800;
-        text-decoration: none;
-    }
-
-    .quick-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-        padding: 18px;
-    }
-
-    .quick-card {
-        padding: 17px;
-        border: 1px solid #e5e9ef;
-        border-radius: 12px;
-        color: inherit;
-        text-decoration: none;
-    }
-
-    .quick-card:hover {
-        border-color: #c9b8f7;
-    }
-
-    .quick-icon {
-        width: 38px;
-        height: 38px;
-        margin-bottom: 11px;
-        border-radius: 10px;
-        background: #f3ecff;
-        color: #7c3aed;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 10px;
-        font-weight: 800;
-    }
-
-    .quick-title {
-        color: #344054;
-        font-size: 11px;
-        font-weight: 800;
-    }
-
-    .quick-note {
-        margin-top: 4px;
-        color: #98a2b3;
-        font-size: 9px;
-        line-height: 1.5;
-    }
-
-    .system-list {
-        padding: 8px 18px;
-    }
-
-    .system-item {
-        display: flex;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 13px 0;
-        border-bottom: 1px solid #eef1f5;
-    }
-
-    .system-item:last-child {
-        border-bottom: none;
-    }
-
-    .system-label {
-        color: #475467;
-        font-size: 10px;
-        font-weight: 700;
-    }
-
-    .system-value {
-        color: #172033;
-        font-size: 11px;
-        font-weight: 800;
-    }
-
-    .course-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .course-table th,
-    .course-table td {
-        padding: 13px 16px;
-        border-bottom: 1px solid #eef1f5;
-        text-align: left;
-        vertical-align: middle;
-    }
-
-    .course-table th {
-        background: #fbfcfe;
-        color: #7c8798;
-        font-size: 9px;
-        font-weight: 800;
-    }
-
-    .course-table td {
-        color: #475467;
-        font-size: 10px;
-    }
-
-    .course-name {
-        color: #273142;
-        font-size: 10px;
-        font-weight: 800;
-    }
-
-    .status-badge {
-        display: inline-flex;
-        padding: 4px 7px;
-        border-radius: 20px;
-        background: #edfdf2;
-        color: #198754;
-        font-size: 8px;
-        font-weight: 800;
-    }
-
-    .status-badge.draft {
-        background: #fff5e8;
-        color: #b26a00;
-    }
-
-    .manage-link {
-        color: #0d6efd;
-        font-size: 9px;
-        font-weight: 800;
-        text-decoration: none;
-    }
-
-    .empty {
-        padding: 30px;
-        color: #7c8798;
-        font-size: 11px;
-        text-align: center;
-    }
-
-    @@media (max-width: 1050px) {
-        .admin-stats {
-            grid-template-columns: repeat(3, 1fr);
-        }
-    }
-
-    @@media (max-width: 800px) {
-        .admin-grid {
-            grid-template-columns: 1fr;
+        if (value.Contains("sql"))
+        {
+            return Url.Content(
+                "~/images/dashboard/sql-server.png");
         }
 
-        .course-table {
-            min-width: 780px;
+        if (value.Contains("git"))
+        {
+            return Url.Content(
+                "~/images/dashboard/git-github.png");
         }
 
-        .table-wrap {
-            overflow-x: auto;
+        if (value.Contains("asp.net") ||
+            value.Contains(".net"))
+        {
+            return Url.Content(
+                "~/images/dashboard/aspnet-core.png");
         }
+
+        if (value.Contains("javascript") &&
+            value.Contains("nâng cao"))
+        {
+            return Url.Content(
+                "~/images/dashboard/javascript-advanced.png");
+        }
+
+        if (value.Contains("javascript"))
+        {
+            return Url.Content(
+                "~/images/dashboard/javascript-basic.png");
+        }
+
+        return Url.Content(
+            "~/images/dashboard/aspnet-core.png");
     }
 
-    @@media (max-width: 600px) {
-        .admin-stats,
-        .quick-grid {
-            grid-template-columns: 1fr 1fr;
-        }
-    }
-</style>
+    int chartMax =
+        Model.EnrollmentTrend.Any()
+            ? Math.Max(
+                1,
+                Model.EnrollmentTrend.Max(x =>
+                    x.Count))
+            : 1;
 
-<section class="admin-home">
-    <div class="admin-home-container">
+    double chartLeft = 20d;
+    double chartRight = 680d;
+    double chartBottom = 165d;
+    double chartTop = 25d;
 
-        <div class="dashboard-heading">
-            <div class="dashboard-eyebrow">
-                Quản trị viên
-            </div>
+    var pointValues =
+        Model.EnrollmentTrend
+            .Select(
+                (item, index) =>
+                {
+                    double x =
+                        Model.EnrollmentTrend.Count <= 1
+                            ? chartLeft
+                            : chartLeft +
+                              (
+                                  (
+                                      chartRight -
+                                      chartLeft
+                                  ) *
+                                  index /
+                                  (
+                                      Model.EnrollmentTrend.Count -
+                                      1
+                                  )
+                              );
 
-            <h1 class="dashboard-title">
-                Tổng quan hệ thống
-            </h1>
+                    double y =
+                        chartBottom -
+                        (
+                            (
+                                chartBottom -
+                                chartTop
+                            ) *
+                            item.Count /
+                            chartMax
+                        );
 
-            <p class="dashboard-description">
-                Theo dõi người dùng, khóa học và hoạt động chính
-                trên toàn bộ nền tảng EduLearn.
-            </p>
-        </div>
+                    return new
+                    {
+                        X = x,
+                        Y = y,
+                        Item = item
+                    };
+                })
+            .ToList();
 
+    string linePoints =
+        string.Join(
+            " ",
+            pointValues.Select(p =>
+                $"{p.X.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)}," +
+                $"{p.Y.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)}"));
 
-        <div class="admin-stats">
+    string areaPoints =
+        $"{chartLeft.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)}," +
+        $"{chartBottom.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)} " +
+        linePoints +
+        $" {chartRight.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)}," +
+        $"{chartBottom.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)}";
 
-            <a asp-controller="AdminUsers"
-               asp-action="Index"
-               class="admin-stat">
-                <div class="stat-label">
-                    Tổng người dùng
-                </div>
-                <div class="stat-number">
-                    @Model.TotalUsers
-                </div>
-            </a>
+    int roleTotal =
+        Math.Max(
+            1,
+            Model.StudentCount +
+            Model.InstructorCount +
+            Model.AdminCount);
 
-            <a asp-controller="AdminUsers"
-               asp-action="Index"
-               asp-route-role="Student"
-               class="admin-stat">
-                <div class="stat-label">
-                    Học viên
-                </div>
-                <div class="stat-number">
-                    @Model.StudentCount
-                </div>
-            </a>
+    double studentPercent =
+        Model.StudentCount *
+        100d /
+        roleTotal;
 
-            <a asp-controller="AdminUsers"
-               asp-action="Index"
-               asp-route-role="Instructor"
-               class="admin-stat">
-                <div class="stat-label">
-                    Giảng viên
-                </div>
-                <div class="stat-number">
-                    @Model.InstructorCount
-                </div>
-            </a>
+    double instructorPercent =
+        Model.InstructorCount *
+        100d /
+        roleTotal;
 
-            <a asp-controller="AdminCourses"
-               asp-action="Index"
-               class="admin-stat">
-                <div class="stat-label">
-                    Tổng khóa học
-                </div>
-                <div class="stat-number">
-                    @Model.TotalCourses
-                </div>
-            </a>
+    double adminPercent =
+        Model.AdminCount *
+        100d /
+        roleTotal;
 
-            <a asp-controller="AdminCourses"
-               asp-action="Index"
-               asp-route-status="published"
-               class="admin-stat">
-                <div class="stat-label">
-                    Đã xuất bản
-                </div>
-                <div class="stat-number">
-                    @Model.PublishedCourses
-                </div>
-            </a>
+    double studentEnd =
+        studentPercent;
 
-            <a asp-controller="AdminCourses"
-               asp-action="Index"
-               class="admin-stat">
-                <div class="stat-label">
-                    Lượt đăng ký
-                </div>
-                <div class="stat-number">
-                    @Model.TotalEnrollments
-                </div>
-            </a>
+    double instructorEnd =
+        studentPercent +
+        instructorPercent;
 
-        </div>
+    string studentEndCss =
+        studentEnd.ToString(
+            "0.##",
+            System.Globalization.CultureInfo.InvariantCulture);
 
+    string instructorEndCss =
+        instructorEnd.ToString(
+            "0.##",
+            System.Globalization.CultureInfo.InvariantCulture);
 
-        <div class="admin-grid">
+    string donutStyle =
+        "background: conic-gradient(" +
+        $"#126BFF 0% {studentEndCss}%, " +
+        $"#18A76F {studentEndCss}% {instructorEndCss}%, " +
+        $"#7C4DFF {instructorEndCss}% 100%);";
+}
 
-            <section class="panel">
+<section class="role-dashboard role-dashboard--admin">
 
-                <div class="panel-header">
-                    <h2 class="panel-title">
-                        Quản lý nhanh
-                    </h2>
-                </div>
+<div class="dashboard-grid">
 
-                <div class="quick-grid">
+                <header class="dashboard-heading grid-full">
+                    <div>
+                        <div class="dashboard-eyebrow">
+                            Quản trị hệ thống
+                        </div>
+
+                        <h1 class="dashboard-title">
+                            Tổng quan hệ thống
+                        </h1>
+
+                        <p class="dashboard-subtitle">
+                            Theo dõi người dùng, khóa học
+                            và hoạt động chính trên nền tảng EduLearn.
+                        </p>
+                    </div>
+                </header>
+
+                <div class="metric-cluster metric-cluster--6 grid-full">
 
                     <a asp-controller="AdminUsers"
                        asp-action="Index"
-                       class="quick-card">
-                        <div class="quick-icon">
-                            U
-                        </div>
-                        <div class="quick-title">
-                            Người dùng
-                        </div>
-                        <div class="quick-note">
-                            Tài khoản, vai trò và trạng thái truy cập.
-                        </div>
+                       class="metric-card">
+                        <span class="metric-icon blue">ND</span>
+                        <span>
+                            <span class="metric-value d-block">
+                                @Model.TotalUsers
+                            </span>
+                            <span class="metric-label d-block">
+                                Tổng người dùng
+                            </span>
+                        </span>
+                    </a>
+
+                    <a asp-controller="AdminUsers"
+                       asp-action="Index"
+                       asp-route-role="Student"
+                       class="metric-card">
+                        <span class="metric-icon green">HV</span>
+                        <span>
+                            <span class="metric-value d-block">
+                                @Model.StudentCount
+                            </span>
+                            <span class="metric-label d-block">
+                                Học viên
+                            </span>
+                        </span>
+                    </a>
+
+                    <a asp-controller="AdminUsers"
+                       asp-action="Index"
+                       asp-route-role="Instructor"
+                       class="metric-card">
+                        <span class="metric-icon purple">GV</span>
+                        <span>
+                            <span class="metric-value d-block">
+                                @Model.InstructorCount
+                            </span>
+                            <span class="metric-label d-block">
+                                Giảng viên
+                            </span>
+                        </span>
                     </a>
 
                     <a asp-controller="AdminCourses"
                        asp-action="Index"
-                       class="quick-card">
-                        <div class="quick-icon">
-                            KH
-                        </div>
-                        <div class="quick-title">
-                            Khóa học
-                        </div>
-                        <div class="quick-note">
-                            Xuất bản, nổi bật và quản lý nội dung.
-                        </div>
+                       class="metric-card">
+                        <span class="metric-icon blue">KH</span>
+                        <span>
+                            <span class="metric-value d-block">
+                                @Model.TotalCourses
+                            </span>
+                            <span class="metric-label d-block">
+                                Tổng khóa học
+                            </span>
+                        </span>
                     </a>
+
+
+
+                    <a asp-controller="AdminCourses"
+                       asp-action="Index"
+                       asp-route-status="published"
+                       class="metric-card">
+                        <span class="metric-icon green">✓</span>
+                        <span>
+                            <span class="metric-value d-block">
+                                @Model.PublishedCourses
+                            </span>
+                            <span class="metric-label d-block">
+                                Đã xuất bản
+                            </span>
+                        </span>
+                    </a>
+
+                    <a asp-controller="AdminCourses"
+                       asp-action="Index"
+                       class="metric-card">
+                        <span class="metric-icon orange">ĐK</span>
+                        <span>
+                            <span class="metric-value d-block">
+                                @Model.TotalEnrollments
+                            </span>
+                            <span class="metric-label d-block">
+                                Lượt đăng ký
+                            </span>
+                        </span>
+                    </a>
+
+                </div>
+
+                <section class="dashboard-panel grid-left">
+
+                    <div class="panel-head">
+
+                        <h2 class="panel-title">
+                            <span class="panel-title-icon">
+                                PT
+                            </span>
+                            Lượt đăng ký 7 ngày gần đây
+                        </h2>
+
+                    </div>
+
+                    <div class="chart-box">
+
+                        <svg class="line-chart"
+                             viewBox="0 0 700 190"
+                             preserveAspectRatio="none"
+                             aria-label="Biểu đồ lượt đăng ký 7 ngày gần đây">
+
+                            <defs>
+                                <linearGradient id="chartGradient"
+                                                x1="0"
+                                                x2="0"
+                                                y1="0"
+                                                y2="1">
+                                    <stop offset="0%"
+                                          stop-color="#5aa1ff"
+                                          stop-opacity=".30" />
+                                    <stop offset="100%"
+                                          stop-color="#5aa1ff"
+                                          stop-opacity=".03" />
+                                </linearGradient>
+                            </defs>
+
+                            <line x1="20"
+                                  y1="25"
+                                  x2="680"
+                                  y2="25"
+                                  class="chart-grid-line" />
+
+                            <line x1="20"
+                                  y1="72"
+                                  x2="680"
+                                  y2="72"
+                                  class="chart-grid-line" />
+
+                            <line x1="20"
+                                  y1="118"
+                                  x2="680"
+                                  y2="118"
+                                  class="chart-grid-line" />
+
+                            <line x1="20"
+                                  y1="165"
+                                  x2="680"
+                                  y2="165"
+                                  class="chart-grid-line" />
+
+                            @if (pointValues.Any())
+                            {
+                                <polygon points="@areaPoints"
+                                         class="chart-area">
+                                </polygon>
+
+                                <polyline points="@linePoints"
+                                          class="chart-line">
+                                </polyline>
+
+                                @foreach (var point in pointValues)
+                                {
+                                    <circle cx="@point.X.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)"
+                                            cy="@point.Y.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)"
+                                            r="4.5"
+                                            class="chart-dot">
+                                    </circle>
+                                }
+                            }
+
+                        </svg>
+
+                        <div class="chart-axis-labels">
+
+                            @foreach (var item in Model.EnrollmentTrend)
+                            {
+                                <span>
+                                    @item.Label
+                                </span>
+                            }
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <section class="dashboard-panel grid-right">
+
+                    <div class="panel-head">
+                        <h2 class="panel-title">
+                            <span class="panel-title-icon">
+                                %
+                            </span>
+                            Cơ cấu người dùng
+                        </h2>
+                    </div>
+
+                    <div class="user-composition">
+
+                        <div class="donut"
+                             style="@donutStyle">
+
+                            <div class="donut-center">
+                                <span class="donut-total">
+                                    @(Model.StudentCount +
+                                      Model.InstructorCount +
+                                      Model.AdminCount)
+                                </span>
+                                <span class="donut-label">
+                                    người dùng
+                                </span>
+                            </div>
+
+                        </div>
+
+                        <div class="legend-list">
+
+                            <div class="legend-row">
+                                <span class="legend-dot"
+                                      style="background:#126BFF;">
+                                </span>
+                                <span>Học viên</span>
+                                <span class="legend-count">
+                                    @Model.StudentCount
+                                </span>
+                                <span class="legend-percent">
+                                    @studentPercent.ToString("0.0")%
+                                </span>
+                            </div>
+
+                            <div class="legend-row">
+                                <span class="legend-dot"
+                                      style="background:#18A76F;">
+                                </span>
+                                <span>Giảng viên</span>
+                                <span class="legend-count">
+                                    @Model.InstructorCount
+                                </span>
+                                <span class="legend-percent">
+                                    @instructorPercent.ToString("0.0")%
+                                </span>
+                            </div>
+
+                            <div class="legend-row">
+                                <span class="legend-dot"
+                                      style="background:#7C4DFF;">
+                                </span>
+                                <span>Quản trị</span>
+                                <span class="legend-count">
+                                    @Model.AdminCount
+                                </span>
+                                <span class="legend-percent">
+                                    @adminPercent.ToString("0.0")%
+                                </span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <section class="dashboard-panel grid-left">
+
+                    <div class="panel-head">
+
+                        <h2 class="panel-title">
+                            <span class="panel-title-icon">
+                                KH
+                            </span>
+                            Khóa học cập nhật gần đây
+                        </h2>
+
+                        <a asp-controller="AdminCourses"
+                           asp-action="Index"
+                           class="panel-link">
+                            Quản lý tất cả →
+                        </a>
+
+                    </div>
+
+                    @if (Model.RecentCourses.Any())
+                    {
+                        <div class="table-wrap">
+
+                            <table class="dashboard-table admin-table">
+
+                                <thead>
+                                    <tr>
+                                        <th>Khóa học</th>
+                                        <th>Giảng viên</th>
+                                        <th>Học viên</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+
+                                    @foreach (var course in Model.RecentCourses)
+                                    {
+                                        string thumbnail =
+                                            !string.IsNullOrWhiteSpace(
+                                                course.ThumbnailUrl)
+                                                ? course.ThumbnailUrl
+                                                : GetFallbackThumbnail(
+                                                    course.Title);
+
+                                        <tr>
+
+                                            <td>
+                                                <div class="table-course-cell">
+
+                                                    <div class="course-thumb">
+                                                        <img src="@thumbnail"
+                                                             alt="@course.Title" />
+                                                    </div>
+
+                                                    <div>
+                                                        <div class="table-course-name">
+                                                            @course.Title
+                                                        </div>
+                                                        <div class="table-course-meta">
+                                                            @course.CategoryName
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </td>
+
+                                            <td>
+                                                @course.InstructorName
+                                            </td>
+
+                                            <td>
+                                                @course.EnrollmentCount
+                                            </td>
+
+                                            <td>
+                                                <span class="status-pill @(course.IsPublished ? "" : "draft")">
+                                                    @(course.IsPublished
+                                                        ? "Đã xuất bản"
+                                                        : "Bản nháp")
+                                                </span>
+                                            </td>
+
+                                            <td>
+                                                <a asp-controller="AdminCourses"
+                                                   asp-action="Index"
+                                                   class="table-action">
+                                                    Quản lý →
+                                                </a>
+                                            </td>
+
+                                        </tr>
+                                    }
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="dashboard-empty">
+                            Hệ thống chưa có khóa học.
+                        </div>
+                    }
+
+                </section>
+
+                <section class="dashboard-panel grid-right">
+
+                    <div class="panel-head">
+                        <h2 class="panel-title">
+                            <span class="panel-title-icon">
+                                ND
+                            </span>
+                            Tình trạng nội dung
+                        </h2>
+                    </div>
+
+                    <div class="system-list">
+
+                        <div class="system-row">
+                            <span class="system-label">
+                                Khóa đã xuất bản
+                            </span>
+                            <span class="system-value">
+                                @Model.PublishedCourses
+                            </span>
+                        </div>
+
+                        <div class="system-row">
+                            <span class="system-label">
+                                Khóa bản nháp
+                            </span>
+                            <span class="system-value">
+                                @Model.DraftCourses
+                            </span>
+                        </div>
+
+                        <div class="system-row">
+                            <span class="system-label">
+                                Danh mục hoạt động
+                            </span>
+                            <span class="system-value">
+                                @Model.ActiveCategories
+                            </span>
+                        </div>
+
+                        <div class="system-row">
+                            <span class="system-label">
+                                Câu hỏi chưa trả lời
+                            </span>
+                            <span class="system-value">
+                                @Model.PendingQuestions
+                            </span>
+                        </div>
+
+                    </div>
 
                     <a asp-controller="AdminCategories"
                        asp-action="Index"
-                       class="quick-card">
-                        <div class="quick-icon">
-                            DM
-                        </div>
-                        <div class="quick-title">
-                            Danh mục
-                        </div>
-                        <div class="quick-note">
-                            Cấu trúc lĩnh vực và thứ tự hiển thị.
-                        </div>
+                       class="system-button">
+                        Quản lý danh mục →
                     </a>
 
-                    <a asp-controller="LessonQuestions"
-                       asp-action="Index"
-                       class="quick-card">
-                        <div class="quick-icon">
-                            Q&A
-                        </div>
-                        <div class="quick-title">
-                            Hỏi đáp
-                        </div>
-                        <div class="quick-note">
-                            Kiểm tra các câu hỏi đang chờ xử lý.
-                        </div>
-                    </a>
+                </section>
 
-                </div>
-
-            </section>
-
-
-            <section class="panel">
-
-                <div class="panel-header">
-                    <h2 class="panel-title">
-                        Tình trạng nội dung
-                    </h2>
-
-                    <a asp-controller="AdminDashboard"
-                       asp-action="Index"
-                       class="panel-link">
-                        Dashboard chi tiết →
-                    </a>
-                </div>
-
-                <div class="system-list">
-
-                    <div class="system-item">
-                        <span class="system-label">
-                            Khóa học bản nháp
-                        </span>
-                        <span class="system-value">
-                            @Model.DraftCourses
-                        </span>
-                    </div>
-
-                    <div class="system-item">
-                        <span class="system-label">
-                            Danh mục hoạt động
-                        </span>
-                        <span class="system-value">
-                            @Model.ActiveCategories
-                        </span>
-                    </div>
-
-                    <div class="system-item">
-                        <span class="system-label">
-                            Câu hỏi chưa trả lời
-                        </span>
-                        <span class="system-value">
-                            @Model.PendingQuestions
-                        </span>
-                    </div>
-
-                </div>
-
-            </section>
-
-        </div>
-
-
-        <section class="panel">
-
-            <div class="panel-header">
-                <h2 class="panel-title">
-                    Khóa học cập nhật gần đây
-                </h2>
-
-                <a asp-controller="AdminCourses"
-                   asp-action="Index"
-                   class="panel-link">
-                    Quản lý khóa học →
-                </a>
             </div>
 
-            @if (Model.RecentCourses.Any())
-            {
-                <div class="table-wrap">
-
-                    <table class="course-table">
-                        <thead>
-                            <tr>
-                                <th>Khóa học</th>
-                                <th>Giảng viên</th>
-                                <th>Danh mục</th>
-                                <th>Học viên</th>
-                                <th>Trạng thái</th>
-                                <th>Cập nhật</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-
-                            @foreach (var course in Model.RecentCourses)
-                            {
-                                <tr>
-                                    <td>
-                                        <div class="course-name">
-                                            @course.Title
-                                        </div>
-                                    </td>
-
-                                    <td>
-                                        @course.InstructorName
-                                    </td>
-
-                                    <td>
-                                        @course.CategoryName
-                                    </td>
-
-                                    <td>
-                                        @course.EnrollmentCount
-                                    </td>
-
-                                    <td>
-                                        <span class="status-badge @(course.IsPublished ? "" : "draft")">
-                                            @(course.IsPublished
-                                                ? "Đã xuất bản"
-                                                : "Bản nháp")
-                                        </span>
-                                    </td>
-
-                                    <td>
-                                        @course.UpdatedAt
-                                            .ToLocalTime()
-                                            .ToString("dd/MM/yyyy")
-                                    </td>
-
-                                    <td>
-                                        <a asp-controller="AdminCourses"
-                                           asp-action="Index"
-                                           class="manage-link">
-                                            Quản lý →
-                                        </a>
-                                    </td>
-                                </tr>
-                            }
-
-                        </tbody>
-                    </table>
-
-                </div>
-            }
-            else
-            {
-                <div class="empty">
-                    Hệ thống chưa có khóa học.
-                </div>
-            }
-
-        </section>
-
-    </div>
 </section>

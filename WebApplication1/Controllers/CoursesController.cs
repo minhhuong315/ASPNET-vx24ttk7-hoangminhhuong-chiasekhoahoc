@@ -27,35 +27,19 @@ namespace OnlineLearningPlatform.Controllers
         public async Task<IActionResult> Index(
             string? search,
             int? categoryId,
-            string? level)
+            string? level,
+            decimal? minPrice,
+            decimal? maxPrice,
+            int? minRating,
+            string? sort)
         {
-            // =====================================
-            // 1. CHUẨN HÓA TỪ KHÓA TÌM KIẾM
-            // =====================================
-
             search = search?.Trim();
-
-
-            // =====================================
-            // 2. CHUẨN HÓA CẤP ĐỘ
-            //
-            // URL:
-            // beginner
-            // intermediate
-            // advanced
-            //
-            // DATABASE:
-            // Beginner
-            // Intermediate
-            // Advanced
-            // =====================================
 
             string? normalizedLevel = null;
 
-
             if (!string.IsNullOrWhiteSpace(level))
             {
-                switch (level.Trim().ToLower())
+                switch (level.Trim().ToLowerInvariant())
                 {
                     case "beginner":
                         normalizedLevel = "Beginner";
@@ -71,23 +55,54 @@ namespace OnlineLearningPlatform.Controllers
                 }
             }
 
+            minPrice =
+                minPrice.HasValue && minPrice.Value >= 0
+                    ? minPrice.Value
+                    : null;
 
-            // =====================================
-            // 3. QUERY KHÓA HỌC
-            // =====================================
+            maxPrice =
+                maxPrice.HasValue && maxPrice.Value >= 0
+                    ? maxPrice.Value
+                    : null;
+
+            if (minPrice.HasValue &&
+                maxPrice.HasValue &&
+                minPrice.Value > maxPrice.Value)
+            {
+                (minPrice, maxPrice) =
+                    (maxPrice, minPrice);
+            }
+
+            minRating =
+                minRating.HasValue &&
+                minRating.Value >= 1 &&
+                minRating.Value <= 5
+                    ? minRating.Value
+                    : null;
+
+            sort =
+                sort?.Trim().ToLowerInvariant();
+
+            sort =
+                sort switch
+                {
+                    "newest" => "newest",
+                    "price-asc" => "price-asc",
+                    "price-desc" => "price-desc",
+                    "rating" => "rating",
+                    _ => "popular"
+                };
 
             var coursesQuery =
                 _context.Courses
                     .AsNoTracking()
                     .Include(c => c.Category)
                     .Include(c => c.Instructor)
+                    .Include(c => c.Enrollments)
+                    .Include(c => c.Reviews
+                        .Where(r => r.IsApproved))
                     .Where(c => c.IsPublished)
                     .AsQueryable();
-
-
-            // =====================================
-            // 4. TÌM KIẾM
-            // =====================================
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -97,13 +112,13 @@ namespace OnlineLearningPlatform.Controllers
                         (
                             c.ShortDescription != null &&
                             c.ShortDescription.Contains(search)
-                        ));
+                        ) ||
+                        (
+                            c.Description != null &&
+                            c.Description.Contains(search)
+                        ) ||
+                        c.Category.Name.Contains(search));
             }
-
-
-            // =====================================
-            // 5. LỌC DANH MỤC
-            // =====================================
 
             if (categoryId.HasValue)
             {
@@ -112,11 +127,6 @@ namespace OnlineLearningPlatform.Controllers
                         c.CategoryId ==
                         categoryId.Value);
             }
-
-
-            // =====================================
-            // 6. LỌC CẤP ĐỘ
-            // =====================================
 
             if (!string.IsNullOrWhiteSpace(
                 normalizedLevel))
@@ -127,25 +137,109 @@ namespace OnlineLearningPlatform.Controllers
                         normalizedLevel);
             }
 
+            if (minPrice.HasValue)
+            {
+                coursesQuery =
+                    coursesQuery.Where(c =>
+                        (
+                            c.DiscountPrice.HasValue &&
+                            c.DiscountPrice.Value < c.Price
+                                ? c.DiscountPrice.Value
+                                : c.Price
+                        ) >= minPrice.Value);
+            }
 
-            // =====================================
-            // 7. DANH SÁCH KHÓA HỌC
-            // =====================================
+            if (maxPrice.HasValue)
+            {
+                coursesQuery =
+                    coursesQuery.Where(c =>
+                        (
+                            c.DiscountPrice.HasValue &&
+                            c.DiscountPrice.Value < c.Price
+                                ? c.DiscountPrice.Value
+                                : c.Price
+                        ) <= maxPrice.Value);
+            }
+
+            if (minRating.HasValue)
+            {
+                coursesQuery =
+                    coursesQuery.Where(c =>
+                        c.Reviews.Any(r =>
+                            r.IsApproved) &&
+                        c.Reviews
+                            .Where(r =>
+                                r.IsApproved)
+                            .Average(r =>
+                                (double)r.Rating)
+                            >= minRating.Value);
+            }
+
+            coursesQuery =
+                sort switch
+                {
+                    "newest" =>
+                        coursesQuery
+                            .OrderByDescending(c =>
+                                c.PublishedAt)
+                            .ThenByDescending(c =>
+                                c.CreatedAt)
+                            .ThenBy(c =>
+                                c.Title),
+
+                    "price-asc" =>
+                        coursesQuery
+                            .OrderBy(c =>
+                                c.DiscountPrice.HasValue &&
+                                c.DiscountPrice.Value < c.Price
+                                    ? c.DiscountPrice.Value
+                                    : c.Price)
+                            .ThenBy(c =>
+                                c.Title),
+
+                    "price-desc" =>
+                        coursesQuery
+                            .OrderByDescending(c =>
+                                c.DiscountPrice.HasValue &&
+                                c.DiscountPrice.Value < c.Price
+                                    ? c.DiscountPrice.Value
+                                    : c.Price)
+                            .ThenBy(c =>
+                                c.Title),
+
+                    "rating" =>
+                        coursesQuery
+                            .OrderByDescending(c =>
+                                c.Reviews
+                                    .Where(r =>
+                                        r.IsApproved)
+                                    .Select(r =>
+                                        (double?)r.Rating)
+                                    .Average() ?? 0)
+                            .ThenByDescending(c =>
+                                c.Reviews.Count(r =>
+                                    r.IsApproved))
+                            .ThenBy(c =>
+                                c.Title),
+
+                    _ =>
+                        coursesQuery
+                            .OrderByDescending(c =>
+                                c.IsFeatured)
+                            .ThenByDescending(c =>
+                                c.Enrollments.Count())
+                            .ThenByDescending(c =>
+                                c.Reviews.Count(r =>
+                                    r.IsApproved))
+                            .ThenByDescending(c =>
+                                c.PublishedAt)
+                            .ThenBy(c =>
+                                c.Title)
+                };
 
             var courses =
                 await coursesQuery
-                    .OrderByDescending(c =>
-                        c.IsFeatured)
-                    .ThenByDescending(c =>
-                        c.PublishedAt)
-                    .ThenBy(c =>
-                        c.Title)
                     .ToListAsync();
-
-
-            // =====================================
-            // 8. DANH MỤC
-            // =====================================
 
             ViewBag.Categories =
                 await _context.Categories
@@ -157,11 +251,6 @@ namespace OnlineLearningPlatform.Controllers
                         c.Name)
                     .ToListAsync();
 
-
-            // =====================================
-            // 9. GIỮ TRẠNG THÁI FILTER
-            // =====================================
-
             ViewBag.Search =
                 search;
 
@@ -169,15 +258,22 @@ namespace OnlineLearningPlatform.Controllers
                 categoryId;
 
             ViewBag.Level =
-                level?.Trim().ToLower();
+                level?.Trim().ToLowerInvariant();
 
             ViewBag.NormalizedLevel =
                 normalizedLevel;
 
+            ViewBag.MinPrice =
+                minPrice;
 
-            // =====================================
-            // 10. TIÊU ĐỀ THEO CẤP ĐỘ
-            // =====================================
+            ViewBag.MaxPrice =
+                maxPrice;
+
+            ViewBag.MinRating =
+                minRating;
+
+            ViewBag.Sort =
+                sort;
 
             ViewBag.PageTitle =
                 normalizedLevel switch
@@ -195,7 +291,6 @@ namespace OnlineLearningPlatform.Controllers
                         "Tất cả khóa học"
                 };
 
-
             ViewBag.PageDescription =
                 normalizedLevel switch
                 {
@@ -211,7 +306,6 @@ namespace OnlineLearningPlatform.Controllers
                     _ =>
                         "Khám phá các khóa học Công nghệ thông tin trên EduLearn."
                 };
-
 
             return View(courses);
         }

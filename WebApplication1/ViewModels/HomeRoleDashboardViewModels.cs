@@ -12,13 +12,13 @@
 
         public int OpenQuestionCount { get; set; }
 
+        public decimal AverageProgress { get; set; }
+
         public List<StudentHomeCourseItemViewModel>
-            RecentCourses
-        { get; set; } = new();
+            RecentCourses { get; set; } = new();
 
         public List<StudentHomeExploreCourseViewModel>
-            ExploreCourses
-        { get; set; } = new();
+            ExploreCourses { get; set; } = new();
     }
 
 
@@ -37,6 +37,8 @@
 
         public string CategoryIcon { get; set; } =
             "IT";
+
+        public string? ThumbnailUrl { get; set; }
 
         public decimal Progress { get; set; }
 
@@ -62,6 +64,8 @@
         public string CategoryIcon { get; set; } =
             "IT";
 
+        public string? ThumbnailUrl { get; set; }
+
         public string Level { get; set; } =
             string.Empty;
 
@@ -86,8 +90,7 @@
         public int TotalLessons { get; set; }
 
         public List<InstructorHomeCourseItemViewModel>
-            RecentCourses
-        { get; set; } = new();
+            RecentCourses { get; set; } = new();
     }
 
 
@@ -100,6 +103,8 @@
 
         public string CategoryName { get; set; } =
             string.Empty;
+
+        public string? ThumbnailUrl { get; set; }
 
         public bool IsPublished { get; set; }
 
@@ -119,6 +124,8 @@
 
         public int InstructorCount { get; set; }
 
+        public int AdminCount { get; set; }
+
         public int TotalCourses { get; set; }
 
         public int PublishedCourses { get; set; }
@@ -131,9 +138,22 @@
 
         public int PendingQuestions { get; set; }
 
+        public List<AdminEnrollmentTrendItemViewModel>
+            EnrollmentTrend { get; set; } = new();
+
         public List<AdminHomeCourseItemViewModel>
-            RecentCourses
-        { get; set; } = new();
+            RecentCourses { get; set; } = new();
+    }
+
+
+    public class AdminEnrollmentTrendItemViewModel
+    {
+        public DateTime Date { get; set; }
+
+        public string Label { get; set; } =
+            string.Empty;
+
+        public int Count { get; set; }
     }
 
 
@@ -149,6 +169,8 @@
 
         public string CategoryName { get; set; } =
             string.Empty;
+
+        public string? ThumbnailUrl { get; set; }
 
         public bool IsPublished { get; set; }
 

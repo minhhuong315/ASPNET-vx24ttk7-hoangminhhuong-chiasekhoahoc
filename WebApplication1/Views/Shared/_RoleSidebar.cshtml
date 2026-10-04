@@ -1,0 +1,419 @@
+﻿@{
+    string currentController =
+        ViewContext.RouteData.Values["controller"]?.ToString()
+        ?? "";
+
+    string currentAction =
+        ViewContext.RouteData.Values["action"]?.ToString()
+        ?? "";
+
+    bool isStudent =
+        User.Identity?.IsAuthenticated == true &&
+        User.IsInRole("Student");
+
+    bool isInstructor =
+        User.Identity?.IsAuthenticated == true &&
+        User.IsInRole("Instructor");
+
+    bool isAdmin =
+        User.Identity?.IsAuthenticated == true &&
+        User.IsInRole("Admin");
+
+    string Active(
+        string controller,
+        params string[] actions)
+    {
+        if (!string.Equals(
+                currentController,
+                controller,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return "";
+        }
+
+        if (actions.Length == 0)
+        {
+            return "active";
+        }
+
+        return actions.Any(
+            action =>
+                string.Equals(
+                    currentAction,
+                    action,
+                    StringComparison.OrdinalIgnoreCase))
+            ? "active"
+            : "";
+    }
+}
+
+<aside class="role-sidebar @(isAdmin ? "role-sidebar--admin" : "")">
+
+    <nav class="role-sidebar__nav">
+
+        <a asp-controller="Home"
+           asp-action="Index"
+           class="role-nav-link @Active("Home", "Index")"
+           title="Tổng quan">
+
+            <span class="role-nav-icon">
+                <svg viewBox="0 0 24 24"
+                     aria-hidden="true">
+                    <path d="M3 10.5 12 3l9 7.5" />
+                    <path d="M5.5 9.5V21h13V9.5" />
+                    <path d="M9.5 21v-6h5v6" />
+                </svg>
+            </span>
+
+            <span class="role-nav-text">
+                Tổng quan
+            </span>
+
+        </a>
+
+        @if (isStudent)
+        {
+            <a asp-controller="Courses"
+               asp-action="MyCourses"
+               class="role-nav-link @Active("Courses", "MyCourses", "Learn")"
+               title="Khóa học của tôi">
+
+                <span class="role-nav-icon">
+                    <svg viewBox="0 0 24 24"
+                         aria-hidden="true">
+                        <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11a3 3 0 0 1 3 3v15a3 3 0 0 0-3-3H6.5A2.5 2.5 0 0 0 4 20.5Z" />
+                        <path d="M20 5.5A2.5 2.5 0 0 0 17.5 3H14v18a3 3 0 0 1 3-3h.5a2.5 2.5 0 0 1 2.5 2.5Z" />
+                    </svg>
+                </span>
+
+                <span class="role-nav-text">
+                    Khóa học của tôi
+                </span>
+
+            </a>
+
+            <a asp-controller="Wishlist"
+               asp-action="Index"
+               class="role-nav-link @Active("Wishlist")"
+               title="Yêu thích">
+
+                <span class="role-nav-icon">
+                    <svg viewBox="0 0 24 24"
+                         aria-hidden="true">
+                        <path d="M20.8 4.6a5.4 5.4 0 0 0-7.6 0L12 5.8l-1.2-1.2a5.4 5.4 0 1 0-7.6 7.6L12 21l8.8-8.8a5.4 5.4 0 0 0 0-7.6Z" />
+                    </svg>
+                </span>
+
+                <span class="role-nav-text">
+                    Yêu thích
+                </span>
+
+            </a>
+
+            <a asp-controller="LessonQuestions"
+               asp-action="MyQuestions"
+               class="role-nav-link @Active("LessonQuestions")"
+               title="Câu hỏi của tôi">
+
+                <span class="role-nav-icon">
+                    <svg viewBox="0 0 24 24"
+                         aria-hidden="true">
+                        <circle cx="12" cy="12" r="9" />
+                        <path d="M9.8 9a2.4 2.4 0 1 1 3.8 2c-1 .7-1.6 1.2-1.6 2.4" />
+                        <path d="M12 17h.01" />
+                    </svg>
+                </span>
+
+                <span class="role-nav-text">
+                    Câu hỏi của tôi
+                </span>
+
+            </a>
+
+            <a asp-controller="Notifications"
+               asp-action="Index"
+               class="role-nav-link @Active("Notifications")"
+               title="Thông báo">
+
+                <span class="role-nav-icon">
+                    <svg viewBox="0 0 24 24"
+                         aria-hidden="true">
+                        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+                        <path d="M10 21h4" />
+                    </svg>
+                </span>
+
+                <span class="role-nav-text">
+                    Thông báo
+                </span>
+
+            </a>
+
+            <a asp-controller="Profile"
+               asp-action="Index"
+               class="role-nav-link @Active("Profile")"
+               title="Hồ sơ cá nhân">
+
+                <span class="role-nav-icon">
+                    <svg viewBox="0 0 24 24"
+                         aria-hidden="true">
+                        <circle cx="12" cy="8" r="4" />
+                        <path d="M4.5 21a7.5 7.5 0 0 1 15 0" />
+                    </svg>
+                </span>
+
+                <span class="role-nav-text">
+                    Hồ sơ cá nhân
+                </span>
+
+            </a>
+        }
+
+        @if (isInstructor)
+        {
+            <a asp-controller="InstructorCourses"
+               asp-action="Index"
+               class="role-nav-link @Active("InstructorCourses")"
+               title="Khóa học của tôi">
+
+                <span class="role-nav-icon">
+                    <svg viewBox="0 0 24 24"
+                         aria-hidden="true">
+                        <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11a3 3 0 0 1 3 3v15a3 3 0 0 0-3-3H6.5A2.5 2.5 0 0 0 4 20.5Z" />
+                        <path d="M20 5.5A2.5 2.5 0 0 0 17.5 3H14v18a3 3 0 0 1 3-3h.5a2.5 2.5 0 0 1 2.5 2.5Z" />
+                    </svg>
+                </span>
+
+                <span class="role-nav-text">
+                    Khóa học của tôi
+                </span>
+
+            </a>
+
+            <a asp-controller="InstructorStudents"
+               asp-action="Index"
+               class="role-nav-link @Active("InstructorStudents")"
+               title="Học viên">
+
+                <span class="role-nav-icon">
+                    <svg viewBox="0 0 24 24"
+                         aria-hidden="true">
+                        <circle cx="9" cy="8" r="3" />
+                        <circle cx="17" cy="9" r="2.5" />
+                        <path d="M3 20a6 6 0 0 1 12 0" />
+                        <path d="M14 15.5a5 5 0 0 1 7 4.5" />
+                    </svg>
+                </span>
+
+                <span class="role-nav-text">
+                    Học viên
+                </span>
+
+            </a>
+
+            <a asp-controller="InstructorAnalytics"
+               asp-action="Index"
+               class="role-nav-link @Active("InstructorAnalytics")"
+               title="Thống kê">
+
+                <span class="role-nav-icon">
+                    <svg viewBox="0 0 24 24"
+                         aria-hidden="true">
+                        <path d="M4 20V10" />
+                        <path d="M10 20V4" />
+                        <path d="M16 20v-7" />
+                        <path d="M22 20H2" />
+                    </svg>
+                </span>
+
+                <span class="role-nav-text">
+                    Thống kê
+                </span>
+
+            </a>
+
+            <a asp-controller="LessonQuestions"
+               asp-action="Index"
+               class="role-nav-link @Active("LessonQuestions")"
+               title="Hỏi đáp">
+
+                <span class="role-nav-icon">
+                    <svg viewBox="0 0 24 24"
+                         aria-hidden="true">
+                        <path d="M21 15a4 4 0 0 1-4 4H9l-6 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z" />
+                        <path d="M9.5 9a2.5 2.5 0 1 1 4 2c-1 .7-1.5 1.2-1.5 2" />
+                        <path d="M12 16h.01" />
+                    </svg>
+                </span>
+
+                <span class="role-nav-text">
+                    Hỏi đáp
+                </span>
+
+            </a>
+
+            <a asp-controller="Notifications"
+               asp-action="Index"
+               class="role-nav-link @Active("Notifications")"
+               title="Thông báo">
+
+                <span class="role-nav-icon">
+                    <svg viewBox="0 0 24 24"
+                         aria-hidden="true">
+                        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+                        <path d="M10 21h4" />
+                    </svg>
+                </span>
+
+                <span class="role-nav-text">
+                    Thông báo
+                </span>
+
+            </a>
+
+            <a asp-controller="Profile"
+               asp-action="Index"
+               class="role-nav-link @Active("Profile")"
+               title="Hồ sơ">
+
+                <span class="role-nav-icon">
+                    <svg viewBox="0 0 24 24"
+                         aria-hidden="true">
+                        <circle cx="12" cy="8" r="4" />
+                        <path d="M4.5 21a7.5 7.5 0 0 1 15 0" />
+                    </svg>
+                </span>
+
+                <span class="role-nav-text">
+                    Hồ sơ
+                </span>
+
+            </a>
+        }
+
+        @if (isAdmin)
+        {
+            <a asp-controller="AdminUsers"
+               asp-action="Index"
+               class="role-nav-link @Active("AdminUsers")"
+               title="Người dùng">
+
+                <span class="role-nav-icon">
+                    <svg viewBox="0 0 24 24"
+                         aria-hidden="true">
+                        <circle cx="9" cy="8" r="3" />
+                        <circle cx="17" cy="9" r="2.5" />
+                        <path d="M3 20a6 6 0 0 1 12 0" />
+                        <path d="M14 15.5a5 5 0 0 1 7 4.5" />
+                    </svg>
+                </span>
+
+                <span class="role-nav-text">
+                    Người dùng
+                </span>
+
+            </a>
+
+            <a asp-controller="AdminCourses"
+               asp-action="Index"
+               class="role-nav-link @Active("AdminCourses")"
+               title="Khóa học">
+
+                <span class="role-nav-icon">
+                    <svg viewBox="0 0 24 24"
+                         aria-hidden="true">
+                        <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11a3 3 0 0 1 3 3v15a3 3 0 0 0-3-3H6.5A2.5 2.5 0 0 0 4 20.5Z" />
+                        <path d="M20 5.5A2.5 2.5 0 0 0 17.5 3H14v18a3 3 0 0 1 3-3h.5a2.5 2.5 0 0 1 2.5 2.5Z" />
+                    </svg>
+                </span>
+
+                <span class="role-nav-text">
+                    Khóa học
+                </span>
+
+            </a>
+
+            <a asp-controller="AdminCategories"
+               asp-action="Index"
+               class="role-nav-link @Active("AdminCategories")"
+               title="Danh mục">
+
+                <span class="role-nav-icon">
+                    <svg viewBox="0 0 24 24"
+                         aria-hidden="true">
+                        <rect x="3" y="3" width="7" height="7" rx="1.5" />
+                        <rect x="14" y="3" width="7" height="7" rx="1.5" />
+                        <rect x="3" y="14" width="7" height="7" rx="1.5" />
+                        <rect x="14" y="14" width="7" height="7" rx="1.5" />
+                    </svg>
+                </span>
+
+                <span class="role-nav-text">
+                    Danh mục
+                </span>
+
+            </a>
+
+            <a asp-controller="LessonQuestions"
+               asp-action="Index"
+               class="role-nav-link @Active("LessonQuestions")"
+               title="Câu hỏi & Hỗ trợ">
+
+                <span class="role-nav-icon">
+                    <svg viewBox="0 0 24 24"
+                         aria-hidden="true">
+                        <path d="M21 15a4 4 0 0 1-4 4H9l-6 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z" />
+                        <path d="M9.5 9a2.5 2.5 0 1 1 4 2c-1 .7-1.5 1.2-1.5 2" />
+                    </svg>
+                </span>
+
+                <span class="role-nav-text">
+                    Câu hỏi & Hỗ trợ
+                </span>
+
+            </a>
+
+            <a asp-controller="AdminDashboard"
+               asp-action="Index"
+               class="role-nav-link @Active("AdminDashboard")"
+               title="Báo cáo">
+
+                <span class="role-nav-icon">
+                    <svg viewBox="0 0 24 24"
+                         aria-hidden="true">
+                        <path d="M5 3h14v18H5Z" />
+                        <path d="M8 8h8" />
+                        <path d="M8 12h8" />
+                        <path d="M8 16h5" />
+                    </svg>
+                </span>
+
+                <span class="role-nav-text">
+                    Báo cáo
+                </span>
+
+            </a>
+
+            <a asp-controller="Profile"
+               asp-action="Index"
+               class="role-nav-link @Active("Profile")"
+               title="Hồ sơ">
+
+                <span class="role-nav-icon">
+                    <svg viewBox="0 0 24 24"
+                         aria-hidden="true">
+                        <circle cx="12" cy="8" r="4" />
+                        <path d="M4.5 21a7.5 7.5 0 0 1 15 0" />
+                    </svg>
+                </span>
+
+                <span class="role-nav-text">
+                    Hồ sơ
+                </span>
+
+            </a>
+        }
+
+    </nav>
+
+</aside>

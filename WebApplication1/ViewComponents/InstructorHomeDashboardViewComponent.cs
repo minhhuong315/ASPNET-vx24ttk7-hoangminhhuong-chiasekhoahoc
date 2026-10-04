@@ -145,6 +145,9 @@ namespace OnlineLearningPlatform.ViewComponents
                                         c.Category?.Name
                                         ?? "Chưa phân loại",
 
+                                    ThumbnailUrl =
+                                        c.ThumbnailUrl,
+
                                     IsPublished =
                                         c.IsPublished,
 
