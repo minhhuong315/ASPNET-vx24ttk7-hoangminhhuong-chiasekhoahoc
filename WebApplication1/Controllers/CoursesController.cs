@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OnlineLearningPlatform.Data;
 using OnlineLearningPlatform.Models;
-using OnlineLearningPlatform.ViewModels;
 
 namespace OnlineLearningPlatform.Controllers
 {
@@ -29,40 +28,67 @@ namespace OnlineLearningPlatform.Controllers
             string? search,
             int? categoryId,
             string? level,
+            string? priceRange,
             decimal? minPrice,
             decimal? maxPrice,
             int? minRating,
-            string? sort)
+            string? sort,
+            int page = 1)
         {
-            search = search?.Trim();
+            search =
+                search?.Trim();
 
-            string? normalizedLevel = null;
+            string? normalizedLevel =
+                null;
 
-            if (!string.IsNullOrWhiteSpace(level))
+            if (!string.IsNullOrWhiteSpace(
+                level))
             {
-                switch (level.Trim().ToLowerInvariant())
+                switch (level
+                    .Trim()
+                    .ToLowerInvariant())
                 {
                     case "beginner":
-                        normalizedLevel = "Beginner";
+                        normalizedLevel =
+                            "Beginner";
                         break;
 
                     case "intermediate":
-                        normalizedLevel = "Intermediate";
+                        normalizedLevel =
+                            "Intermediate";
                         break;
 
                     case "advanced":
-                        normalizedLevel = "Advanced";
+                        normalizedLevel =
+                            "Advanced";
                         break;
                 }
             }
 
+            priceRange =
+                priceRange?
+                    .Trim()
+                    .ToLowerInvariant();
+
+            priceRange =
+                priceRange switch
+                {
+                    "free" => "free",
+                    "under-1m" => "under-1m",
+                    "1m-2m" => "1m-2m",
+                    "over-2m" => "over-2m",
+                    _ => null
+                };
+
             minPrice =
-                minPrice.HasValue && minPrice.Value >= 0
+                minPrice.HasValue &&
+                minPrice.Value >= 0
                     ? minPrice.Value
                     : null;
 
             maxPrice =
-                maxPrice.HasValue && maxPrice.Value >= 0
+                maxPrice.HasValue &&
+                maxPrice.Value >= 0
                     ? maxPrice.Value
                     : null;
 
@@ -82,7 +108,9 @@ namespace OnlineLearningPlatform.Controllers
                     : null;
 
             sort =
-                sort?.Trim().ToLowerInvariant();
+                sort?
+                    .Trim()
+                    .ToLowerInvariant();
 
             sort =
                 sort switch
@@ -101,11 +129,14 @@ namespace OnlineLearningPlatform.Controllers
                     .Include(c => c.Instructor)
                     .Include(c => c.Enrollments)
                     .Include(c => c.Reviews
-                        .Where(r => r.IsApproved))
-                    .Where(c => c.IsPublished)
+                        .Where(r =>
+                            r.IsApproved))
+                    .Where(c =>
+                        c.IsPublished)
                     .AsQueryable();
 
-            if (!string.IsNullOrWhiteSpace(search))
+            if (!string.IsNullOrWhiteSpace(
+                search))
             {
                 coursesQuery =
                     coursesQuery.Where(c =>
@@ -138,28 +169,90 @@ namespace OnlineLearningPlatform.Controllers
                         normalizedLevel);
             }
 
-            if (minPrice.HasValue)
+            if (!string.IsNullOrWhiteSpace(
+                priceRange))
             {
                 coursesQuery =
-                    coursesQuery.Where(c =>
-                        (
-                            c.DiscountPrice.HasValue &&
-                            c.DiscountPrice.Value < c.Price
-                                ? c.DiscountPrice.Value
-                                : c.Price
-                        ) >= minPrice.Value);
-            }
+                    priceRange switch
+                    {
+                        "free" =>
+                            coursesQuery.Where(c =>
+                                (
+                                    c.DiscountPrice.HasValue &&
+                                    c.DiscountPrice.Value < c.Price
+                                        ? c.DiscountPrice.Value
+                                        : c.Price
+                                ) == 0),
 
-            if (maxPrice.HasValue)
+                        "under-1m" =>
+                            coursesQuery.Where(c =>
+                                (
+                                    c.DiscountPrice.HasValue &&
+                                    c.DiscountPrice.Value < c.Price
+                                        ? c.DiscountPrice.Value
+                                        : c.Price
+                                ) > 0 &&
+                                (
+                                    c.DiscountPrice.HasValue &&
+                                    c.DiscountPrice.Value < c.Price
+                                        ? c.DiscountPrice.Value
+                                        : c.Price
+                                ) < 1000000),
+
+                        "1m-2m" =>
+                            coursesQuery.Where(c =>
+                                (
+                                    c.DiscountPrice.HasValue &&
+                                    c.DiscountPrice.Value < c.Price
+                                        ? c.DiscountPrice.Value
+                                        : c.Price
+                                ) >= 1000000 &&
+                                (
+                                    c.DiscountPrice.HasValue &&
+                                    c.DiscountPrice.Value < c.Price
+                                        ? c.DiscountPrice.Value
+                                        : c.Price
+                                ) <= 2000000),
+
+                        "over-2m" =>
+                            coursesQuery.Where(c =>
+                                (
+                                    c.DiscountPrice.HasValue &&
+                                    c.DiscountPrice.Value < c.Price
+                                        ? c.DiscountPrice.Value
+                                        : c.Price
+                                ) > 2000000),
+
+                        _ =>
+                            coursesQuery
+                    };
+            }
+            else
             {
-                coursesQuery =
-                    coursesQuery.Where(c =>
-                        (
-                            c.DiscountPrice.HasValue &&
-                            c.DiscountPrice.Value < c.Price
-                                ? c.DiscountPrice.Value
-                                : c.Price
-                        ) <= maxPrice.Value);
+                // Giữ tương thích với các URL/bộ lọc giá cũ.
+                if (minPrice.HasValue)
+                {
+                    coursesQuery =
+                        coursesQuery.Where(c =>
+                            (
+                                c.DiscountPrice.HasValue &&
+                                c.DiscountPrice.Value < c.Price
+                                    ? c.DiscountPrice.Value
+                                    : c.Price
+                            ) >= minPrice.Value);
+                }
+
+                if (maxPrice.HasValue)
+                {
+                    coursesQuery =
+                        coursesQuery.Where(c =>
+                            (
+                                c.DiscountPrice.HasValue &&
+                                c.DiscountPrice.Value < c.Price
+                                    ? c.DiscountPrice.Value
+                                    : c.Price
+                            ) <= maxPrice.Value);
+                }
             }
 
             if (minRating.HasValue)
@@ -172,8 +265,37 @@ namespace OnlineLearningPlatform.Controllers
                             .Where(r =>
                                 r.IsApproved)
                             .Average(r =>
-                                (double)r.Rating)
-                            >= minRating.Value);
+                                (double)r.Rating) >=
+                        minRating.Value);
+            }
+
+            const int pageSize =
+                9;
+
+            if (page < 1)
+            {
+                page = 1;
+            }
+
+            var totalItems =
+                await coursesQuery
+                    .CountAsync();
+
+            var totalPages =
+                totalItems == 0
+                    ? 0
+                    : (int)Math.Ceiling(
+                        totalItems /
+                        (double)pageSize);
+
+            if (totalPages == 0)
+            {
+                page = 1;
+            }
+            else if (page > totalPages)
+            {
+                page =
+                    totalPages;
             }
 
             coursesQuery =
@@ -240,17 +362,26 @@ namespace OnlineLearningPlatform.Controllers
 
             var courses =
                 await coursesQuery
+                    .Skip(
+                        (page - 1) *
+                        pageSize)
+                    .Take(
+                        pageSize)
                     .ToListAsync();
 
-            ViewBag.Categories =
+            var categories =
                 await _context.Categories
                     .AsNoTracking()
-                    .Where(c => c.IsActive)
+                    .Where(c =>
+                        c.IsActive)
                     .OrderBy(c =>
                         c.DisplayOrder)
                     .ThenBy(c =>
                         c.Name)
                     .ToListAsync();
+
+            ViewBag.Categories =
+                categories;
 
             ViewBag.Search =
                 search;
@@ -259,10 +390,15 @@ namespace OnlineLearningPlatform.Controllers
                 categoryId;
 
             ViewBag.Level =
-                level?.Trim().ToLowerInvariant();
+                level?
+                    .Trim()
+                    .ToLowerInvariant();
 
             ViewBag.NormalizedLevel =
                 normalizedLevel;
+
+            ViewBag.PriceRange =
+                priceRange;
 
             ViewBag.MinPrice =
                 minPrice;
@@ -275,6 +411,18 @@ namespace OnlineLearningPlatform.Controllers
 
             ViewBag.Sort =
                 sort;
+
+            ViewBag.CurrentPage =
+                page;
+
+            ViewBag.TotalPages =
+                totalPages;
+
+            ViewBag.TotalItems =
+                totalItems;
+
+            ViewBag.PageSize =
+                pageSize;
 
             ViewBag.PageTitle =
                 normalizedLevel switch
@@ -308,7 +456,8 @@ namespace OnlineLearningPlatform.Controllers
                         "Khám phá các khóa học Công nghệ thông tin trên EduLearn."
                 };
 
-            return View(courses);
+            return View(
+                courses);
         }
 
 
@@ -578,357 +727,6 @@ namespace OnlineLearningPlatform.Controllers
 
 
             return View(enrollments);
-        }
-
-
-        // =====================================================
-        // XEM THỬ BÀI HỌC MIỄN PHÍ
-        // =====================================================
-
-        [HttpGet]
-        public async Task<IActionResult> PreviewLesson(
-            int lessonId)
-        {
-            var lesson =
-                await _context.Lessons
-                    .AsNoTracking()
-                    .Include(l =>
-                        l.Module)
-                        .ThenInclude(m =>
-                            m.Course)
-                            .ThenInclude(c =>
-                                c.Instructor)
-                    .FirstOrDefaultAsync(l =>
-                        l.Id == lessonId &&
-                        l.IsFree &&
-                        l.Module.Course.IsPublished);
-
-
-            if (lesson == null)
-            {
-                return NotFound();
-            }
-
-
-            // Nếu học viên đã đăng ký khóa học,
-            // đưa về trang học chính thức để tiến độ
-            // và lịch sử học tập vẫn được ghi nhận.
-            if (User.Identity?.IsAuthenticated == true &&
-                User.IsInRole("Student"))
-            {
-                var userId =
-                    _userManager.GetUserId(User);
-
-
-                if (!string.IsNullOrWhiteSpace(userId))
-                {
-                    bool isEnrolled =
-                        await _context.Enrollments
-                            .AsNoTracking()
-                            .AnyAsync(e =>
-                                e.UserId == userId &&
-                                e.CourseId ==
-                                lesson.Module.CourseId);
-
-
-                    if (isEnrolled)
-                    {
-                        return RedirectToAction(
-                            nameof(Learn),
-                            new
-                            {
-                                courseId =
-                                    lesson.Module.CourseId,
-
-                                lessonId =
-                                    lesson.Id
-                            });
-                    }
-                }
-            }
-
-
-            return View(
-                lesson);
-        }
-
-
-        // =====================================================
-        // LỊCH SỬ HỌC TẬP
-        // =====================================================
-
-        [Authorize(Roles = "Student")]
-        public async Task<IActionResult> StudyHistory()
-        {
-            var userId =
-                _userManager.GetUserId(User);
-
-
-            if (string.IsNullOrWhiteSpace(userId))
-            {
-                return Challenge();
-            }
-
-
-            var enrollments =
-                await _context.Enrollments
-                    .Where(e =>
-                        e.UserId == userId &&
-                        e.Course.IsPublished)
-                    .Include(e =>
-                        e.Course)
-                        .ThenInclude(c =>
-                            c.Category)
-                    .OrderByDescending(e =>
-                        e.LastAccessedAt ??
-                        e.EnrolledAt)
-                    .ToListAsync();
-
-
-            // Đảm bảo phần trăm tiến độ và CompletedAt
-            // luôn khớp với LessonProgress hiện tại.
-            foreach (var enrollment in
-                enrollments)
-            {
-                await RecalculateEnrollmentProgressAsync(
-                    userId,
-                    enrollment.CourseId,
-                    enrollment);
-            }
-
-
-            await _context.SaveChangesAsync();
-
-
-            var completedLessonProgresses =
-                await _context.LessonProgresses
-                    .AsNoTracking()
-                    .Where(p =>
-                        p.UserId == userId &&
-                        p.IsCompleted &&
-                        p.Lesson.Module.Course.IsPublished)
-                    .Include(p =>
-                        p.Lesson)
-                        .ThenInclude(l =>
-                            l.Module)
-                            .ThenInclude(m =>
-                                m.Course)
-                    .OrderByDescending(p =>
-                        p.CompletedAt ??
-                        p.LastWatchedAt)
-                    .ToListAsync();
-
-
-            var courseItems =
-                enrollments
-                    .Select(e =>
-                    {
-                        string statusKey;
-                        string statusLabel;
-
-                        if (e.Progress >= 100m)
-                        {
-                            statusKey =
-                                "completed";
-
-                            statusLabel =
-                                "Đã hoàn thành";
-                        }
-                        else if (e.Progress > 0m)
-                        {
-                            statusKey =
-                                "in-progress";
-
-                            statusLabel =
-                                "Đang học";
-                        }
-                        else
-                        {
-                            statusKey =
-                                "not-started";
-
-                            statusLabel =
-                                "Chưa bắt đầu";
-                        }
-
-
-                        return new StudyHistoryCourseViewModel
-                        {
-                            CourseId =
-                                e.CourseId,
-
-                            CourseTitle =
-                                e.Course.Title,
-
-                            CategoryName =
-                                e.Course.Category?.Name ??
-                                "Chưa phân loại",
-
-                            Progress =
-                                e.Progress,
-
-                            StatusKey =
-                                statusKey,
-
-                            StatusLabel =
-                                statusLabel,
-
-                            EnrolledAt =
-                                e.EnrolledAt,
-
-                            LastAccessedAt =
-                                e.LastAccessedAt,
-
-                            CompletedAt =
-                                e.CompletedAt,
-
-                            LastActivityAt =
-                                e.CompletedAt ??
-                                e.LastAccessedAt ??
-                                e.EnrolledAt
-                        };
-                    })
-                    .OrderByDescending(c =>
-                        c.LastActivityAt)
-                    .ToList();
-
-
-            var activities =
-                new List<StudyHistoryActivityViewModel>();
-
-
-            foreach (var enrollment in
-                enrollments)
-            {
-                activities.Add(
-                    new StudyHistoryActivityViewModel
-                    {
-                        Type =
-                            "CourseEnrolled",
-
-                        Title =
-                            "Đăng ký khóa học",
-
-                        Description =
-                            enrollment.Course.Title,
-
-                        OccurredAt =
-                            enrollment.EnrolledAt,
-
-                        CourseId =
-                            enrollment.CourseId
-                    });
-
-
-                if (enrollment.LastAccessedAt.HasValue &&
-                    enrollment.LastAccessedAt.Value >
-                    enrollment.EnrolledAt.AddMinutes(1))
-                {
-                    activities.Add(
-                        new StudyHistoryActivityViewModel
-                        {
-                            Type =
-                                "CourseAccessed",
-
-                            Title =
-                                "Học gần đây",
-
-                            Description =
-                                $"{enrollment.Course.Title} · Tiến độ {enrollment.Progress:0}%",
-
-                            OccurredAt =
-                                enrollment.LastAccessedAt.Value,
-
-                            CourseId =
-                                enrollment.CourseId
-                        });
-                }
-
-
-                if (enrollment.CompletedAt.HasValue)
-                {
-                    activities.Add(
-                        new StudyHistoryActivityViewModel
-                        {
-                            Type =
-                                "CourseCompleted",
-
-                            Title =
-                                "Hoàn thành khóa học",
-
-                            Description =
-                                enrollment.Course.Title,
-
-                            OccurredAt =
-                                enrollment.CompletedAt.Value,
-
-                            CourseId =
-                                enrollment.CourseId
-                        });
-                }
-            }
-
-
-            foreach (var progress in
-                completedLessonProgresses)
-            {
-                activities.Add(
-                    new StudyHistoryActivityViewModel
-                    {
-                        Type =
-                            "LessonCompleted",
-
-                        Title =
-                            "Hoàn thành bài học",
-
-                        Description =
-                            $"{progress.Lesson.Title} · {progress.Lesson.Module.Course.Title}",
-
-                        OccurredAt =
-                            progress.CompletedAt ??
-                            progress.LastWatchedAt,
-
-                        CourseId =
-                            progress.Lesson.Module.CourseId,
-
-                        LessonId =
-                            progress.LessonId
-                    });
-            }
-
-
-            var model =
-                new StudyHistoryViewModel
-                {
-                    TotalCourses =
-                        enrollments.Count,
-
-                    InProgressCourses =
-                        enrollments.Count(e =>
-                            e.Progress > 0m &&
-                            e.Progress < 100m),
-
-                    CompletedCourses =
-                        enrollments.Count(e =>
-                            e.Progress >= 100m),
-
-                    CompletedLessons =
-                        completedLessonProgresses.Count,
-
-                    Courses =
-                        courseItems,
-
-                    Activities =
-                        activities
-                            .OrderByDescending(a =>
-                                a.OccurredAt)
-                            .Take(50)
-                            .ToList()
-                };
-
-
-            return View(
-                model);
         }
 
 
