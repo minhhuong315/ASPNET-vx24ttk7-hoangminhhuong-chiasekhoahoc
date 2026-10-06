@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OnlineLearningPlatform.Data;
+using OnlineLearningPlatform.Models;
 using OnlineLearningPlatform.ViewModels;
 
 namespace OnlineLearningPlatform.Controllers
@@ -10,12 +12,15 @@ namespace OnlineLearningPlatform.Controllers
     public class AdminCoursesController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
 
         public AdminCoursesController(
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
 
@@ -261,11 +266,23 @@ namespace OnlineLearningPlatform.Controllers
                 }
 
 
+                bool isFirstPublish =
+                    !course.PublishedAt.HasValue;
+
+
                 course.IsPublished =
                     true;
 
                 course.PublishedAt ??=
                     DateTime.UtcNow;
+
+
+                if (isFirstPublish)
+                {
+                    await AddNewCourseNotificationsAsync(
+                        course);
+                }
+
 
                 TempData["AdminCoursesSuccess"] =
                     $"Đã xuất bản khóa học \"{course.Title}\".";
@@ -477,6 +494,92 @@ namespace OnlineLearningPlatform.Controllers
                 returnSearch,
                 returnStatus,
                 returnCategoryId);
+        }
+
+
+        // =====================================================
+        // THÔNG BÁO KHÓA HỌC MỚI CHO HỌC VIÊN
+        // =====================================================
+
+        private async Task AddNewCourseNotificationsAsync(
+            Course course)
+        {
+            var students =
+                await _userManager
+                    .GetUsersInRoleAsync(
+                        "Student");
+
+
+            var activeStudentIds =
+                students
+                    .Where(u =>
+                        u.IsActive &&
+                        u.Id != course.InstructorId)
+                    .Select(u =>
+                        u.Id)
+                    .Where(id =>
+                        !string.IsNullOrWhiteSpace(
+                            id))
+                    .Distinct()
+                    .ToList();
+
+
+            if (!activeStudentIds.Any())
+            {
+                return;
+            }
+
+
+            var relatedUrl =
+                Url.Action(
+                    "Details",
+                    "Courses",
+                    new
+                    {
+                        slug =
+                            course.Slug
+                    })
+                ?? "/Courses";
+
+
+            var createdAt =
+                DateTime.UtcNow;
+
+
+            var notifications =
+                activeStudentIds
+                    .Select(studentId =>
+                        new Notification
+                        {
+                            UserId =
+                                studentId,
+
+                            Title =
+                                "Khóa học mới trên EduLearn",
+
+                            Message =
+                                $"Khóa học \"{course.Title}\" vừa được xuất bản. Khám phá nội dung và bắt đầu học ngay.",
+
+                            Type =
+                                "NewCourse",
+
+                            RelatedUrl =
+                                relatedUrl,
+
+                            IsRead =
+                                false,
+
+                            ReadAt =
+                                null,
+
+                            CreatedAt =
+                                createdAt
+                        })
+                    .ToList();
+
+
+            _context.Notifications.AddRange(
+                notifications);
         }
 
 

@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Authorization;
@@ -688,14 +688,25 @@ namespace OnlineLearningPlatform.Controllers
             }
 
 
+            bool isFirstPublish =
+                !course.PublishedAt.HasValue;
+
+
             course.IsPublished =
                 true;
 
-            course.PublishedAt =
+            course.PublishedAt ??=
                 DateTime.UtcNow;
 
             course.UpdatedAt =
                 DateTime.UtcNow;
+
+
+            if (isFirstPublish)
+            {
+                await AddNewCourseNotificationsAsync(
+                    course);
+            }
 
 
             await _context.SaveChangesAsync();
@@ -1594,6 +1605,92 @@ namespace OnlineLearningPlatform.Controllers
                     "DiscountPrice",
                     "Giá khuyến mãi phải nhỏ hơn giá gốc.");
             }
+        }
+
+
+        // =========================================
+        // THÔNG BÁO KHÓA HỌC MỚI CHO HỌC VIÊN
+        // =========================================
+
+        private async Task AddNewCourseNotificationsAsync(
+            Course course)
+        {
+            var students =
+                await _userManager
+                    .GetUsersInRoleAsync(
+                        "Student");
+
+
+            var activeStudentIds =
+                students
+                    .Where(u =>
+                        u.IsActive &&
+                        u.Id != course.InstructorId)
+                    .Select(u =>
+                        u.Id)
+                    .Where(id =>
+                        !string.IsNullOrWhiteSpace(
+                            id))
+                    .Distinct()
+                    .ToList();
+
+
+            if (!activeStudentIds.Any())
+            {
+                return;
+            }
+
+
+            var relatedUrl =
+                Url.Action(
+                    "Details",
+                    "Courses",
+                    new
+                    {
+                        slug =
+                            course.Slug
+                    })
+                ?? "/Courses";
+
+
+            var createdAt =
+                DateTime.UtcNow;
+
+
+            var notifications =
+                activeStudentIds
+                    .Select(studentId =>
+                        new Notification
+                        {
+                            UserId =
+                                studentId,
+
+                            Title =
+                                "Khóa học mới trên EduLearn",
+
+                            Message =
+                                $"Khóa học \"{course.Title}\" vừa được xuất bản. Khám phá nội dung và bắt đầu học ngay.",
+
+                            Type =
+                                "NewCourse",
+
+                            RelatedUrl =
+                                relatedUrl,
+
+                            IsRead =
+                                false,
+
+                            ReadAt =
+                                null,
+
+                            CreatedAt =
+                                createdAt
+                        })
+                    .ToList();
+
+
+            _context.Notifications.AddRange(
+                notifications);
         }
 
 
