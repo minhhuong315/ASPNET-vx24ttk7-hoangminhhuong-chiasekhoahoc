@@ -92,6 +92,26 @@
 
             </a>
 
+            <a asp-controller="Courses"
+               asp-action="StudyHistory"
+               class="role-nav-link @Active("Courses", "StudyHistory")"
+               title="Lịch sử học tập">
+
+                <span class="role-nav-icon">
+                    <svg viewBox="0 0 24 24"
+                         aria-hidden="true">
+                        <circle cx="12" cy="12" r="9" />
+                        <path d="M12 7v5l3 2" />
+                        <path d="M7.5 4.8 5.3 3.5" />
+                    </svg>
+                </span>
+
+                <span class="role-nav-text">
+                    Lịch sử học tập
+                </span>
+
+            </a>
+
             <a asp-controller="Wishlist"
                asp-action="Index"
                class="role-nav-link @Active("Wishlist")"

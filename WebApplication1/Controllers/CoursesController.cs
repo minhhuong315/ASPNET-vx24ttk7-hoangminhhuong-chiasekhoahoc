@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OnlineLearningPlatform.Data;
 using OnlineLearningPlatform.Models;
+using OnlineLearningPlatform.ViewModels;
 
 namespace OnlineLearningPlatform.Controllers
 {
@@ -577,6 +578,285 @@ namespace OnlineLearningPlatform.Controllers
 
 
             return View(enrollments);
+        }
+
+
+        // =====================================================
+        // LỊCH SỬ HỌC TẬP
+        // =====================================================
+
+        [Authorize(Roles = "Student")]
+        public async Task<IActionResult> StudyHistory()
+        {
+            var userId =
+                _userManager.GetUserId(User);
+
+
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Challenge();
+            }
+
+
+            var enrollments =
+                await _context.Enrollments
+                    .Where(e =>
+                        e.UserId == userId &&
+                        e.Course.IsPublished)
+                    .Include(e =>
+                        e.Course)
+                        .ThenInclude(c =>
+                            c.Category)
+                    .OrderByDescending(e =>
+                        e.LastAccessedAt ??
+                        e.EnrolledAt)
+                    .ToListAsync();
+
+
+            // Đảm bảo phần trăm tiến độ và CompletedAt
+            // luôn khớp với LessonProgress hiện tại.
+            foreach (var enrollment in
+                enrollments)
+            {
+                await RecalculateEnrollmentProgressAsync(
+                    userId,
+                    enrollment.CourseId,
+                    enrollment);
+            }
+
+
+            await _context.SaveChangesAsync();
+
+
+            var completedLessonProgresses =
+                await _context.LessonProgresses
+                    .AsNoTracking()
+                    .Where(p =>
+                        p.UserId == userId &&
+                        p.IsCompleted &&
+                        p.Lesson.Module.Course.IsPublished)
+                    .Include(p =>
+                        p.Lesson)
+                        .ThenInclude(l =>
+                            l.Module)
+                            .ThenInclude(m =>
+                                m.Course)
+                    .OrderByDescending(p =>
+                        p.CompletedAt ??
+                        p.LastWatchedAt)
+                    .ToListAsync();
+
+
+            var courseItems =
+                enrollments
+                    .Select(e =>
+                    {
+                        string statusKey;
+                        string statusLabel;
+
+                        if (e.Progress >= 100m)
+                        {
+                            statusKey =
+                                "completed";
+
+                            statusLabel =
+                                "Đã hoàn thành";
+                        }
+                        else if (e.Progress > 0m)
+                        {
+                            statusKey =
+                                "in-progress";
+
+                            statusLabel =
+                                "Đang học";
+                        }
+                        else
+                        {
+                            statusKey =
+                                "not-started";
+
+                            statusLabel =
+                                "Chưa bắt đầu";
+                        }
+
+
+                        return new StudyHistoryCourseViewModel
+                        {
+                            CourseId =
+                                e.CourseId,
+
+                            CourseTitle =
+                                e.Course.Title,
+
+                            CategoryName =
+                                e.Course.Category?.Name ??
+                                "Chưa phân loại",
+
+                            Progress =
+                                e.Progress,
+
+                            StatusKey =
+                                statusKey,
+
+                            StatusLabel =
+                                statusLabel,
+
+                            EnrolledAt =
+                                e.EnrolledAt,
+
+                            LastAccessedAt =
+                                e.LastAccessedAt,
+
+                            CompletedAt =
+                                e.CompletedAt,
+
+                            LastActivityAt =
+                                e.CompletedAt ??
+                                e.LastAccessedAt ??
+                                e.EnrolledAt
+                        };
+                    })
+                    .OrderByDescending(c =>
+                        c.LastActivityAt)
+                    .ToList();
+
+
+            var activities =
+                new List<StudyHistoryActivityViewModel>();
+
+
+            foreach (var enrollment in
+                enrollments)
+            {
+                activities.Add(
+                    new StudyHistoryActivityViewModel
+                    {
+                        Type =
+                            "CourseEnrolled",
+
+                        Title =
+                            "Đăng ký khóa học",
+
+                        Description =
+                            enrollment.Course.Title,
+
+                        OccurredAt =
+                            enrollment.EnrolledAt,
+
+                        CourseId =
+                            enrollment.CourseId
+                    });
+
+
+                if (enrollment.LastAccessedAt.HasValue &&
+                    enrollment.LastAccessedAt.Value >
+                    enrollment.EnrolledAt.AddMinutes(1))
+                {
+                    activities.Add(
+                        new StudyHistoryActivityViewModel
+                        {
+                            Type =
+                                "CourseAccessed",
+
+                            Title =
+                                "Học gần đây",
+
+                            Description =
+                                $"{enrollment.Course.Title} · Tiến độ {enrollment.Progress:0}%",
+
+                            OccurredAt =
+                                enrollment.LastAccessedAt.Value,
+
+                            CourseId =
+                                enrollment.CourseId
+                        });
+                }
+
+
+                if (enrollment.CompletedAt.HasValue)
+                {
+                    activities.Add(
+                        new StudyHistoryActivityViewModel
+                        {
+                            Type =
+                                "CourseCompleted",
+
+                            Title =
+                                "Hoàn thành khóa học",
+
+                            Description =
+                                enrollment.Course.Title,
+
+                            OccurredAt =
+                                enrollment.CompletedAt.Value,
+
+                            CourseId =
+                                enrollment.CourseId
+                        });
+                }
+            }
+
+
+            foreach (var progress in
+                completedLessonProgresses)
+            {
+                activities.Add(
+                    new StudyHistoryActivityViewModel
+                    {
+                        Type =
+                            "LessonCompleted",
+
+                        Title =
+                            "Hoàn thành bài học",
+
+                        Description =
+                            $"{progress.Lesson.Title} · {progress.Lesson.Module.Course.Title}",
+
+                        OccurredAt =
+                            progress.CompletedAt ??
+                            progress.LastWatchedAt,
+
+                        CourseId =
+                            progress.Lesson.Module.CourseId,
+
+                        LessonId =
+                            progress.LessonId
+                    });
+            }
+
+
+            var model =
+                new StudyHistoryViewModel
+                {
+                    TotalCourses =
+                        enrollments.Count,
+
+                    InProgressCourses =
+                        enrollments.Count(e =>
+                            e.Progress > 0m &&
+                            e.Progress < 100m),
+
+                    CompletedCourses =
+                        enrollments.Count(e =>
+                            e.Progress >= 100m),
+
+                    CompletedLessons =
+                        completedLessonProgresses.Count,
+
+                    Courses =
+                        courseItems,
+
+                    Activities =
+                        activities
+                            .OrderByDescending(a =>
+                                a.OccurredAt)
+                            .Take(50)
+                            .ToList()
+                };
+
+
+            return View(
+                model);
         }
 
 
