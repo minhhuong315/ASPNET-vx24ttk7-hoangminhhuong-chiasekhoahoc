@@ -1,247 +1,681 @@
 ﻿/* =========================================================
-   EduLearn Workspace Shell
-   Chỉ quản lý HEADER + SIDEBAR + vùng nội bộ.
-   Không style course/table/card của các trang chức năng.
+   EduLearn Workspace Shell - FINAL SHELL FIX
+   Chỉ quản lý HEADER + SIDEBAR + MAIN + FOOTER.
+   Không đụng business logic, course cards, tables hay ViewModel.
 ========================================================= */
 
 :root {
     --ed-blue: #126bff;
+    --ed-blue-dark: #075ee8;
     --ed-blue-soft: #eaf3ff;
+
+    --ed-green: #18a76f;
+    --ed-green-soft: #eaf9f2;
+
     --ed-purple: #7c4dff;
     --ed-purple-soft: #f1ebff;
-    --ed-border: #e8edf4;
+
+    --ed-orange: #f59e0b;
+    --ed-orange-soft: #fff3df;
+
+    --ed-red: #ef476f;
+    --ed-red-soft: #fff0f4;
+
+    --ed-navy: #12213d;
+    --ed-muted: #7d899c;
+
+    --ed-page-bg: #f6f9fd;
+    --ed-card: #ffffff;
+    --ed-border: #e7edf5;
+
+    /* Khoảng cách chuẩn giữa các khối Dashboard */
+    --ed-gap: 16px;
+
+    /* Bóng card/panel chuẩn của Dashboard */
+    --ed-shadow: 0 9px 28px rgba(38, 68, 108, .055);
+
     --ed-sidebar: 220px;
     --ed-sidebar-collapsed: 72px;
     --ed-header-height: 82px;
 }
 
-/* ---------- header ---------- */
-.role-workspace-page .edulearn-navbar {
-    position: sticky !important;
-    top: 0;
-    z-index: 1700;
-    width: 100%;
-    background: #fff;
+
+/* =========================================================
+   1. TOÀN BỘ WORKSPACE DÙNG MỘT NỀN DUY NHẤT
+========================================================= */
+
+html,
+body.role-workspace-page {
+    background: var(--ed-page-bg) !important;
 }
+
+body.role-workspace-page {
+    padding-top: var(--ed-header-height);
+}
+
+
+/* =========================================================
+   2. HEADER FULL WIDTH + CỐ ĐỊNH KHI CUỘN
+========================================================= */
+
+.role-workspace-page .edulearn-navbar {
+    position: fixed !important;
+
+    top: 0;
+    right: 0;
+    left: 0;
+
+    z-index: 1700;
+
+    width: 100% !important;
+    height: var(--ed-header-height);
+
+    margin: 0 !important;
+
+    border: 0 !important;
+    border-bottom: 1px solid var(--ed-border) !important;
+
+    background: #ffffff !important;
+
+    box-shadow: none !important;
+}
+
 
 .role-workspace-page .edulearn-nav-container {
     width: 100% !important;
     max-width: none !important;
+    min-height: var(--ed-header-height) !important;
+    height: var(--ed-header-height);
+
     margin: 0 !important;
     padding: 0 !important;
+
+    display: grid !important;
+
+    grid-template-columns:
+        var(--ed-sidebar)
+        minmax(0, 1fr)
+        auto !important;
+
+    gap: 0 !important;
+
+    align-items: center;
 }
 
-/* Hamburger + EduLearn cùng một mảng trắng với sidebar, không có vạch dọc. */
+
+/*
+   ☰ + EduLearn là một khối header bên trái.
+   KHÔNG có đường kẻ dọc giữa header và sidebar.
+*/
 .role-workspace-page .workspace-brand-zone {
+    width: var(--ed-sidebar);
+    height: 100%;
+
+    padding: 0 18px !important;
+
+    border: 0 !important;
     border-right: 0 !important;
-    background: #fff !important;
+
+    display: flex !important;
+    align-items: center;
+    justify-content: flex-start;
+
+    gap: 14px !important;
+
+    background: #ffffff !important;
 }
 
-/* ---------- page shell ---------- */
-.role-workspace {
-    min-height: calc(100vh - var(--ed-header-height));
-    background: #f6f9fd;
+
+.role-workspace-page .workspace-brand-zone
+.dashboard-sidebar-toggle {
+    width: 42px;
+    height: 42px;
+
+    flex: 0 0 42px;
+
+    margin: 0 !important;
 }
 
-.role-workspace-main {
+
+.role-workspace-page .workspace-logo {
+    display: inline-flex !important;
+
+    width: auto !important;
     min-width: 0;
-    min-height: calc(100vh - var(--ed-header-height) - 78px);
-    margin-left: var(--ed-sidebar);
-    padding: 22px 28px 46px;
-    background: #f6f9fd;
-    transition: margin-left .2s ease;
+
+    margin: 0 !important;
+
+    opacity: 1 !important;
+
+    overflow: visible !important;
+
+    white-space: nowrap;
 }
 
-.role-workspace-footer {
-    margin-left: var(--ed-sidebar);
-    background: #fff;
-    transition: margin-left .2s ease;
+
+/*
+   Search sử dụng phần không gian còn lại của header.
+   Không còn bị co vào giữa.
+*/
+.role-workspace-page .dashboard-header-search {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0;
+
+    margin: 0 !important;
+    padding: 0 24px !important;
+
+    justify-self: stretch !important;
 }
 
-.role-workspace-footer .footer-container {
-    width: 100%;
-    max-width: 1560px;
-    margin: 0 auto;
-    padding: 0 24px;
+
+.role-workspace-page .dashboard-header-search form,
+.role-workspace-page .dashboard-header-search input {
+    width: 100% !important;
+    max-width: none !important;
 }
 
-/* ---------- fixed sidebar ---------- */
+
+.role-workspace-page .account-area {
+    margin: 0 !important;
+    padding: 0 24px 0 10px !important;
+
+    justify-self: end !important;
+}
+
+
+/*
+   Khi sidebar bên dưới thu gọn, HEADER vẫn giữ
+   ☰ + EduLearn rộng 220px để logo không biến mất.
+*/
+.role-workspace-page.workspace-sidebar-collapsed
+.edulearn-nav-container {
+    grid-template-columns:
+        var(--ed-sidebar)
+        minmax(0, 1fr)
+        auto !important;
+}
+
+
+.role-workspace-page.workspace-sidebar-collapsed
+.workspace-brand-zone {
+    width: var(--ed-sidebar);
+
+    padding: 0 18px !important;
+
+    justify-content: flex-start !important;
+}
+
+
+/* =========================================================
+   3. SIDEBAR DÍNH THẲNG VÀO MÉP TRÁI
+========================================================= */
+
 .role-sidebar {
-    position: fixed;
+    position: fixed !important;
+
     top: var(--ed-header-height);
     bottom: 0;
     left: 0;
+
     z-index: 1450;
+
     width: var(--ed-sidebar);
+
+    margin: 0 !important;
+    padding: 0 !important;
+
     overflow-y: auto;
     overflow-x: hidden;
+
     border: 0 !important;
     border-right: 0 !important;
-    border-radius: 0;
-    background: #fff;
-    box-shadow: none;
+    border-radius: 0 !important;
+
+    background: #ffffff !important;
+
+    box-shadow: none !important;
+
     scrollbar-width: thin;
-    transition: width .2s ease, transform .2s ease;
+
+    transition:
+        width .2s ease,
+        transform .2s ease;
 }
+
 
 .role-sidebar::-webkit-scrollbar {
     width: 5px;
 }
 
+
 .role-sidebar::-webkit-scrollbar-thumb {
     border-radius: 999px;
+
     background: #d9e2ee;
 }
 
+
 .role-sidebar__nav {
-    padding: 14px 10px 24px;
+    padding: 14px 10px 24px !important;
 }
 
+
+/*
+   Tất cả tác vụ dùng cùng một nền neutral.
+   Chỉ active mới có màu nhấn.
+*/
 .role-nav-link {
     min-height: 46px;
-    margin-bottom: 4px;
-    padding: 0 11px;
+
+    margin: 0 0 5px !important;
+    padding: 0 11px !important;
+
+    border: 0 !important;
     border-radius: 10px;
-    color: #526079;
+
+    background: transparent !important;
+
+    color: #526079 !important;
+
     display: flex;
     align-items: center;
+
     gap: 10px;
-    background: transparent;
-    text-decoration: none;
+
     font-size: 10px;
     font-weight: 700;
-    transition: background .16s ease, color .16s ease;
+
+    text-decoration: none;
+
+    transition:
+        background .16s ease,
+        color .16s ease;
 }
+
 
 .role-nav-link:hover {
-    color: var(--ed-blue);
-    background: #f3f7fc;
+    background: #f3f7fc !important;
+
+    color: var(--ed-blue) !important;
 }
+
 
 .role-sidebar--admin .role-nav-link:hover {
-    color: var(--ed-purple);
-    background: #f7f4ff;
+    background: #f7f4ff !important;
+
+    color: var(--ed-purple) !important;
 }
+
 
 .role-nav-link.active {
-    color: var(--ed-blue);
-    background: var(--ed-blue-soft);
+    background: var(--ed-blue-soft) !important;
+
+    color: var(--ed-blue) !important;
 }
+
 
 .role-sidebar--admin .role-nav-link.active {
-    color: var(--ed-purple);
-    background: var(--ed-purple-soft);
+    background: var(--ed-purple-soft) !important;
+
+    color: var(--ed-purple) !important;
 }
 
-/* Tất cả icon có cùng nền/kích thước, không còn KH/HV/count khác màu lộn xộn. */
+
 .role-nav-icon {
-    width: 32px;
-    height: 32px;
-    flex: 0 0 32px;
-    border-radius: 9px;
-    background: #f2f6fb;
-    display: inline-flex;
+    width: 32px !important;
+    height: 32px !important;
+
+    flex: 0 0 32px !important;
+
+    border: 0 !important;
+    border-radius: 9px !important;
+
+    background: #f2f6fb !important;
+
+    color: currentColor !important;
+
+    display: inline-flex !important;
     align-items: center;
     justify-content: center;
-    color: currentColor;
 }
 
+
 .role-nav-icon svg {
-    width: 18px;
-    height: 18px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 2px;
+    width: 18px !important;
+    height: 18px !important;
+
+    fill: none !important;
+
+    stroke: currentColor !important;
+    stroke-width: 2px !important;
     stroke-linecap: round;
     stroke-linejoin: round;
 }
 
+
 .role-nav-link.active .role-nav-icon {
-    background: #fff;
-    box-shadow: 0 3px 9px rgba(38, 74, 120, .07);
+    background: #ffffff !important;
+
+    box-shadow:
+        0 3px 9px
+        rgba(38, 74, 120, .07);
 }
 
+
+/*
+   Không hiện badge/count trong sidebar.
+   Đặc biệt khi collapse chỉ còn icon.
+*/
 .role-nav-count {
     display: none !important;
 }
 
-/* ---------- collapsed desktop ---------- */
+
+/* =========================================================
+   4. MAIN THEO ĐÚNG CHIỀU RỘNG SIDEBAR
+========================================================= */
+
+.role-workspace {
+    width: 100%;
+
+    min-height:
+        calc(
+            100vh -
+            var(--ed-header-height)
+        );
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    background: var(--ed-page-bg) !important;
+}
+
+
+.role-workspace-main {
+    width: auto !important;
+    max-width: none !important;
+
+    min-width: 0;
+    min-height:
+        calc(
+            100vh -
+            var(--ed-header-height) -
+            72px
+        );
+
+    margin:
+        0
+        0
+        0
+        var(--ed-sidebar) !important;
+
+    padding:
+        24px
+        28px
+        42px !important;
+
+    background: var(--ed-page-bg) !important;
+
+    transition:
+        margin-left .2s ease;
+}
+
+
+/*
+   Không cho Home Dashboard tạo thêm một "tờ giấy trắng"
+   lớn bên trong nền trang.
+*/
+.role-workspace-main > .role-dashboard,
+.role-dashboard {
+    width: 100% !important;
+    max-width: none !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    background: transparent !important;
+
+    box-shadow: none !important;
+}
+
+
+/*
+   Dashboard tận dụng toàn bộ vùng content còn lại.
+   Card/panel bên trong mới là nền trắng.
+*/
+.role-dashboard .dashboard-grid {
+    width: 100% !important;
+    max-width: none !important;
+
+    margin: 0 !important;
+}
+
+
+/* =========================================================
+   5. FOOTER NỐI LIỀN VỚI NỀN WORKSPACE
+========================================================= */
+
+.role-workspace-footer {
+    width: auto !important;
+
+    margin:
+        0
+        0
+        0
+        var(--ed-sidebar) !important;
+
+    border: 0 !important;
+    border-top: 1px solid #edf1f6 !important;
+
+    background: var(--ed-page-bg) !important;
+
+    transition:
+        margin-left .2s ease;
+}
+
+
+.role-workspace-footer .footer-container {
+    width: 100% !important;
+    max-width: none !important;
+
+    min-height: 72px;
+
+    margin: 0 !important;
+    padding: 0 28px !important;
+
+    background: transparent !important;
+}
+
+
+/* =========================================================
+   6. DESKTOP COLLAPSED
+========================================================= */
+
 @media (min-width: 1081px) {
-    .role-workspace--sidebar-collapsed .role-sidebar {
-        width: var(--ed-sidebar-collapsed);
+
+    .role-workspace--sidebar-collapsed
+    .role-sidebar {
+        width:
+            var(--ed-sidebar-collapsed) !important;
     }
 
-    .role-workspace--sidebar-collapsed .role-workspace-main,
-    .role-workspace--sidebar-collapsed .role-workspace-footer {
-        margin-left: var(--ed-sidebar-collapsed);
+
+    .role-workspace--sidebar-collapsed
+    .role-workspace-main {
+        margin-left:
+            var(--ed-sidebar-collapsed) !important;
     }
 
-    .role-workspace--sidebar-collapsed .role-sidebar__nav {
-        padding: 14px 8px 24px;
+
+    .role-workspace--sidebar-collapsed
+    .role-workspace-footer {
+        margin-left:
+            var(--ed-sidebar-collapsed) !important;
     }
 
-    .role-workspace--sidebar-collapsed .role-nav-link {
+
+    .role-workspace--sidebar-collapsed
+    .role-sidebar__nav {
+        padding:
+            14px
+            8px
+            24px !important;
+    }
+
+
+    .role-workspace--sidebar-collapsed
+    .role-nav-link {
         min-height: 52px;
-        padding: 0;
+
+        padding: 0 !important;
+
         justify-content: center;
+
         gap: 0;
     }
 
-    .role-workspace--sidebar-collapsed .role-nav-icon {
-        width: 42px;
-        height: 42px;
-        flex: 0 0 42px;
-        border-radius: 11px;
+
+    .role-workspace--sidebar-collapsed
+    .role-nav-icon {
+        width: 42px !important;
+        height: 42px !important;
+
+        flex:
+            0 0
+            42px !important;
+
+        border-radius:
+            11px !important;
     }
 
-    .role-workspace--sidebar-collapsed .role-nav-text,
-    .role-workspace--sidebar-collapsed .role-nav-count {
+
+    .role-workspace--sidebar-collapsed
+    .role-nav-text,
+    .role-workspace--sidebar-collapsed
+    .role-nav-count {
         display: none !important;
     }
 }
 
-/* ---------- mobile off-canvas ---------- */
+
+/* =========================================================
+   7. MOBILE / TABLET
+========================================================= */
+
 .dashboard-sidebar-backdrop {
     display: none;
 }
 
+
 @media (max-width: 1080px) {
+
+    body.role-workspace-page {
+        padding-top:
+            var(--ed-header-height);
+    }
+
+
     body.dashboard-mobile-sidebar-open {
         overflow: hidden;
     }
 
+
+    .role-workspace-page
+    .edulearn-nav-container {
+        grid-template-columns:
+            auto
+            minmax(0, 1fr)
+            auto !important;
+    }
+
+
+    .role-workspace-page
+    .workspace-brand-zone {
+        width: auto;
+
+        padding:
+            0 12px !important;
+    }
+
+
+    .role-workspace-page
+    .dashboard-header-search {
+        padding:
+            0 10px !important;
+    }
+
+
+    .role-workspace-page
+    .account-area {
+        padding:
+            0 12px
+            0 4px !important;
+    }
+
+
     .role-workspace-main,
     .role-workspace-footer {
-        margin-left: 0;
+        margin-left: 0 !important;
     }
+
 
     .role-workspace-main {
-        padding: 14px 12px 36px;
+        padding:
+            18px
+            14px
+            34px !important;
     }
+
 
     .role-sidebar {
-        width: min(280px, calc(100vw - 56px));
-        transform: translateX(-105%);
-        box-shadow: 12px 0 32px rgba(29, 53, 87, .14);
+        width:
+            min(
+                280px,
+                calc(100vw - 56px)
+            ) !important;
+
+        transform:
+            translateX(-105%);
+
+        box-shadow:
+            12px 0 32px
+            rgba(29, 53, 87, .14) !important;
     }
 
-    .role-workspace--mobile-sidebar-open .role-sidebar {
-        transform: translateX(0);
+
+    .role-workspace--mobile-sidebar-open
+    .role-sidebar {
+        transform:
+            translateX(0);
     }
+
 
     .dashboard-sidebar-backdrop {
         position: fixed;
-        top: var(--ed-header-height);
+
+        top:
+            var(--ed-header-height);
+
         right: 0;
         bottom: 0;
         left: 0;
+
         z-index: 1400;
+
         display: block;
-        background: rgba(15, 29, 56, .28);
+
+        background:
+            rgba(15, 29, 56, .28);
+
         opacity: 0;
         visibility: hidden;
-        transition: opacity .2s ease, visibility .2s ease;
+
+        transition:
+            opacity .2s ease,
+            visibility .2s ease;
     }
+
 
     .dashboard-sidebar-backdrop.is-visible {
         opacity: 1;
@@ -249,8 +683,60 @@
     }
 }
 
+
+@media (max-width: 680px) {
+
+    /*
+       Mobile rất hẹp mới ẩn logo để đủ chỗ cho search/account.
+    */
+    .role-workspace-page
+    .workspace-logo {
+        display: none !important;
+    }
+
+
+    .role-workspace-page
+    .edulearn-nav-container {
+        grid-template-columns:
+            58px
+            minmax(110px, 1fr)
+            auto !important;
+    }
+
+
+    .role-workspace-page
+    .workspace-brand-zone {
+        width: 58px;
+
+        padding:
+            0 8px !important;
+    }
+}
+
+
 @media (max-width: 520px) {
+
     .role-sidebar {
-        width: min(270px, calc(100vw - 44px));
+        width:
+            min(
+                270px,
+                calc(100vw - 44px)
+            ) !important;
+    }
+
+
+    .role-workspace-main {
+        padding:
+            14px
+            10px
+            28px !important;
+    }
+
+
+    .role-workspace-footer
+    .footer-container {
+        padding:
+            16px
+            12px !important;
     }
 }

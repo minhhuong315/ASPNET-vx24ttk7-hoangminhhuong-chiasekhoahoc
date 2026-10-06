@@ -1,7 +1,8 @@
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OnlineLearningPlatform.Data;
 using OnlineLearningPlatform.Models;
+using OnlineLearningPlatform.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,8 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(
         options.TokenLifespan =
             TimeSpan.FromHours(2);
     });
+
+builder.Services.AddScoped<IEmailService, SmtpEmailService>();
 
 builder.Services.AddControllersWithViews();
 

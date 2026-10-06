@@ -22,7 +22,15 @@
 
 <style>
     .home-page {
+        background: transparent;
+    }
+
+    .home-page--guest {
         background: #ffffff;
+    }
+
+    .home-page--workspace {
+        background: transparent;
     }
 
     .home-container {
@@ -608,7 +616,7 @@
 </style>
 
 
-<div class="home-page">
+<div class="home-page @(isAuthenticated ? "home-page--workspace" : "home-page--guest")">
 
     @if (!isAuthenticated)
     {

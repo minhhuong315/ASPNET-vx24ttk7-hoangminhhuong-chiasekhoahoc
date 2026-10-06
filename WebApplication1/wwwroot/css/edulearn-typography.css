@@ -1,0 +1,344 @@
+﻿/* =========================================================
+   EduLearn Typography Standard - VIETNAMESE SAFE
+   Ưu tiên giao diện Helvetica nhưng có fallback đầy đủ tiếng Việt.
+   Không sửa grid, gap, nền, sidebar width, header layout.
+========================================================= */
+
+:root {
+    /*
+       Helvetica trên Windows có thể không tồn tại hoặc thiếu glyph tiếng Việt.
+       Vì vậy dùng stack an toàn:
+       - Helvetica Neue / Helvetica nếu máy có
+       - Arial / Segoe UI / Noto Sans làm fallback tiếng Việt
+    */
+    --font-main: "Helvetica Neue", Helvetica, Arial, "Segoe UI", "Noto Sans", sans-serif;
+
+    --fs-body: 16px;
+    --fs-small: 14px;
+    --fs-caption: 12px;
+
+    --fs-h1: 48px;
+    --fs-h2: 36px;
+    --fs-h3: 32px;
+
+    --fs-component-title: 18px;
+    --fs-card-title: 16px;
+    --fs-button: 14px;
+}
+
+/* =========================
+   GLOBAL
+========================= */
+
+html {
+    font-size: 16px;
+}
+
+body,
+button,
+input,
+select,
+textarea {
+    font-family: var(--font-main) !important;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+}
+
+body {
+    font-size: var(--fs-body) !important;
+    line-height: 1.55;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--font-main) !important;
+    font-weight: 700;
+}
+
+h1 {
+    font-size: var(--fs-h1) !important;
+    line-height: 1.15 !important;
+}
+
+h2 {
+    font-size: var(--fs-h2) !important;
+    line-height: 1.2 !important;
+}
+
+h3 {
+    font-size: var(--fs-h3) !important;
+    line-height: 1.25 !important;
+}
+
+p,
+li,
+label,
+input,
+select,
+textarea {
+    font-size: 16px;
+}
+
+small,
+.small,
+.caption {
+    font-size: var(--fs-caption) !important;
+}
+
+/* =========================
+   HEADER / SIDEBAR
+========================= */
+
+.role-workspace-page .dashboard-header-search,
+.role-workspace-page .dashboard-header-search input,
+.role-workspace-page .account-area,
+.role-workspace-page .account-menu-name,
+.role-workspace-page .account-menu-role {
+    font-family: var(--font-main) !important;
+}
+
+.role-workspace-page .dashboard-header-search input {
+    font-size: 14px !important;
+}
+
+.role-nav-link {
+    font-family: var(--font-main) !important;
+    font-size: 14px !important;
+}
+
+.role-sidebar__title,
+.role-sidebar__role,
+.role-sidebar__group-title {
+    font-family: var(--font-main) !important;
+}
+
+.role-sidebar__title {
+    font-size: 16px !important;
+}
+
+.role-sidebar__role,
+.role-sidebar__group-title {
+    font-size: 12px !important;
+}
+
+/* =========================
+   DASHBOARD - HEADINGS
+========================= */
+
+.role-dashboard {
+    font-family: var(--font-main) !important;
+    font-size: 16px !important;
+}
+
+.role-dashboard .dashboard-title {
+    font-size: 40px !important;
+    line-height: 1.15 !important;
+}
+
+.role-dashboard .dashboard-subtitle {
+    font-size: 14px !important;
+    line-height: 1.55 !important;
+}
+
+.role-dashboard .dashboard-eyebrow {
+    font-size: 12px !important;
+}
+
+.role-dashboard .dashboard-heading-action {
+    font-size: 14px !important;
+}
+
+/* =========================
+   DASHBOARD - METRICS
+========================= */
+
+.role-dashboard .metric-value {
+    font-size: 26px !important;
+}
+
+.role-dashboard .metric-label {
+    font-size: 14px !important;
+}
+
+.role-dashboard .metric-icon {
+    font-size: 14px !important;
+}
+
+/* =========================
+   DASHBOARD - PANELS
+========================= */
+
+.role-dashboard .panel-title {
+    font-size: 18px !important;
+}
+
+.role-dashboard .panel-title-icon {
+    font-size: 13px !important;
+}
+
+.role-dashboard .panel-link {
+    font-size: 13px !important;
+}
+
+.role-dashboard .student-tabs {
+    font-size: 14px !important;
+}
+
+/* =========================
+   STUDENT COURSE LIST
+========================= */
+
+.role-dashboard .course-title {
+    font-size: 16px !important;
+}
+
+.role-dashboard .course-category,
+.role-dashboard .course-progress-value {
+    font-size: 12px !important;
+}
+
+.role-dashboard .course-action {
+    font-size: 14px !important;
+}
+
+/* =========================
+   QUICK ACCESS / RECOMMEND
+========================= */
+
+.role-dashboard .quick-title,
+.role-dashboard .recommend-title {
+    font-size: 14px !important;
+}
+
+.role-dashboard .quick-subtitle,
+.role-dashboard .recommend-meta {
+    font-size: 12px !important;
+}
+
+.role-dashboard .quick-icon {
+    font-size: 14px !important;
+}
+
+/* =========================
+   TABLES
+========================= */
+
+.role-dashboard .dashboard-table th {
+    font-size: 12px !important;
+}
+
+.role-dashboard .dashboard-table td {
+    font-size: 14px !important;
+}
+
+.role-dashboard .table-course-name {
+    font-size: 14px !important;
+}
+
+.role-dashboard .table-course-meta {
+    font-size: 12px !important;
+}
+
+.role-dashboard .status-pill,
+.role-dashboard .table-action {
+    font-size: 12px !important;
+}
+
+/* =========================
+   INSTRUCTOR / ADMIN
+========================= */
+
+.role-dashboard .attention-value {
+    font-size: 22px !important;
+}
+
+.role-dashboard .attention-label,
+.role-dashboard .system-label,
+.role-dashboard .legend-row {
+    font-size: 13px !important;
+}
+
+.role-dashboard .system-value {
+    font-size: 20px !important;
+}
+
+.role-dashboard .system-button {
+    font-size: 14px !important;
+}
+
+.role-dashboard .donut-total {
+    font-size: 26px !important;
+}
+
+.role-dashboard .donut-label,
+.role-dashboard .chart-axis-labels {
+    font-size: 12px !important;
+}
+
+.role-dashboard .dashboard-empty {
+    font-size: 14px !important;
+}
+
+/* =========================
+   BUTTONS / FORM CONTROLS
+========================= */
+
+.btn,
+button,
+input,
+select,
+textarea {
+    font-size: 14px;
+}
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 1024px) {
+    :root {
+        --fs-h1: 40px;
+        --fs-h2: 32px;
+        --fs-h3: 32px;
+    }
+
+    .role-dashboard .dashboard-title {
+        font-size: 40px !important;
+    }
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 600px) {
+    :root {
+        --fs-h1: 32px;
+        --fs-h2: 26px;
+        --fs-h3: 26px;
+    }
+
+    body {
+        font-size: 16px !important;
+    }
+
+    .role-dashboard .dashboard-title {
+        font-size: 32px !important;
+    }
+
+    .role-dashboard .dashboard-subtitle {
+        font-size: 14px !important;
+    }
+
+    .role-dashboard .metric-value {
+        font-size: 24px !important;
+    }
+
+    .role-dashboard .panel-title {
+        font-size: 17px !important;
+    }
+}

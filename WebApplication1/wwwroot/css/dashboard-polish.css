@@ -1,0 +1,935 @@
+﻿/* =========================================================
+   EduLearn Dashboard Polish
+   Load AFTER:
+   1) workspace-shell.css
+   2) dashboard-role.css
+   3) edulearn-typography.css
+
+   Mục tiêu:
+   - KHÔNG sửa nền / sidebar / header / --ed-gap
+   - Fit card theo font mới
+   - Đồng bộ kích thước icon box
+   - Giảm cảm giác chart Admin bị kéo giãn
+   - Bảng/panel dễ đọc hơn
+========================================================= */
+
+/* =========================================================
+   1. DASHBOARD CONTAINER
+========================================================= */
+
+.role-dashboard {
+    --dash-radius: 16px;
+    --dash-icon-size: 46px;
+    --dash-panel-head: 64px;
+}
+
+.role-dashboard .dashboard-grid {
+    max-width: 1560px !important;
+    align-items: start;
+}
+
+/* Giữ khoảng cách chuẩn đã chốt */
+.role-dashboard .dashboard-grid,
+.role-dashboard .right-stack {
+    gap: var(--ed-gap) !important;
+}
+
+
+/* =========================================================
+   2. HEADING
+========================================================= */
+
+.role-dashboard .dashboard-heading {
+    min-height: 104px;
+    padding: 10px 2px 12px;
+    align-items: flex-start;
+}
+
+.role-dashboard .dashboard-title {
+    margin: 0 !important;
+    letter-spacing: -0.02em;
+}
+
+.role-dashboard .dashboard-subtitle {
+    max-width: 760px;
+    margin-top: 8px !important;
+}
+
+.role-dashboard .dashboard-heading-action {
+    min-height: 44px;
+    padding: 0 18px;
+    border-radius: 11px;
+}
+
+
+/* =========================================================
+   3. METRIC CARDS
+========================================================= */
+
+.role-dashboard .metric-cluster {
+    gap: var(--ed-gap) !important;
+}
+
+.role-dashboard .metric-card {
+    min-height: 112px;
+    padding: 18px;
+    gap: 14px;
+
+    border-radius: var(--dash-radius);
+
+    box-shadow:
+        0 8px 24px
+        rgba(36, 68, 112, .045);
+}
+
+.role-dashboard .metric-icon {
+    width: var(--dash-icon-size) !important;
+    height: var(--dash-icon-size) !important;
+    flex: 0 0 var(--dash-icon-size) !important;
+
+    border-radius: 13px !important;
+
+    font-size: 14px !important;
+    line-height: 1;
+}
+
+.role-dashboard .metric-icon svg {
+    width: 22px !important;
+    height: 22px !important;
+}
+
+.role-dashboard .metric-value {
+    font-size: 28px !important;
+    line-height: 1 !important;
+}
+
+.role-dashboard .metric-label {
+    margin-top: 6px !important;
+    font-size: 14px !important;
+    line-height: 1.25;
+}
+
+
+/* =========================================================
+   4. PANEL HEADERS
+========================================================= */
+
+.role-dashboard .dashboard-panel {
+    border-radius: var(--dash-radius);
+}
+
+.role-dashboard .panel-head {
+    min-height: var(--dash-panel-head);
+    padding: 0 18px;
+    gap: 14px;
+}
+
+.role-dashboard .panel-title {
+    gap: 10px;
+    font-size: 18px !important;
+    line-height: 1.25;
+}
+
+.role-dashboard .panel-title-icon {
+    width: 40px !important;
+    height: 40px !important;
+    flex: 0 0 40px;
+
+    border-radius: 11px;
+
+    font-size: 13px !important;
+}
+
+.role-dashboard .panel-title-icon svg {
+    width: 20px;
+    height: 20px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.role-dashboard .panel-link {
+    font-size: 13px !important;
+}
+
+
+/* =========================================================
+   5. STUDENT
+========================================================= */
+
+.role-dashboard .student-tabs {
+    padding: 14px 18px 0;
+    gap: 26px;
+    font-size: 14px !important;
+}
+
+.role-dashboard .student-course-list {
+    padding: 12px 14px 14px;
+    gap: 10px;
+}
+
+.role-dashboard .student-course-row {
+    min-height: 104px;
+
+    padding: 12px;
+
+    grid-template-columns:
+        132px
+        minmax(0, 1fr)
+        118px;
+
+    gap: 14px;
+
+    border-radius: 13px;
+}
+
+.role-dashboard .course-title {
+    font-size: 16px !important;
+    line-height: 1.35;
+}
+
+.role-dashboard .course-category {
+    margin-top: 6px;
+    padding: 4px 8px;
+
+    font-size: 12px !important;
+}
+
+.role-dashboard .course-progress {
+    margin-top: 9px;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        42px;
+
+    gap: 10px;
+}
+
+.role-dashboard .course-progress-track {
+    height: 7px;
+}
+
+.role-dashboard .course-progress-value {
+    font-size: 12px !important;
+}
+
+.role-dashboard .course-action {
+    min-height: 42px;
+    padding: 0 14px;
+
+    border-radius: 10px;
+
+    font-size: 14px !important;
+}
+
+
+/* =========================================================
+   6. QUICK ACCESS / RECOMMENDATIONS
+========================================================= */
+
+.role-dashboard .quick-list {
+    padding: 12px;
+    gap: 9px;
+}
+
+.role-dashboard .quick-link {
+    min-height: 70px;
+
+    padding: 12px;
+
+    grid-template-columns:
+        44px
+        minmax(0, 1fr)
+        18px;
+
+    gap: 11px;
+
+    border-radius: 12px;
+}
+
+.role-dashboard .quick-icon {
+    width: 44px !important;
+    height: 44px !important;
+
+    border-radius: 12px;
+
+    font-size: 14px !important;
+}
+
+.role-dashboard .quick-icon svg {
+    width: 21px;
+    height: 21px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.role-dashboard .quick-title {
+    font-size: 14px !important;
+    line-height: 1.3;
+}
+
+.role-dashboard .quick-subtitle {
+    margin-top: 3px;
+
+    font-size: 12px !important;
+    line-height: 1.4;
+}
+
+.role-dashboard .recommend-list {
+    padding: 11px;
+}
+
+.role-dashboard .recommend-item {
+    min-height: 76px;
+
+    padding: 10px;
+
+    grid-template-columns:
+        86px
+        minmax(0, 1fr);
+
+    gap: 11px;
+}
+
+.role-dashboard .recommend-title {
+    font-size: 14px !important;
+}
+
+.role-dashboard .recommend-meta {
+    font-size: 12px !important;
+}
+
+
+/* =========================================================
+   7. TABLES
+========================================================= */
+
+.role-dashboard .table-wrap {
+    overflow-x: auto;
+}
+
+.role-dashboard .dashboard-table th,
+.role-dashboard .dashboard-table td {
+    padding: 13px 14px;
+}
+
+.role-dashboard .dashboard-table th {
+    font-size: 12px !important;
+    line-height: 1.25;
+}
+
+.role-dashboard .dashboard-table td {
+    font-size: 14px !important;
+    line-height: 1.35;
+}
+
+.role-dashboard .table-course-cell {
+    grid-template-columns:
+        76px
+        minmax(0, 1fr);
+
+    gap: 11px;
+}
+
+.role-dashboard .table-course-name {
+    font-size: 14px !important;
+}
+
+.role-dashboard .table-course-meta {
+    margin-top: 4px;
+
+    font-size: 12px !important;
+}
+
+.role-dashboard .status-pill,
+.role-dashboard .table-action {
+    font-size: 12px !important;
+}
+
+
+/* =========================================================
+   8. INSTRUCTOR ATTENTION
+========================================================= */
+
+.role-dashboard .attention-list {
+    padding: 12px;
+    gap: 10px;
+}
+
+.role-dashboard .attention-item {
+    min-height: 80px;
+
+    padding: 12px;
+
+    grid-template-columns:
+        44px
+        minmax(0, 1fr)
+        18px;
+
+    gap: 11px;
+
+    border-radius: 12px;
+}
+
+.role-dashboard .attention-icon {
+    width: 44px !important;
+    height: 44px !important;
+
+    border-radius: 12px;
+
+    font-size: 14px !important;
+}
+
+.role-dashboard .attention-icon svg {
+    width: 21px;
+    height: 21px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.role-dashboard .attention-value {
+    font-size: 22px !important;
+}
+
+.role-dashboard .attention-label {
+    margin-top: 5px;
+
+    font-size: 13px !important;
+    line-height: 1.3;
+}
+
+
+/* =========================================================
+   9. ADMIN - CÂN LẠI TỈ LỆ CHART
+========================================================= */
+
+/*
+   Admin: 7/12 cho chart/table trái,
+   5/12 cho donut/status phải.
+   Không còn chart 8/12 quá dài.
+*/
+.role-dashboard--admin .grid-left {
+    grid-column: 1 / 8;
+}
+
+.role-dashboard--admin .grid-right {
+    grid-column: 8 / 13;
+}
+
+.role-dashboard--admin .chart-box {
+    padding: 16px 18px 14px;
+}
+
+.role-dashboard--admin .line-chart {
+    width: 100%;
+
+    height: 185px;
+    max-height: 185px;
+}
+
+.role-dashboard--admin .chart-axis-labels {
+    margin-top: 4px;
+
+    font-size: 12px !important;
+}
+
+.role-dashboard--admin .user-composition {
+    min-height: 218px;
+
+    padding: 22px 20px;
+
+    grid-template-columns:
+        142px
+        minmax(0, 1fr);
+
+    gap: 20px;
+}
+
+.role-dashboard--admin .donut {
+    width: 142px;
+    height: 142px;
+}
+
+.role-dashboard--admin .donut-total {
+    font-size: 26px !important;
+}
+
+.role-dashboard--admin .donut-label {
+    font-size: 12px !important;
+}
+
+.role-dashboard--admin .legend-row {
+    grid-template-columns:
+        10px
+        minmax(0, 1fr)
+        auto
+        auto;
+
+    gap: 8px;
+
+    font-size: 13px !important;
+}
+
+.role-dashboard--admin .legend-dot {
+    width: 10px;
+    height: 10px;
+}
+
+.role-dashboard--admin .system-list {
+    padding: 10px 18px;
+}
+
+.role-dashboard--admin .system-row {
+    min-height: 58px;
+}
+
+.role-dashboard--admin .system-label {
+    font-size: 13px !important;
+}
+
+.role-dashboard--admin .system-value {
+    font-size: 20px !important;
+}
+
+.role-dashboard--admin .system-button {
+    min-height: 44px;
+
+    margin: 12px 18px 18px;
+
+    border-radius: 10px;
+
+    font-size: 14px !important;
+}
+
+
+/* =========================================================
+   10. ICON SYSTEM
+   Chuẩn hóa "box" icon trước.
+   Các chữ KH/HV/PT... nếu view chưa thay SVG vẫn nằm gọn,
+   không làm vỡ layout.
+========================================================= */
+
+.role-dashboard .metric-icon,
+.role-dashboard .panel-title-icon,
+.role-dashboard .quick-icon,
+.role-dashboard .attention-icon {
+    font-family:
+        "Helvetica Neue",
+        Helvetica,
+        Arial,
+        "Segoe UI",
+        sans-serif !important;
+
+    font-weight: 800;
+    text-align: center;
+}
+
+
+/* =========================================================
+   11. RESPONSIVE
+========================================================= */
+
+@media (max-width: 1320px) and (min-width: 901px) {
+
+    .role-dashboard .metric-cluster--6 {
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+    }
+
+    .role-dashboard .metric-card {
+        min-height: 104px;
+    }
+
+    .role-dashboard--admin .grid-left,
+    .role-dashboard--admin .grid-right {
+        grid-column: 1 / -1;
+    }
+
+    .role-dashboard--admin .line-chart {
+        height: 200px;
+        max-height: 200px;
+    }
+}
+
+
+@media (max-width: 900px) {
+
+    .role-dashboard .grid-left,
+    .role-dashboard .grid-right,
+    .role-dashboard--admin .grid-left,
+    .role-dashboard--admin .grid-right {
+        grid-column: 1 / -1;
+    }
+
+    .role-dashboard .metric-cluster--4,
+    .role-dashboard .metric-cluster--6 {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .role-dashboard--admin .user-composition {
+        grid-template-columns:
+            142px
+            minmax(0, 1fr);
+
+        justify-items: stretch;
+    }
+}
+
+
+@media (max-width: 780px) {
+
+    .role-dashboard .dashboard-heading {
+        min-height: 0;
+        gap: 14px;
+    }
+
+    .role-dashboard .dashboard-heading-action {
+        width: 100%;
+    }
+
+    .role-dashboard .metric-card {
+        min-height: 100px;
+    }
+
+    .role-dashboard .student-course-row {
+        grid-template-columns:
+            112px
+            minmax(0, 1fr);
+    }
+
+    .role-dashboard .course-action {
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+}
+
+
+@media (max-width: 600px) {
+
+    .role-dashboard .metric-cluster--2,
+    .role-dashboard .metric-cluster--3,
+    .role-dashboard .metric-cluster--4,
+    .role-dashboard .metric-cluster--6 {
+        grid-template-columns: 1fr;
+    }
+
+    .role-dashboard .metric-card {
+        min-height: 94px;
+        padding: 15px;
+    }
+
+    .role-dashboard .student-tabs {
+        gap: 16px;
+    }
+
+    .role-dashboard .student-course-row {
+        grid-template-columns: 96px minmax(0, 1fr);
+    }
+
+    .role-dashboard--admin .user-composition {
+        grid-template-columns: 1fr;
+        justify-items: center;
+    }
+
+    .role-dashboard--admin .line-chart {
+        height: 165px;
+        max-height: 165px;
+    }
+}
+
+
+/* =========================================================
+   12. DASHBOARD ICON SYSTEM - UNIFIED SVG ICONS
+   Chỉ thay phần biểu tượng hiển thị.
+   Không sửa nền, gap, sidebar, header, dữ liệu hay layout.
+========================================================= */
+
+/* Ẩn chữ viết tắt cũ trong box icon và dùng SVG mask */
+.role-dashboard .metric-icon,
+.role-dashboard .panel-title-icon,
+.role-dashboard .quick-icon,
+.role-dashboard .attention-icon {
+    position: relative;
+    font-size: 0 !important;
+}
+
+.role-dashboard .metric-icon::before,
+.role-dashboard .panel-title-icon::before,
+.role-dashboard .quick-icon::before,
+.role-dashboard .attention-icon::before {
+    content: "";
+    width: 22px;
+    height: 22px;
+    display: block;
+    background-color: currentColor;
+    -webkit-mask-image: var(--dash-icon-mask);
+    mask-image: var(--dash-icon-mask);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+/* ---------- SVG masks ---------- */
+
+.role-dashboard {
+    --icon-book: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5z'/%3E%3Cpath d='M4 6.5v13'/%3E%3C/svg%3E");
+
+    --icon-play: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='m10 8 6 4-6 4z'/%3E%3C/svg%3E");
+
+    --icon-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='m8 12 2.5 2.5L16 9'/%3E%3C/svg%3E");
+
+    --icon-heart: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 20.2l7.8-6.8 1-1a5.5 5.5 0 0 0 0-7.8z'/%3E%3C/svg%3E");
+
+    --icon-users: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='9' cy='7' r='4'/%3E%3Cpath d='M22 21v-2a4 4 0 0 0-3-3.87'/%3E%3Cpath d='M16 3.13a4 4 0 0 1 0 7.75'/%3E%3C/svg%3E");
+
+    --icon-user: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='8' r='4'/%3E%3Cpath d='M4 21a8 8 0 0 1 16 0'/%3E%3C/svg%3E");
+
+    --icon-layers: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m12 2 9 5-9 5-9-5z'/%3E%3Cpath d='m3 12 9 5 9-5'/%3E%3Cpath d='m3 17 9 5 9-5'/%3E%3C/svg%3E");
+
+    --icon-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m12 2.5 2.9 5.9 6.5.9-4.7 4.6 1.1 6.5-5.8-3.1-5.8 3.1 1.1-6.5-4.7-4.6 6.5-.9z'/%3E%3C/svg%3E");
+
+    --icon-question: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M9.7 9a2.5 2.5 0 1 1 4.4 1.6c-.9.9-2.1 1.3-2.1 2.9'/%3E%3Cpath d='M12 17h.01'/%3E%3C/svg%3E");
+
+    --icon-chart: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 20V10'/%3E%3Cpath d='M10 20V4'/%3E%3Cpath d='M16 20v-7'/%3E%3Cpath d='M22 20H2'/%3E%3C/svg%3E");
+
+    --icon-grid: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='7' height='7' rx='1'/%3E%3Crect x='14' y='3' width='7' height='7' rx='1'/%3E%3Crect x='3' y='14' width='7' height='7' rx='1'/%3E%3Crect x='14' y='14' width='7' height='7' rx='1'/%3E%3C/svg%3E");
+
+    --icon-bell: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9'/%3E%3Cpath d='M13.7 21a2 2 0 0 1-3.4 0'/%3E%3C/svg%3E");
+
+    --icon-folder: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 6h6l2 2h10v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/%3E%3C/svg%3E");
+
+    --icon-percent: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m19 5-14 14'/%3E%3Ccircle cx='6.5' cy='6.5' r='2.5'/%3E%3Ccircle cx='17.5' cy='17.5' r='2.5'/%3E%3C/svg%3E");
+
+    --icon-trend: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 17 6-6 4 4 8-8'/%3E%3Cpath d='M14 7h7v7'/%3E%3C/svg%3E");
+
+    --icon-message: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z'/%3E%3C/svg%3E");
+}
+
+
+/* =========================================================
+   STUDENT METRICS
+========================================================= */
+
+.role-dashboard--student
+.metric-cluster
+.metric-card:nth-child(1)
+.metric-icon {
+    --dash-icon-mask: var(--icon-book);
+}
+
+.role-dashboard--student
+.metric-cluster
+.metric-card:nth-child(2)
+.metric-icon {
+    --dash-icon-mask: var(--icon-play);
+}
+
+.role-dashboard--student
+.metric-cluster
+.metric-card:nth-child(3)
+.metric-icon {
+    --dash-icon-mask: var(--icon-check);
+}
+
+.role-dashboard--student
+.metric-cluster
+.metric-card:nth-child(4)
+.metric-icon {
+    --dash-icon-mask: var(--icon-heart);
+}
+
+
+/* Student panel header icons */
+.role-dashboard--student
+.dashboard-panel:nth-of-type(1)
+.panel-title-icon {
+    --dash-icon-mask: var(--icon-book);
+}
+
+.role-dashboard--student
+.quick-link:nth-child(1)
+.quick-icon {
+    --dash-icon-mask: var(--icon-heart);
+}
+
+.role-dashboard--student
+.quick-link:nth-child(2)
+.quick-icon {
+    --dash-icon-mask: var(--icon-question);
+}
+
+.role-dashboard--student
+.quick-link:nth-child(3)
+.quick-icon {
+    --dash-icon-mask: var(--icon-bell);
+}
+
+.role-dashboard--student
+.quick-link:nth-child(4)
+.quick-icon {
+    --dash-icon-mask: var(--icon-user);
+}
+
+
+/* =========================================================
+   INSTRUCTOR METRICS
+========================================================= */
+
+.role-dashboard--instructor
+.metric-cluster
+.metric-card:nth-child(1)
+.metric-icon {
+    --dash-icon-mask: var(--icon-book);
+}
+
+.role-dashboard--instructor
+.metric-cluster
+.metric-card:nth-child(2)
+.metric-icon {
+    --dash-icon-mask: var(--icon-users);
+}
+
+.role-dashboard--instructor
+.metric-cluster
+.metric-card:nth-child(3)
+.metric-icon {
+    --dash-icon-mask: var(--icon-layers);
+}
+
+.role-dashboard--instructor
+.metric-cluster
+.metric-card:nth-child(4)
+.metric-icon {
+    --dash-icon-mask: var(--icon-star);
+}
+
+
+/* Instructor panel icons */
+.role-dashboard--instructor
+.panel-title-icon {
+    --dash-icon-mask: var(--icon-book);
+}
+
+.role-dashboard--instructor
+.attention-item:nth-child(1)
+.attention-icon {
+    --dash-icon-mask: var(--icon-question);
+}
+
+.role-dashboard--instructor
+.attention-item:nth-child(2)
+.attention-icon {
+    --dash-icon-mask: var(--icon-folder);
+}
+
+.role-dashboard--instructor
+.attention-item:nth-child(3)
+.attention-icon {
+    --dash-icon-mask: var(--icon-check);
+}
+
+
+/* =========================================================
+   ADMIN METRICS
+========================================================= */
+
+.role-dashboard--admin
+.metric-cluster
+.metric-card:nth-child(1)
+.metric-icon {
+    --dash-icon-mask: var(--icon-users);
+}
+
+.role-dashboard--admin
+.metric-cluster
+.metric-card:nth-child(2)
+.metric-icon {
+    --dash-icon-mask: var(--icon-user);
+}
+
+.role-dashboard--admin
+.metric-cluster
+.metric-card:nth-child(3)
+.metric-icon {
+    --dash-icon-mask: var(--icon-users);
+}
+
+.role-dashboard--admin
+.metric-cluster
+.metric-card:nth-child(4)
+.metric-icon {
+    --dash-icon-mask: var(--icon-book);
+}
+
+.role-dashboard--admin
+.metric-cluster
+.metric-card:nth-child(5)
+.metric-icon {
+    --dash-icon-mask: var(--icon-check);
+}
+
+.role-dashboard--admin
+.metric-cluster
+.metric-card:nth-child(6)
+.metric-icon {
+    --dash-icon-mask: var(--icon-trend);
+}
+
+
+/* Admin panel icons theo thứ tự hiện tại */
+.role-dashboard--admin
+.dashboard-panel.grid-left:nth-of-type(1)
+.panel-title-icon {
+    --dash-icon-mask: var(--icon-trend);
+}
+
+.role-dashboard--admin
+.dashboard-panel.grid-right:nth-of-type(2)
+.panel-title-icon {
+    --dash-icon-mask: var(--icon-percent);
+}
+
+/* Các panel admin còn lại */
+.role-dashboard--admin
+.panel-title-icon {
+    --dash-icon-mask: var(--icon-grid);
+}
+
+
+/* =========================================================
+   FALLBACK
+   Nếu selector nào chưa gắn icon cụ thể thì vẫn hiện grid icon,
+   không còn chữ viết tắt.
+========================================================= */
+
+.role-dashboard .metric-icon::before,
+.role-dashboard .panel-title-icon::before,
+.role-dashboard .quick-icon::before,
+.role-dashboard .attention-icon::before {
+    -webkit-mask-image:
+        var(
+            --dash-icon-mask,
+            var(--icon-grid)
+        );
+    mask-image:
+        var(
+            --dash-icon-mask,
+            var(--icon-grid)
+        );
+}
+

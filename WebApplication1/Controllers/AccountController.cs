@@ -1,10 +1,12 @@
-﻿using System.Text;
+﻿using System.Net;
+using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using OnlineLearningPlatform.Models;
+using OnlineLearningPlatform.Services;
 using OnlineLearningPlatform.ViewModels;
 
 namespace OnlineLearningPlatform.Controllers
@@ -13,16 +15,16 @@ namespace OnlineLearningPlatform.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly IWebHostEnvironment _environment;
+        private readonly IEmailService _emailService;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IWebHostEnvironment environment)
+            IEmailService emailService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
-            _environment = environment;
+            _emailService = emailService;
         }
 
         // =========================
@@ -290,16 +292,64 @@ namespace OnlineLearningPlatform.Controllers
                 return View(model);
             }
 
-            // =====================================
-            // CHẾ ĐỘ DEMO LOCAL
-            // =====================================
-            // Không cần SMTP/Gmail.
-            // Chỉ hiển thị link reset khi chạy Development.
-            // Khi deploy Production, link này sẽ không được hiển thị.
-            if (_environment.IsDevelopment())
+            var safeName =
+                WebUtility.HtmlEncode(
+                    string.IsNullOrWhiteSpace(
+                        user.FullName)
+                        ? "bạn"
+                        : user.FullName);
+
+            var safeResetUrl =
+                WebUtility.HtmlEncode(
+                    resetUrl);
+
+            var htmlMessage =
+                $"""
+                <div style="font-family:Arial,Helvetica,sans-serif;line-height:1.7;color:#273142;">
+                    <h2 style="margin:0 0 14px;color:#0d6efd;">
+                        EduLearn
+                    </h2>
+
+                    <p>
+                        Xin chào {safeName},
+                    </p>
+
+                    <p>
+                        EduLearn nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn.
+                    </p>
+
+                    <p style="margin:24px 0;">
+                        <a href="{safeResetUrl}"
+                           style="display:inline-block;padding:12px 18px;background:#0d6efd;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:700;">
+                            Đặt lại mật khẩu
+                        </a>
+                    </p>
+
+                    <p>
+                        Liên kết đặt lại mật khẩu có hiệu lực trong 2 giờ.
+                        Nếu bạn không thực hiện yêu cầu này, hãy bỏ qua email.
+                    </p>
+
+                    <p style="margin-top:28px;color:#667085;">
+                        EduLearn - Chia sẻ tri thức, kiến tạo tương lai
+                    </p>
+                </div>
+                """;
+
+            try
             {
-                TempData["DevelopmentResetUrl"] =
-                    resetUrl;
+                await _emailService.SendAsync(
+                    user.Email ?? email,
+                    "EduLearn - Khôi phục mật khẩu",
+                    htmlMessage);
+            }
+            catch
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Không thể gửi email khôi phục lúc này. Vui lòng kiểm tra cấu hình email hoặc thử lại sau.");
+
+                return View(model);
             }
 
             return RedirectToAction(
