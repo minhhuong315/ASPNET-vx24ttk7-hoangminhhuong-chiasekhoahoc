@@ -8,6 +8,8 @@
 
         public int CompletedCourseCount { get; set; }
 
+        public int CompletedLessonCount { get; set; }
+
         public int WishlistCount { get; set; }
 
         public int OpenQuestionCount { get; set; }

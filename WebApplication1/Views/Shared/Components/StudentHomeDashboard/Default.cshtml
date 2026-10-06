@@ -42,329 +42,485 @@
     }
 }
 
+
 <section class="role-dashboard role-dashboard--student">
 
-<div class="dashboard-grid">
+    <div class="dashboard-grid">
 
-                <header class="dashboard-heading grid-full">
-                    <div>
-                        <div class="dashboard-eyebrow">
-                            Học viên
-                        </div>
+        <header class="dashboard-heading grid-full">
 
-                        <h1 class="dashboard-title">
-                            Tổng quan học tập
-                        </h1>
+            <div>
 
-                        <p class="dashboard-subtitle">
-                            Theo dõi tiến độ và tiếp tục các khóa học
-                            bạn đang tham gia trên EduLearn.
-                        </p>
-                    </div>
-                </header>
+                <div class="dashboard-eyebrow">
+                    Học viên
+                </div>
 
-                <div class="metric-cluster metric-cluster--4 grid-full">
+                <h1 class="dashboard-title">
+                    Tổng quan học tập
+                </h1>
+
+                <p class="dashboard-subtitle">
+                    Tiếp tục các khóa học đang tham gia,
+                    theo dõi tiến độ và khám phá nội dung mới trên EduLearn.
+                </p>
+
+            </div>
+
+        </header>
+
+
+        <div class="metric-cluster metric-cluster--4 grid-full">
+
+            <a asp-controller="Courses"
+               asp-action="MyCourses"
+               class="metric-card">
+
+                <span class="metric-icon blue"
+                      style="--dash-icon-mask: var(--icon-book);">
+                </span>
+
+                <span>
+
+                    <span class="metric-value d-block">
+                        @Model.RegisteredCourseCount
+                    </span>
+
+                    <span class="metric-label d-block">
+                        Khóa đã đăng ký
+                    </span>
+
+                </span>
+
+            </a>
+
+
+            <a asp-controller="Courses"
+               asp-action="MyCourses"
+               class="metric-card">
+
+                <span class="metric-icon green"
+                      style="--dash-icon-mask: var(--icon-play);">
+                </span>
+
+                <span>
+
+                    <span class="metric-value d-block">
+                        @Model.InProgressCourseCount
+                    </span>
+
+                    <span class="metric-label d-block">
+                        Đang học
+                    </span>
+
+                </span>
+
+            </a>
+
+
+            <a asp-controller="Courses"
+               asp-action="MyCourses"
+               class="metric-card">
+
+                <span class="metric-icon purple"
+                      style="--dash-icon-mask: var(--icon-check);">
+                </span>
+
+                <span>
+
+                    <span class="metric-value d-block">
+                        @Model.CompletedCourseCount
+                    </span>
+
+                    <span class="metric-label d-block">
+                        Khóa đã hoàn thành
+                    </span>
+
+                </span>
+
+            </a>
+
+
+            <a asp-controller="Courses"
+               asp-action="StudyHistory"
+               class="metric-card">
+
+                <span class="metric-icon orange"
+                      style="--dash-icon-mask: var(--icon-check);">
+                </span>
+
+                <span>
+
+                    <span class="metric-value d-block">
+                        @Model.CompletedLessonCount
+                    </span>
+
+                    <span class="metric-label d-block">
+                        Bài học hoàn thành
+                    </span>
+
+                </span>
+
+            </a>
+
+        </div>
+
+
+        <!-- =================================================
+             KHÓA HỌC CỦA TÔI - PHẦN CHÍNH
+        ================================================== -->
+
+        <section class="dashboard-panel grid-full">
+
+            <div class="panel-head">
+
+                <h2 class="panel-title">
+
+                    <span class="panel-title-icon"
+                          style="--dash-icon-mask: var(--icon-book);">
+                    </span>
+
+                    Khóa học của tôi
+
+                </h2>
+
+                <a asp-controller="Courses"
+                   asp-action="MyCourses"
+                   class="panel-link">
+                    Xem tất cả →
+                </a>
+
+            </div>
+
+
+            <div class="student-tabs">
+
+                <span>
+                    Tất cả (@Model.RegisteredCourseCount)
+                </span>
+
+                <span>
+                    Đang học (@Model.InProgressCourseCount)
+                </span>
+
+                <span>
+                    Đã hoàn thành (@Model.CompletedCourseCount)
+                </span>
+
+            </div>
+
+
+            @if (Model.RecentCourses.Any())
+            {
+                <div class="student-course-list">
+
+                    @foreach (var course in Model.RecentCourses)
+                    {
+                        decimal progress =
+                            Math.Clamp(
+                                course.Progress,
+                                0m,
+                                100m);
+
+                        string thumbnail =
+                            !string.IsNullOrWhiteSpace(
+                                course.ThumbnailUrl)
+                                ? course.ThumbnailUrl
+                                : GetFallbackThumbnail(
+                                    course.Title);
+
+                        string actionText =
+                            progress >= 100m
+                                ? "Xem lại khóa học"
+                                : progress > 0m
+                                    ? "Tiếp tục học"
+                                    : "Bắt đầu học";
+
+                        <article class="student-course-row">
+
+                            <div class="course-thumb">
+
+                                <img src="@thumbnail"
+                                     alt="@course.Title" />
+
+                            </div>
+
+
+                            <div>
+
+                                <div class="course-title">
+                                    @course.Title
+                                </div>
+
+                                <span class="course-category">
+                                    @course.CategoryName
+                                </span>
+
+                                <div class="course-progress">
+
+                                    <div class="course-progress-track">
+
+                                        <div class="course-progress-fill"
+                                             style="width:@progress.ToString("0")%">
+                                        </div>
+
+                                    </div>
+
+                                    <span class="course-progress-value">
+                                        @progress.ToString("0")%
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <a asp-controller="Courses"
+                               asp-action="Learn"
+                               asp-route-courseId="@course.CourseId"
+                               class="course-action">
+                                @actionText
+                            </a>
+
+                        </article>
+                    }
+
+                </div>
+            }
+            else
+            {
+                <div class="dashboard-empty">
+
+                    Bạn chưa đăng ký khóa học nào.
+                    Hãy khám phá các khóa học trên EduLearn để bắt đầu học tập.
+
+                </div>
+            }
+
+        </section>
+
+
+        <!-- =================================================
+             KHÓA HỌC ĐỀ XUẤT
+        ================================================== -->
+
+        <section class="dashboard-panel grid-left">
+
+            <div class="panel-head">
+
+                <h2 class="panel-title">
+
+                    <span class="panel-title-icon"
+                          style="--dash-icon-mask: var(--icon-star);">
+                    </span>
+
+                    Khóa học đề xuất
+
+                </h2>
+
+                <a asp-controller="Courses"
+                   asp-action="Index"
+                   class="panel-link">
+                    Khám phá tất cả →
+                </a>
+
+            </div>
+
+
+            @if (Model.ExploreCourses.Any())
+            {
+                <div class="recommend-list">
+
+                    @foreach (var course in Model.ExploreCourses)
+                    {
+                        string thumbnail =
+                            !string.IsNullOrWhiteSpace(
+                                course.ThumbnailUrl)
+                                ? course.ThumbnailUrl
+                                : GetFallbackThumbnail(
+                                    course.Title);
+
+                        <a asp-controller="Courses"
+                           asp-action="Details"
+                           asp-route-slug="@course.Slug"
+                           class="recommend-item">
+
+                            <div class="course-thumb">
+
+                                <img src="@thumbnail"
+                                     alt="@course.Title" />
+
+                            </div>
+
+
+                            <div>
+
+                                <div class="recommend-title">
+                                    @course.Title
+                                </div>
+
+                                <div class="recommend-meta">
+
+                                    @course.CategoryName
+                                    · @GetLevelText(course.Level)
+                                    · @course.EnrollmentCount học viên
+
+                                </div>
+
+                            </div>
+
+                        </a>
+                    }
+
+                </div>
+            }
+            else
+            {
+                <div class="dashboard-empty">
+                    Hiện chưa có khóa học mới để đề xuất.
+                </div>
+            }
+
+        </section>
+
+
+        <!-- =================================================
+             TRUY CẬP NHANH
+        ================================================== -->
+
+        <aside class="right-stack grid-right">
+
+            <section class="dashboard-panel">
+
+                <div class="panel-head">
+
+                    <h2 class="panel-title">
+
+                        <span class="panel-title-icon"
+                          style="--dash-icon-mask: var(--icon-grid);">
+                    </span>
+
+                        Truy cập nhanh
+
+                    </h2>
+
+                </div>
+
+
+                <div class="quick-list">
 
                     <a asp-controller="Courses"
-                       asp-action="MyCourses"
-                       class="metric-card">
-                        <span class="metric-icon blue">KH</span>
-                        <span>
-                            <span class="metric-value d-block">
-                                @Model.RegisteredCourseCount
-                            </span>
-                            <span class="metric-label d-block">
-                                Khóa đã đăng ký
-                            </span>
-                        </span>
-                    </a>
+                       asp-action="StudyHistory"
+                       class="quick-link">
 
-                    <a asp-controller="Courses"
-                       asp-action="MyCourses"
-                       class="metric-card">
-                        <span class="metric-icon green">▶</span>
-                        <span>
-                            <span class="metric-value d-block">
-                                @Model.InProgressCourseCount
-                            </span>
-                            <span class="metric-label d-block">
-                                Đang học
-                            </span>
+                        <span class="quick-icon"
+                              style="--dash-icon-mask: var(--icon-trend);">
                         </span>
-                    </a>
 
-                    <a asp-controller="Courses"
-                       asp-action="MyCourses"
-                       class="metric-card">
-                        <span class="metric-icon purple">✓</span>
                         <span>
-                            <span class="metric-value d-block">
-                                @Model.CompletedCourseCount
-                            </span>
-                            <span class="metric-label d-block">
-                                Đã hoàn thành
-                            </span>
-                        </span>
-                    </a>
 
+                            <span class="quick-title d-block">
+                                Lịch sử học tập
+                            </span>
+
+                            <span class="quick-subtitle d-block">
+                                Xem hoạt động và tiến độ gần đây
+                            </span>
+
+                        </span>
+
+                        <span class="quick-arrow">
+                            ›
+                        </span>
+
+                    </a>
 
 
                     <a asp-controller="Wishlist"
                        asp-action="Index"
-                       class="metric-card">
-                        <span class="metric-icon orange">♥</span>
+                       class="quick-link">
+
+                        <span class="quick-icon red"
+                              style="--dash-icon-mask: var(--icon-heart);">
+                        </span>
+
                         <span>
-                            <span class="metric-value d-block">
-                                @Model.WishlistCount
-                            </span>
-                            <span class="metric-label d-block">
+
+                            <span class="quick-title d-block">
                                 Khóa học yêu thích
                             </span>
+
+                            <span class="quick-subtitle d-block">
+                                @Model.WishlistCount khóa học đã lưu
+                            </span>
+
                         </span>
+
+                        <span class="quick-arrow">
+                            ›
+                        </span>
+
+                    </a>
+
+
+                    <a asp-controller="LessonQuestions"
+                       asp-action="MyQuestions"
+                       class="quick-link">
+
+                        <span class="quick-icon"
+                              style="--dash-icon-mask: var(--icon-question);">
+                        </span>
+
+                        <span>
+
+                            <span class="quick-title d-block">
+                                Câu hỏi của tôi
+                            </span>
+
+                            <span class="quick-subtitle d-block">
+                                @Model.OpenQuestionCount câu đang chờ
+                            </span>
+
+                        </span>
+
+                        <span class="quick-arrow">
+                            ›
+                        </span>
+
+                    </a>
+
+
+                    <a asp-controller="Notifications"
+                       asp-action="Index"
+                       class="quick-link">
+
+                        <span class="quick-icon"
+                              style="--dash-icon-mask: var(--icon-bell);">
+                        </span>
+
+                        <span>
+
+                            <span class="quick-title d-block">
+                                Thông báo
+                            </span>
+
+                            <span class="quick-subtitle d-block">
+                                Theo dõi phản hồi và cập nhật mới
+                            </span>
+
+                        </span>
+
+                        <span class="quick-arrow">
+                            ›
+                        </span>
+
                     </a>
 
                 </div>
 
-                <section class="dashboard-panel grid-left">
+            </section>
 
-                    <div class="panel-head">
+        </aside>
 
-                        <h2 class="panel-title">
-                            <span class="panel-title-icon">
-                                KH
-                            </span>
-                            Khóa học của tôi
-                        </h2>
-
-                        <a asp-controller="Courses"
-                           asp-action="MyCourses"
-                           class="panel-link">
-                            Xem tất cả →
-                        </a>
-
-                    </div>
-
-                    <div class="student-tabs">
-                        <span>
-                            Tất cả (@Model.RegisteredCourseCount)
-                        </span>
-                        <span>
-                            Đang học (@Model.InProgressCourseCount)
-                        </span>
-                        <span>
-                            Đã hoàn thành (@Model.CompletedCourseCount)
-                        </span>
-                    </div>
-
-                    @if (Model.RecentCourses.Any())
-                    {
-                        <div class="student-course-list">
-
-                            @foreach (var course in Model.RecentCourses)
-                            {
-                                decimal progress =
-                                    Math.Clamp(
-                                        course.Progress,
-                                        0m,
-                                        100m);
-
-                                string thumbnail =
-                                    !string.IsNullOrWhiteSpace(
-                                        course.ThumbnailUrl)
-                                        ? course.ThumbnailUrl
-                                        : GetFallbackThumbnail(
-                                            course.Title);
-
-                                <article class="student-course-row">
-
-                                    <div class="course-thumb">
-                                        <img src="@thumbnail"
-                                             alt="@course.Title" />
-                                    </div>
-
-                                    <div>
-                                        <div class="course-title">
-                                            @course.Title
-                                        </div>
-
-                                        <span class="course-category">
-                                            @course.CategoryName
-                                        </span>
-
-                                        <div class="course-progress">
-                                            <div class="course-progress-track">
-                                                <div class="course-progress-fill"
-                                                     style="width:@progress.ToString("0")%">
-                                                </div>
-                                            </div>
-
-                                            <span class="course-progress-value">
-                                                @progress.ToString("0")%
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <a asp-controller="Courses"
-                                       asp-action="Learn"
-                                       asp-route-courseId="@course.CourseId"
-                                       class="course-action">
-                                        Tiếp tục học
-                                    </a>
-
-                                </article>
-                            }
-
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="dashboard-empty">
-                            Bạn chưa đăng ký khóa học nào.
-                        </div>
-                    }
-
-                </section>
-
-                <aside class="right-stack grid-right">
-
-                    <section class="dashboard-panel">
-
-                        <div class="panel-head">
-                            <h2 class="panel-title">
-                                <span class="panel-title-icon">
-                                    ⚡
-                                </span>
-                                Truy cập nhanh
-                            </h2>
-                        </div>
-
-                        <div class="quick-list">
-
-                            <a asp-controller="Wishlist"
-                               asp-action="Index"
-                               class="quick-link">
-                                <span class="quick-icon red">♥</span>
-                                <span>
-                                    <span class="quick-title d-block">
-                                        Khóa học yêu thích
-                                    </span>
-                                    <span class="quick-subtitle d-block">
-                                        Xem các khóa học đã lưu
-                                    </span>
-                                </span>
-                                <span class="quick-arrow">›</span>
-                            </a>
-
-                            <a asp-controller="LessonQuestions"
-                               asp-action="MyQuestions"
-                               class="quick-link">
-                                <span class="quick-icon">Q</span>
-                                <span>
-                                    <span class="quick-title d-block">
-                                        Câu hỏi của tôi
-                                    </span>
-                                    <span class="quick-subtitle d-block">
-                                        @Model.OpenQuestionCount câu đang chờ
-                                    </span>
-                                </span>
-                                <span class="quick-arrow">›</span>
-                            </a>
-
-                            <a asp-controller="Notifications"
-                               asp-action="Index"
-                               class="quick-link">
-                                <span class="quick-icon red">TB</span>
-                                <span>
-                                    <span class="quick-title d-block">
-                                        Thông báo
-                                    </span>
-                                    <span class="quick-subtitle d-block">
-                                        Theo dõi cập nhật mới
-                                    </span>
-                                </span>
-                                <span class="quick-arrow">›</span>
-                            </a>
-
-                            <a asp-controller="Profile"
-                               asp-action="Index"
-                               class="quick-link">
-                                <span class="quick-icon">HS</span>
-                                <span>
-                                    <span class="quick-title d-block">
-                                        Hồ sơ cá nhân
-                                    </span>
-                                    <span class="quick-subtitle d-block">
-                                        Cập nhật thông tin tài khoản
-                                    </span>
-                                </span>
-                                <span class="quick-arrow">›</span>
-                            </a>
-
-                        </div>
-
-                    </section>
-
-                    @if (Model.ExploreCourses.Any())
-                    {
-                        <section class="dashboard-panel">
-
-                            <div class="panel-head">
-                                <h2 class="panel-title">
-                                    <span class="panel-title-icon">
-                                        ✦
-                                    </span>
-                                    Khóa học đề xuất
-                                </h2>
-
-                                <a asp-controller="Courses"
-                                   asp-action="Index"
-                                   class="panel-link">
-                                    Xem thêm →
-                                </a>
-                            </div>
-
-                            <div class="recommend-list">
-
-                                @foreach (var course in Model.ExploreCourses)
-                                {
-                                    string thumbnail =
-                                        !string.IsNullOrWhiteSpace(
-                                            course.ThumbnailUrl)
-                                            ? course.ThumbnailUrl
-                                            : GetFallbackThumbnail(
-                                                course.Title);
-
-                                    <a asp-controller="Courses"
-                                       asp-action="Details"
-                                       asp-route-slug="@course.Slug"
-                                       class="recommend-item">
-
-                                        <div class="course-thumb">
-                                            <img src="@thumbnail"
-                                                 alt="@course.Title" />
-                                        </div>
-
-                                        <div>
-                                            <div class="recommend-title">
-                                                @course.Title
-                                            </div>
-
-                                            <div class="recommend-meta">
-                                                @GetLevelText(course.Level)
-                                                · @course.EnrollmentCount học viên
-                                            </div>
-                                        </div>
-
-                                    </a>
-                                }
-
-                            </div>
-
-                        </section>
-                    }
-
-                </aside>
-
-            </div>
+    </div>
 
 </section>

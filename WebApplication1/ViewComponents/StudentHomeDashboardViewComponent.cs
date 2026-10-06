@@ -68,6 +68,15 @@ namespace OnlineLearningPlatform.ViewComponents
                     .ToList();
 
 
+            var completedLessonCount =
+                await _context.LessonProgresses
+                    .AsNoTracking()
+                    .CountAsync(p =>
+                        p.UserId == userId &&
+                        p.IsCompleted &&
+                        p.Lesson.Module.Course.IsPublished);
+
+
             var wishlistCount =
                 await _context.Wishlists
                     .AsNoTracking()
@@ -98,7 +107,7 @@ namespace OnlineLearningPlatform.ViewComponents
                         c.EnrollmentCount)
                     .ThenByDescending(c =>
                         c.PublishedAt)
-                    .Take(2)
+                    .Take(4)
                     .Select(c =>
                         new StudentHomeExploreCourseViewModel
                         {
@@ -149,11 +158,15 @@ namespace OnlineLearningPlatform.ViewComponents
 
                     InProgressCourseCount =
                         enrollments.Count(e =>
+                            e.Progress > 0 &&
                             e.Progress < 100),
 
                     CompletedCourseCount =
                         enrollments.Count(e =>
                             e.Progress >= 100),
+
+                    CompletedLessonCount =
+                        completedLessonCount,
 
                     WishlistCount =
                         wishlistCount,
