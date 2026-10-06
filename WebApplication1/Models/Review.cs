@@ -16,6 +16,11 @@ namespace OnlineLearningPlatform.Models
         [StringLength(1000)]
         public string? Comment { get; set; }
 
+        [StringLength(1000)]
+        public string? InstructorReply { get; set; }
+
+        public DateTime? InstructorReplyUpdatedAt { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

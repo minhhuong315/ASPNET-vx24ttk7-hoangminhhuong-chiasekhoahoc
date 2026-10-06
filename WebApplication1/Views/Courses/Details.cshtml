@@ -54,6 +54,16 @@
         isAuthenticated &&
         User.IsInRole("Instructor");
 
+    string? currentUserId =
+        User.FindFirst(
+            System.Security.Claims.ClaimTypes.NameIdentifier)
+            ?.Value;
+
+    bool canReplyToReviews =
+        isInstructor &&
+        !string.IsNullOrWhiteSpace(currentUserId) &&
+        Model.InstructorId == currentUserId;
+
     string? successMessage =
         TempData["SuccessMessage"]?.ToString();
 
@@ -75,22 +85,36 @@
     string? reviewErrorMessage =
         TempData["ReviewError"]?.ToString();
 
+    string? reviewReplySuccessMessage =
+        TempData["ReviewReplySuccess"]?.ToString();
+
+    string? reviewReplyInfoMessage =
+        TempData["ReviewReplyInfo"]?.ToString();
+
+    string? reviewReplyErrorMessage =
+        TempData["ReviewReplyError"]?.ToString();
+
     string? toastMessage =
         successMessage ??
         wishlistSuccessMessage ??
         reviewSuccessMessage ??
+        reviewReplySuccessMessage ??
         reviewErrorMessage ??
+        reviewReplyErrorMessage ??
         infoMessage ??
         wishlistInfoMessage ??
-        reviewInfoMessage;
+        reviewInfoMessage ??
+        reviewReplyInfoMessage;
 
     bool toastIsSuccess =
         !string.IsNullOrWhiteSpace(successMessage) ||
         !string.IsNullOrWhiteSpace(wishlistSuccessMessage) ||
-        !string.IsNullOrWhiteSpace(reviewSuccessMessage);
+        !string.IsNullOrWhiteSpace(reviewSuccessMessage) ||
+        !string.IsNullOrWhiteSpace(reviewReplySuccessMessage);
 
     bool toastIsError =
-        !string.IsNullOrWhiteSpace(reviewErrorMessage);
+        !string.IsNullOrWhiteSpace(reviewErrorMessage) ||
+        !string.IsNullOrWhiteSpace(reviewReplyErrorMessage);
 }
 
 <style>
@@ -606,6 +630,116 @@
             border-color: #dc3545;
             background: #fff1f2;
         }
+
+    .instructor-reply {
+        margin-top: 14px;
+        padding: 14px 16px;
+        border-left: 3px solid #0d6efd;
+        border-radius: 0 10px 10px 0;
+        background: #f5f9ff;
+    }
+
+    .instructor-reply-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 7px;
+    }
+
+    .instructor-reply-title {
+        color: #0d6efd;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .instructor-reply-date {
+        color: #98a2b3;
+        font-size: 10px;
+    }
+
+    .instructor-reply-text {
+        color: #596579;
+        font-size: 13px;
+        line-height: 1.65;
+        white-space: pre-line;
+    }
+
+    .instructor-reply-form {
+        margin-top: 14px;
+        padding: 14px;
+        border: 1px solid #dce6f4;
+        border-radius: 10px;
+        background: #fbfdff;
+    }
+
+    .instructor-reply-label {
+        display: block;
+        margin-bottom: 7px;
+        color: #465164;
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+    .instructor-reply-textarea {
+        width: 100%;
+        min-height: 88px;
+        padding: 10px 11px;
+        border: 1px solid #dce2ea;
+        border-radius: 9px;
+        background: #ffffff;
+        color: #273142;
+        font: inherit;
+        font-size: 12px;
+        line-height: 1.6;
+        resize: vertical;
+        outline: none;
+    }
+
+    .instructor-reply-textarea:focus {
+        border-color: #8db9fa;
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, .08);
+    }
+
+    .instructor-reply-actions {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 9px;
+    }
+
+    .instructor-reply-submit,
+    .instructor-reply-delete {
+        min-height: 36px;
+        padding: 0 13px;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 10px;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .instructor-reply-submit {
+        border: 1px solid #0d6efd;
+        background: #0d6efd;
+        color: #ffffff;
+    }
+
+    .instructor-reply-submit:hover {
+        background: #0b5ed7;
+    }
+
+    .instructor-reply-delete {
+        border: 1px solid #f0c7cc;
+        background: #fffafa;
+        color: #c92a3a;
+    }
+
+    .instructor-reply-delete:hover {
+        border-color: #dc3545;
+        background: #fff1f2;
+    }
 
     .review-help {
         margin-bottom: 18px;
@@ -1374,6 +1508,113 @@
                                             .ToString("dd/MM/yyyy HH:mm"))
 
                                     </div>
+
+
+                                    @if (!string.IsNullOrWhiteSpace(
+                                        review.InstructorReply))
+                                    {
+                                        <div class="instructor-reply">
+
+                                            <div class="instructor-reply-heading">
+
+                                                <div class="instructor-reply-title">
+                                                    Phản hồi từ giảng viên
+                                                </div>
+
+                                                @if (review.InstructorReplyUpdatedAt.HasValue)
+                                                {
+                                                    <div class="instructor-reply-date">
+
+                                                        @(review.InstructorReplyUpdatedAt.Value
+                                                            .ToLocalTime()
+                                                            .ToString("dd/MM/yyyy HH:mm"))
+
+                                                    </div>
+                                                }
+
+                                            </div>
+
+                                            <div class="instructor-reply-text">
+                                                @review.InstructorReply
+                                            </div>
+
+                                        </div>
+                                    }
+
+
+                                    @if (canReplyToReviews)
+                                    {
+                                        <div class="instructor-reply-form">
+
+                                            <form asp-controller="Reviews"
+                                                  asp-action="Reply"
+                                                  method="post">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden"
+                                                       name="reviewId"
+                                                       value="@review.Id" />
+
+                                                <label class="instructor-reply-label"
+                                                       for="reply-@review.Id">
+
+                                                    @(string.IsNullOrWhiteSpace(
+                                                        review.InstructorReply)
+                                                        ? "Phản hồi đánh giá"
+                                                        : "Cập nhật phản hồi")
+
+                                                </label>
+
+                                                <textarea id="reply-@review.Id"
+                                                          name="reply"
+                                                          maxlength="1000"
+                                                          class="instructor-reply-textarea"
+                                                          placeholder="Nhập phản hồi của giảng viên..."
+                                                          required>@review.InstructorReply</textarea>
+
+                                                <div class="instructor-reply-actions">
+
+                                                    <button type="submit"
+                                                            class="instructor-reply-submit">
+
+                                                        @(string.IsNullOrWhiteSpace(
+                                                            review.InstructorReply)
+                                                            ? "Gửi phản hồi"
+                                                            : "Cập nhật phản hồi")
+
+                                                    </button>
+
+                                                </div>
+
+                                            </form>
+
+
+                                            @if (!string.IsNullOrWhiteSpace(
+                                                review.InstructorReply))
+                                            {
+                                                <form asp-controller="Reviews"
+                                                      asp-action="DeleteReply"
+                                                      method="post"
+                                                      class="mt-2">
+
+                                                    @Html.AntiForgeryToken()
+
+                                                    <input type="hidden"
+                                                           name="reviewId"
+                                                           value="@review.Id" />
+
+                                                    <button type="submit"
+                                                            class="instructor-reply-delete"
+                                                            onclick="return confirm('Bạn chắc chắn muốn xóa phản hồi này?');">
+                                                        Xóa phản hồi
+                                                    </button>
+
+                                                </form>
+                                            }
+
+                                        </div>
+                                    }
 
                                 </div>
                             }
