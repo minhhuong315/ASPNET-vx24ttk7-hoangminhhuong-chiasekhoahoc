@@ -1,0 +1,507 @@
+﻿@model OnlineLearningPlatform.Models.Lesson
+
+@{
+    ViewData["Title"] = "Xem thử bài học";
+
+    var course =
+        Model.Module.Course;
+
+    string? videoUrl =
+        string.IsNullOrWhiteSpace(Model.VideoUrl)
+            ? null
+            : Model.VideoUrl.Trim();
+
+    string? youtubeEmbedUrl =
+        null;
+
+    if (!string.IsNullOrWhiteSpace(videoUrl) &&
+        Uri.TryCreate(
+            videoUrl,
+            UriKind.Absolute,
+            out var parsedVideoUrl))
+    {
+        string host =
+            parsedVideoUrl.Host
+                .ToLowerInvariant();
+
+        if (host.Contains("youtube.com"))
+        {
+            if (parsedVideoUrl.AbsolutePath
+                .StartsWith(
+                    "/embed/",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                youtubeEmbedUrl =
+                    videoUrl;
+            }
+            else
+            {
+                var query =
+                    Microsoft.AspNetCore.WebUtilities
+                        .QueryHelpers
+                        .ParseQuery(
+                            parsedVideoUrl.Query);
+
+                if (query.TryGetValue(
+                        "v",
+                        out var videoId) &&
+                    !string.IsNullOrWhiteSpace(
+                        videoId))
+                {
+                    youtubeEmbedUrl =
+                        $"https://www.youtube.com/embed/{videoId}";
+                }
+            }
+        }
+        else if (host == "youtu.be")
+        {
+            string videoId =
+                parsedVideoUrl.AbsolutePath
+                    .Trim('/');
+
+            if (!string.IsNullOrWhiteSpace(
+                videoId))
+            {
+                youtubeEmbedUrl =
+                    $"https://www.youtube.com/embed/{videoId}";
+            }
+        }
+    }
+
+    bool isDirectVideo =
+        !string.IsNullOrWhiteSpace(videoUrl) &&
+        (
+            videoUrl.EndsWith(
+                ".mp4",
+                StringComparison.OrdinalIgnoreCase) ||
+            videoUrl.EndsWith(
+                ".webm",
+                StringComparison.OrdinalIgnoreCase) ||
+            videoUrl.EndsWith(
+                ".ogg",
+                StringComparison.OrdinalIgnoreCase)
+        );
+}
+
+<style>
+    .preview-page {
+        width: 100%;
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 28px 0 54px;
+    }
+
+    .preview-back {
+        margin-bottom: 18px;
+        color: #667085;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 12px;
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+    .preview-back:hover {
+        color: #0d6efd;
+    }
+
+    .preview-back svg {
+        width: 16px;
+        height: 16px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    .preview-shell {
+        overflow: hidden;
+        border: 1px solid #e3e9f2;
+        border-radius: 18px;
+        background: #ffffff;
+        box-shadow: 0 16px 38px rgba(31, 55, 90, .07);
+    }
+
+    .preview-header {
+        padding: 26px 28px 22px;
+        border-bottom: 1px solid #edf1f6;
+        background:
+            linear-gradient(
+                135deg,
+                #f7fbff 0%,
+                #ffffff 65%);
+    }
+
+    .preview-label {
+        margin-bottom: 8px;
+        color: #198754;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+    }
+
+    .preview-title {
+        margin: 0;
+        color: #14213a;
+        font-size: 30px !important;
+        font-weight: 800;
+        line-height: 1.2 !important;
+    }
+
+    .preview-meta {
+        margin-top: 12px;
+        color: #78869a;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 16px;
+        font-size: 12px;
+    }
+
+    .preview-course-link {
+        color: #0d6efd;
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+    .preview-course-link:hover {
+        text-decoration: underline;
+    }
+
+    .preview-body {
+        padding: 26px 28px 30px;
+    }
+
+    .preview-video-shell {
+        overflow: hidden;
+        margin-bottom: 24px;
+        border-radius: 14px;
+        background: #0c1424;
+        aspect-ratio: 16 / 9;
+    }
+
+    .preview-video-shell iframe,
+    .preview-video-shell video {
+        width: 100%;
+        height: 100%;
+        border: 0;
+        display: block;
+    }
+
+    .preview-video-empty {
+        width: 100%;
+        height: 100%;
+        padding: 24px;
+        color: #cbd5e1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .preview-external-video {
+        margin-bottom: 24px;
+        padding: 18px;
+        border: 1px solid #dce7f5;
+        border-radius: 12px;
+        background: #f8fbff;
+    }
+
+    .preview-external-video-title {
+        color: #344054;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .preview-external-video-text {
+        margin-top: 6px;
+        color: #7c899b;
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+    .preview-external-video-link {
+        min-height: 38px;
+        margin-top: 12px;
+        padding: 0 14px;
+        border-radius: 9px;
+        background: #0d6efd;
+        color: #ffffff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+    .preview-external-video-link:hover {
+        background: #0b5ed7;
+        color: #ffffff;
+    }
+
+    .preview-section-title {
+        margin: 0 0 12px;
+        color: #28364d;
+        font-size: 18px !important;
+        font-weight: 800;
+        line-height: 1.3 !important;
+    }
+
+    .preview-content {
+        color: #5e6b7e;
+        font-size: 14px;
+        line-height: 1.8;
+        white-space: pre-line;
+    }
+
+    .preview-empty-content {
+        padding: 18px;
+        border-radius: 11px;
+        background: #f8fafc;
+        color: #8793a5;
+        font-size: 13px;
+    }
+
+    .preview-footer {
+        margin-top: 26px;
+        padding: 20px;
+        border: 1px solid #dbe8f8;
+        border-radius: 13px;
+        background: #f7fbff;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+    }
+
+    .preview-footer-title {
+        color: #2d3b52;
+        font-size: 14px;
+        font-weight: 800;
+    }
+
+    .preview-footer-text {
+        margin-top: 4px;
+        color: #7d899a;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    .preview-footer-button {
+        min-height: 40px;
+        padding: 0 16px;
+        border-radius: 9px;
+        background: #0d6efd;
+        color: #ffffff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 12px;
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+    .preview-footer-button:hover {
+        background: #0b5ed7;
+        color: #ffffff;
+    }
+
+    @@media (max-width: 700px) {
+        .preview-page {
+            padding: 14px 0 36px;
+        }
+
+        .preview-header,
+        .preview-body {
+            padding-left: 18px;
+            padding-right: 18px;
+        }
+
+        .preview-title {
+            font-size: 25px !important;
+        }
+
+        .preview-footer {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .preview-footer-button {
+            width: 100%;
+        }
+    }
+</style>
+
+
+<div class="preview-page">
+
+    <a asp-controller="Courses"
+       asp-action="Details"
+       asp-route-slug="@course.Slug"
+       class="preview-back">
+
+        <svg viewBox="0 0 24 24"
+             aria-hidden="true">
+            <path d="M15 18l-6-6 6-6" />
+        </svg>
+
+        Quay lại khóa học
+
+    </a>
+
+
+    <article class="preview-shell">
+
+        <header class="preview-header">
+
+            <div class="preview-label">
+                Bài học xem thử miễn phí
+            </div>
+
+            <h1 class="preview-title">
+                @Model.Title
+            </h1>
+
+            <div class="preview-meta">
+
+                <span>
+                    @Model.Module.Title
+                </span>
+
+                <span>
+                    @Model.Duration phút
+                </span>
+
+                <a asp-controller="Courses"
+                   asp-action="Details"
+                   asp-route-slug="@course.Slug"
+                   class="preview-course-link">
+                    @course.Title
+                </a>
+
+            </div>
+
+        </header>
+
+
+        <div class="preview-body">
+
+            @if (!string.IsNullOrWhiteSpace(
+                youtubeEmbedUrl))
+            {
+                <div class="preview-video-shell">
+
+                    <iframe src="@youtubeEmbedUrl"
+                            title="@Model.Title"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            allowfullscreen>
+                    </iframe>
+
+                </div>
+            }
+            else if (isDirectVideo)
+            {
+                <div class="preview-video-shell">
+
+                    <video controls
+                           preload="metadata">
+                        <source src="@videoUrl" />
+                        Trình duyệt của bạn không hỗ trợ video HTML5.
+                    </video>
+
+                </div>
+            }
+            else if (!string.IsNullOrWhiteSpace(
+                videoUrl))
+            {
+                <div class="preview-external-video">
+
+                    <div class="preview-external-video-title">
+                        Video bài học
+                    </div>
+
+                    <div class="preview-external-video-text">
+                        Nguồn video này không phải định dạng có thể phát trực tiếp
+                        trong EduLearn. Bạn có thể mở video trong tab mới.
+                    </div>
+
+                    <a href="@videoUrl"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="preview-external-video-link">
+                        Mở video
+                    </a>
+
+                </div>
+            }
+            else
+            {
+                <div class="preview-video-shell">
+
+                    <div class="preview-video-empty">
+                        Bài học này chưa có video.
+                        Bạn vẫn có thể xem nội dung bài học bên dưới.
+                    </div>
+
+                </div>
+            }
+
+
+            <section>
+
+                <h2 class="preview-section-title">
+                    Nội dung bài học
+                </h2>
+
+                @if (!string.IsNullOrWhiteSpace(
+                    Model.Content))
+                {
+                    <div class="preview-content">
+                        @Model.Content
+                    </div>
+                }
+                else
+                {
+                    <div class="preview-empty-content">
+                        Giảng viên chưa thêm nội dung văn bản cho bài học này.
+                    </div>
+                }
+
+            </section>
+
+
+            <div class="preview-footer">
+
+                <div>
+
+                    <div class="preview-footer-title">
+                        Muốn học toàn bộ khóa học?
+                    </div>
+
+                    <div class="preview-footer-text">
+                        Quay lại trang khóa học để xem chương trình
+                        và đăng ký học đầy đủ.
+                    </div>
+
+                </div>
+
+                <a asp-controller="Courses"
+                   asp-action="Details"
+                   asp-route-slug="@course.Slug"
+                   class="preview-footer-button">
+                    Xem khóa học
+                </a>
+
+            </div>
+
+        </div>
+
+    </article>
+
+</div>

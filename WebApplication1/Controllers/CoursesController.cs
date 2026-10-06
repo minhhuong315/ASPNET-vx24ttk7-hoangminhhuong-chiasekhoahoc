@@ -582,6 +582,78 @@ namespace OnlineLearningPlatform.Controllers
 
 
         // =====================================================
+        // XEM THỬ BÀI HỌC MIỄN PHÍ
+        // =====================================================
+
+        [HttpGet]
+        public async Task<IActionResult> PreviewLesson(
+            int lessonId)
+        {
+            var lesson =
+                await _context.Lessons
+                    .AsNoTracking()
+                    .Include(l =>
+                        l.Module)
+                        .ThenInclude(m =>
+                            m.Course)
+                            .ThenInclude(c =>
+                                c.Instructor)
+                    .FirstOrDefaultAsync(l =>
+                        l.Id == lessonId &&
+                        l.IsFree &&
+                        l.Module.Course.IsPublished);
+
+
+            if (lesson == null)
+            {
+                return NotFound();
+            }
+
+
+            // Nếu học viên đã đăng ký khóa học,
+            // đưa về trang học chính thức để tiến độ
+            // và lịch sử học tập vẫn được ghi nhận.
+            if (User.Identity?.IsAuthenticated == true &&
+                User.IsInRole("Student"))
+            {
+                var userId =
+                    _userManager.GetUserId(User);
+
+
+                if (!string.IsNullOrWhiteSpace(userId))
+                {
+                    bool isEnrolled =
+                        await _context.Enrollments
+                            .AsNoTracking()
+                            .AnyAsync(e =>
+                                e.UserId == userId &&
+                                e.CourseId ==
+                                lesson.Module.CourseId);
+
+
+                    if (isEnrolled)
+                    {
+                        return RedirectToAction(
+                            nameof(Learn),
+                            new
+                            {
+                                courseId =
+                                    lesson.Module.CourseId,
+
+                                lessonId =
+                                    lesson.Id
+                            });
+                    }
+                }
+            }
+
+
+            return View(
+                lesson);
+        }
+
+
+        // =====================================================
         // LỊCH SỬ HỌC TẬP
         // =====================================================
 
