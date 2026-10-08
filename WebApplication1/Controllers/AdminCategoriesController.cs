@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Authorization;
@@ -52,7 +52,10 @@ namespace OnlineLearningPlatform.Controllers
                 query =
                     query.Where(c =>
                         c.Name.Contains(search) ||
-                        c.Slug.Contains(search));
+                        (
+                            c.Slug != null &&
+                            c.Slug.Contains(search)
+                        ));
             }
 
 
@@ -155,7 +158,8 @@ namespace OnlineLearningPlatform.Controllers
                             category.Name,
 
                         Slug =
-                            category.Slug,
+                        category.Slug
+                        ?? string.Empty,
 
                         Description =
                             category.Description,
@@ -326,7 +330,8 @@ namespace OnlineLearningPlatform.Controllers
                         category.Name,
 
                     Slug =
-                        category.Slug,
+                        category.Slug
+                        ?? string.Empty,
 
                     Description =
                         category.Description,

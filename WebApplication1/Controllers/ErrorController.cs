@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace OnlineLearningPlatform.Controllers
@@ -7,7 +7,8 @@ namespace OnlineLearningPlatform.Controllers
     public class ErrorController : Controller
     {
         [HttpGet]
-        public IActionResult StatusCode(
+        [ActionName("StatusCode")]
+        public IActionResult HandleStatusCode(
             int code)
         {
             Response.StatusCode =
@@ -48,7 +49,8 @@ namespace OnlineLearningPlatform.Controllers
                         "Yêu cầu không thể được xử lý. Vui lòng thử lại hoặc quay về trang chủ."
                 };
 
-            return View();
+            return View(
+                "StatusCode");
         }
 
 
