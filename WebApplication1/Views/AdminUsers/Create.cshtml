@@ -1,0 +1,475 @@
+@model OnlineLearningPlatform.ViewModels.AdminCreateUserViewModel
+
+@{
+    ViewData["Title"] = "Tạo người dùng";
+}
+
+<style>
+
+    .admin-user-create-page {
+        min-height: 78vh;
+        padding: 42px 0 72px;
+        background: #f8fafc;
+    }
+
+    .admin-user-create-container {
+        width: 100%;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .page-topbar {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 22px;
+    }
+
+    .page-eyebrow {
+        margin-bottom: 6px;
+        color: #7c3aed;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+    }
+
+    .page-title {
+        margin: 0 0 7px;
+        color: #172033;
+        font-size: 30px;
+        font-weight: 800;
+    }
+
+    .page-description {
+        max-width: 620px;
+        margin: 0;
+        color: #7c8798;
+        font-size: 12px;
+        line-height: 1.7;
+    }
+
+    .back-link {
+        min-height: 40px;
+        padding: 0 14px;
+        border: 1px solid #dce3ec;
+        border-radius: 9px;
+        background: #ffffff;
+        color: #526079;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 800;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .back-link:hover {
+        border-color: #b9d4ff;
+        color: #0d6efd;
+    }
+
+    .create-card {
+        overflow: hidden;
+        border: 1px solid #e2e7ee;
+        border-radius: 15px;
+        background: #ffffff;
+    }
+
+    .card-header {
+        padding: 19px 22px;
+        border-bottom: 1px solid #edf0f4;
+    }
+
+    .card-title {
+        margin: 0 0 4px;
+        color: #273142;
+        font-size: 15px;
+        font-weight: 800;
+    }
+
+    .card-description {
+        margin: 0;
+        color: #929baa;
+        font-size: 10px;
+        line-height: 1.6;
+    }
+
+    .card-body {
+        padding: 22px;
+    }
+
+    .validation-summary-errors {
+        margin-bottom: 18px;
+        padding: 12px 14px;
+        border: 1px solid #ffd2d6;
+        border-radius: 9px;
+        background: #fff5f6;
+        color: #b42332;
+        font-size: 10px;
+        line-height: 1.6;
+    }
+
+    .validation-summary-errors ul {
+        margin: 0;
+        padding-left: 18px;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .form-group {
+        margin: 0;
+    }
+
+    .form-group.full {
+        grid-column: 1 / -1;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 7px;
+        color: #465164;
+        font-size: 10px;
+        font-weight: 800;
+    }
+
+    .form-control-edulearn,
+    .form-select-edulearn {
+        width: 100%;
+        min-height: 44px;
+        padding: 10px 12px;
+        border: 1px solid #dce2ea;
+        border-radius: 9px;
+        background: #ffffff;
+        color: #273142;
+        font: inherit;
+        font-size: 11px;
+        outline: none;
+    }
+
+    .form-select-edulearn {
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+
+    .form-control-edulearn:focus,
+    .form-select-edulearn:focus {
+        border-color: #9a72ef;
+        box-shadow:
+            0 0 0 3px
+            rgba(124, 58, 237, .08);
+    }
+
+    .field-validation-error {
+        display: block;
+        margin-top: 5px;
+        color: #dc3545;
+        font-size: 9px;
+        font-weight: 700;
+    }
+
+    .form-note {
+        margin-top: 6px;
+        color: #98a2b3;
+        font-size: 9px;
+        line-height: 1.55;
+    }
+
+    .security-note {
+        margin-top: 20px;
+        padding: 13px 15px;
+        border: 1px solid #e5def7;
+        border-radius: 10px;
+        background: #faf8ff;
+        color: #66587d;
+        font-size: 9px;
+        line-height: 1.65;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 9px;
+        margin-top: 22px;
+        padding-top: 20px;
+        border-top: 1px solid #edf0f4;
+    }
+
+    .button-secondary,
+    .button-primary {
+        min-height: 41px;
+        padding: 0 16px;
+        border-radius: 9px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-family: inherit;
+        font-size: 10px;
+        font-weight: 800;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .button-secondary {
+        border: 1px solid #dce3ec;
+        background: #ffffff;
+        color: #526079;
+    }
+
+    .button-secondary:hover {
+        border-color: #b9d4ff;
+        color: #0d6efd;
+    }
+
+    .button-primary {
+        border: 1px solid #7c3aed;
+        background: #7c3aed;
+        color: #ffffff;
+    }
+
+    .button-primary:hover {
+        background: #6d28d9;
+    }
+
+    @@media (max-width: 700px) {
+
+        .page-topbar {
+            flex-direction: column;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-group.full {
+            grid-column: auto;
+        }
+
+        .form-actions {
+            flex-direction: column-reverse;
+        }
+
+        .button-secondary,
+        .button-primary {
+            width: 100%;
+        }
+    }
+
+</style>
+
+
+<div class="admin-user-create-page">
+
+    <div class="admin-user-create-container">
+
+
+        <div class="page-topbar">
+
+            <div>
+
+                <div class="page-eyebrow">
+                    Quản trị người dùng
+                </div>
+
+                <h1 class="page-title">
+                    Tạo tài khoản mới
+                </h1>
+
+                <p class="page-description">
+                    Tạo tài khoản Học viên hoặc Giảng viên.
+                    Tài khoản mới được kích hoạt ngay sau khi tạo.
+                </p>
+
+            </div>
+
+
+            <a asp-controller="AdminUsers"
+               asp-action="Index"
+               class="back-link">
+                ← Danh sách người dùng
+            </a>
+
+        </div>
+
+
+        <section class="create-card">
+
+            <div class="card-header">
+
+                <h2 class="card-title">
+                    Thông tin tài khoản
+                </h2>
+
+                <p class="card-description">
+                    Email sẽ được dùng làm tên đăng nhập của người dùng.
+                </p>
+
+            </div>
+
+
+            <div class="card-body">
+
+                <form asp-controller="AdminUsers"
+                      asp-action="Create"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+
+                    <div asp-validation-summary="ModelOnly">
+                    </div>
+
+
+                    <div class="form-grid">
+
+
+                        <div class="form-group full">
+
+                            <label asp-for="FullName"
+                                   class="form-label">
+                            </label>
+
+                            <input asp-for="FullName"
+                                   class="form-control-edulearn"
+                                   autocomplete="name"
+                                   placeholder="Ví dụ: Nguyễn Văn A" />
+
+                            <span asp-validation-for="FullName">
+                            </span>
+
+                        </div>
+
+
+                        <div class="form-group full">
+
+                            <label asp-for="Email"
+                                   class="form-label">
+                            </label>
+
+                            <input asp-for="Email"
+                                   class="form-control-edulearn"
+                                   autocomplete="off"
+                                   placeholder="email@example.com" />
+
+                            <span asp-validation-for="Email">
+                            </span>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label asp-for="Password"
+                                   class="form-label">
+                            </label>
+
+                            <input asp-for="Password"
+                                   class="form-control-edulearn"
+                                   autocomplete="new-password"
+                                   placeholder="Nhập mật khẩu" />
+
+                            <span asp-validation-for="Password">
+                            </span>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label asp-for="ConfirmPassword"
+                                   class="form-label">
+                            </label>
+
+                            <input asp-for="ConfirmPassword"
+                                   class="form-control-edulearn"
+                                   autocomplete="new-password"
+                                   placeholder="Nhập lại mật khẩu" />
+
+                            <span asp-validation-for="ConfirmPassword">
+                            </span>
+
+                        </div>
+
+
+                        <div class="form-group full">
+
+                            <label asp-for="Role"
+                                   class="form-label">
+                            </label>
+
+                            <select asp-for="Role"
+                                    class="form-select-edulearn">
+
+                                <option value="Student">
+                                    Học viên
+                                </option>
+
+                                <option value="Instructor">
+                                    Giảng viên
+                                </option>
+
+                            </select>
+
+                            <span asp-validation-for="Role">
+                            </span>
+
+                            <div class="form-note">
+                                Trang này không cho tạo tài khoản Admin
+                                để tránh cấp quyền quản trị ngoài ý muốn.
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <div class="security-note">
+                        Mật khẩu phải đáp ứng chính sách mật khẩu
+                        ASP.NET Core Identity đang cấu hình trong EduLearn.
+                        Nếu chưa đạt yêu cầu, hệ thống sẽ hiển thị lỗi
+                        và không tạo tài khoản.
+                    </div>
+
+
+                    <div class="form-actions">
+
+                        <a asp-controller="AdminUsers"
+                           asp-action="Index"
+                           class="button-secondary">
+                            Hủy
+                        </a>
+
+                        <button type="submit"
+                                class="button-primary">
+                            Tạo tài khoản
+                        </button>
+
+                    </div>
+
+
+                </form>
+
+            </div>
+
+        </section>
+
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+}

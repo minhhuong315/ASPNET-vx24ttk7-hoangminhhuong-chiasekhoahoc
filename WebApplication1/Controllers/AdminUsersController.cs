@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -259,6 +259,164 @@ namespace OnlineLearningPlatform.Controllers
 
             return View(model);
         }
+
+
+        // =====================================================
+        // TẠO NGƯỜI DÙNG - GET
+        // =====================================================
+
+        [HttpGet]
+        public IActionResult Create()
+        {
+            return View(
+                new AdminCreateUserViewModel
+                {
+                    Role =
+                        "Student"
+                });
+        }
+
+
+        // =====================================================
+        // TẠO NGƯỜI DÙNG - POST
+        // =====================================================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(
+            AdminCreateUserViewModel model)
+        {
+            model.FullName =
+                model.FullName?.Trim()
+                ?? string.Empty;
+
+            model.Email =
+                model.Email?.Trim()
+                ?? string.Empty;
+
+            model.Role =
+                model.Role?.Trim()
+                ?? string.Empty;
+
+
+            if (model.Role != "Student" &&
+                model.Role != "Instructor")
+            {
+                ModelState.AddModelError(
+                    nameof(model.Role),
+                    "Vai trò được chọn không hợp lệ.");
+            }
+
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+
+            var existingUser =
+                await _userManager
+                    .FindByEmailAsync(
+                        model.Email);
+
+
+            if (existingUser != null)
+            {
+                ModelState.AddModelError(
+                    nameof(model.Email),
+                    "Email này đã được sử dụng.");
+
+                return View(model);
+            }
+
+
+            var now =
+                DateTime.UtcNow;
+
+
+            var user =
+                new ApplicationUser
+                {
+                    UserName =
+                        model.Email,
+
+                    Email =
+                        model.Email,
+
+                    FullName =
+                        model.FullName,
+
+                    EmailConfirmed =
+                        true,
+
+                    IsActive =
+                        true,
+
+                    CreatedAt =
+                        now,
+
+                    UpdatedAt =
+                        now
+                };
+
+
+            var createResult =
+                await _userManager
+                    .CreateAsync(
+                        user,
+                        model.Password);
+
+
+            if (!createResult.Succeeded)
+            {
+                foreach (var error in
+                    createResult.Errors)
+                {
+                    ModelState.AddModelError(
+                        string.Empty,
+                        error.Description);
+                }
+
+
+                return View(model);
+            }
+
+
+            var roleResult =
+                await _userManager
+                    .AddToRoleAsync(
+                        user,
+                        model.Role);
+
+
+            if (!roleResult.Succeeded)
+            {
+                await _userManager
+                    .DeleteAsync(
+                        user);
+
+
+                foreach (var error in
+                    roleResult.Errors)
+                {
+                    ModelState.AddModelError(
+                        string.Empty,
+                        error.Description);
+                }
+
+
+                return View(model);
+            }
+
+
+            TempData["AdminUsersSuccess"] =
+                $"Đã tạo tài khoản {user.Email} với vai trò {RoleLabel(model.Role)}.";
+
+
+            return RedirectToAction(
+                nameof(Index));
+        }
+
 
 
         // =====================================================
