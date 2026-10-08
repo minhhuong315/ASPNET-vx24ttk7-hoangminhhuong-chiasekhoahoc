@@ -175,7 +175,7 @@
 <style>
 
     /* =========================================================
-       EDULEARN STUDENT DASHBOARD - SHARED COURSE THUMBNAILS V7
+       EDULEARN STUDENT DASHBOARD - TAB FILTER FIX V8
 
        IMPORTANT:
        - Toàn bộ class dùng prefix studentdash-
@@ -802,6 +802,12 @@
     .studentdash-tab {
         min-height: 46px;
 
+        padding: 0;
+
+        border: 0;
+
+        background: transparent;
+
         color:
             var(--sd-muted);
 
@@ -810,10 +816,30 @@
 
         position: relative;
 
+        font-family: inherit;
         font-size: 13px;
         font-weight: 500;
 
         white-space: nowrap;
+
+        cursor: pointer;
+    }
+
+
+    .studentdash-tab:hover {
+        color:
+            var(--sd-primary);
+    }
+
+
+    .studentdash-tab:focus-visible {
+        outline:
+            2px solid
+            #93C5FD;
+
+        outline-offset: 3px;
+
+        border-radius: 4px;
     }
 
 
@@ -1972,19 +1998,33 @@
             </div>
 
 
-            <div class="studentdash-tabs">
+            <div class="studentdash-tabs"
+                 role="tablist"
+                 aria-label="Lọc khóa học của tôi">
 
-                <span class="studentdash-tab active">
+                <button type="button"
+                        class="studentdash-tab active"
+                        data-course-filter="all"
+                        role="tab"
+                        aria-selected="true">
                     Tất cả (@Model.RegisteredCourseCount)
-                </span>
+                </button>
 
-                <span class="studentdash-tab">
+                <button type="button"
+                        class="studentdash-tab"
+                        data-course-filter="in-progress"
+                        role="tab"
+                        aria-selected="false">
                     Đang học (@Model.InProgressCourseCount)
-                </span>
+                </button>
 
-                <span class="studentdash-tab">
+                <button type="button"
+                        class="studentdash-tab"
+                        data-course-filter="completed"
+                        role="tab"
+                        aria-selected="false">
                     Đã hoàn thành (@Model.CompletedCourseCount)
-                </span>
+                </button>
 
             </div>
 
@@ -2029,7 +2069,8 @@
                                     : "";
 
 
-                        <article class="studentdash-course-row">
+                        <article class="studentdash-course-row"
+                                 data-course-state="@(progress >= 100m ? "completed" : progress > 0m ? "in-progress" : "not-started")">
 
 
                             <div class="studentdash-course-thumb">
@@ -2129,6 +2170,11 @@
                     }
 
 
+                </div>
+
+                <div class="studentdash-empty studentdash-filter-empty"
+                     hidden>
+                    Không có khóa học phù hợp với bộ lọc này.
                 </div>
             }
             else
@@ -2459,5 +2505,108 @@
 
 
     </div>
+
+
+<script>
+    (() => {
+        const root =
+            document.querySelector(
+                ".studentdash-root");
+
+        if (!root) {
+            return;
+        }
+
+
+        const tabs =
+            Array.from(
+                root.querySelectorAll(
+                    "[data-course-filter]"));
+
+        const rows =
+            Array.from(
+                root.querySelectorAll(
+                    ".studentdash-course-row"));
+
+        const emptyState =
+            root.querySelector(
+                ".studentdash-filter-empty");
+
+
+        if (tabs.length === 0 ||
+            rows.length === 0) {
+            return;
+        }
+
+
+        const applyFilter =
+            (filter) => {
+
+                let visibleCount = 0;
+
+
+                rows.forEach(
+                    (row) => {
+
+                        const state =
+                            row.dataset.courseState;
+
+                        const visible =
+                            filter === "all" ||
+                            state === filter;
+
+
+                        row.hidden =
+                            !visible;
+
+
+                        if (visible) {
+                            visibleCount++;
+                        }
+                    });
+
+
+                tabs.forEach(
+                    (tab) => {
+
+                        const active =
+                            tab.dataset.courseFilter ===
+                            filter;
+
+
+                        tab.classList.toggle(
+                            "active",
+                            active);
+
+
+                        tab.setAttribute(
+                            "aria-selected",
+                            active
+                                ? "true"
+                                : "false");
+                    });
+
+
+                if (emptyState) {
+                    emptyState.hidden =
+                        visibleCount > 0;
+                }
+            };
+
+
+        tabs.forEach(
+            (tab) => {
+
+                tab.addEventListener(
+                    "click",
+                    () => {
+
+                        applyFilter(
+                            tab.dataset.courseFilter ??
+                            "all");
+                    });
+            });
+    })();
+</script>
 
 </section>
