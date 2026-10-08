@@ -1,530 +1,1805 @@
 @model OnlineLearningPlatform.ViewModels.AdminHomeDashboardViewModel
 
+@{
+    string? GetDashboardCourseThumbnail(
+        string title,
+        string? rawUrl)
+    {
+        string value =
+            (title ?? string.Empty)
+                .Trim()
+                .ToLowerInvariant();
+
+
+        string? mappedThumbnail =
+            null;
+
+
+        if (value.Contains("git") &&
+            value.Contains("github"))
+        {
+            mappedThumbnail =
+                "~/images/course-thumbnails/git-github.png";
+        }
+        else if (value.Contains(
+            "sql server"))
+        {
+            mappedThumbnail =
+                "~/images/course-thumbnails/sql-server.png";
+        }
+        else if (value.Contains(
+            "asp.net") ||
+            value.Contains(
+                "aspnet"))
+        {
+            mappedThumbnail =
+                "~/images/course-thumbnails/aspnet-core.png";
+        }
+        else if (value.Contains(
+            "c#") ||
+            value.Contains(
+                "csharp"))
+        {
+            mappedThumbnail =
+                "~/images/course-thumbnails/csharp-co-ban.png";
+        }
+        else if (value.Contains(
+            "javascript") &&
+            (
+                value.Contains(
+                    "nâng cao") ||
+                value.Contains(
+                    "es6")
+            ))
+        {
+            mappedThumbnail =
+                "~/images/course-thumbnails/javascript-nang-cao-es6.png";
+        }
+        else if (value.Contains(
+            "javascript"))
+        {
+            mappedThumbnail =
+                "~/images/course-thumbnails/javascript-co-ban.png";
+        }
+
+
+        if (!string.IsNullOrWhiteSpace(
+            mappedThumbnail))
+        {
+            return Url.Content(
+                mappedThumbnail);
+        }
+
+
+        return ResolveDashboardThumbnailUrl(
+            rawUrl);
+    }
+
+
+    string? ResolveDashboardThumbnailUrl(
+        string? rawUrl)
+    {
+        if (string.IsNullOrWhiteSpace(
+            rawUrl))
+        {
+            return null;
+        }
+
+
+        string value =
+            rawUrl
+                .Trim()
+                .Replace(
+                    "\\",
+                    "/");
+
+
+        if (value.StartsWith(
+            "http://",
+            StringComparison.OrdinalIgnoreCase) ||
+            value.StartsWith(
+                "https://",
+                StringComparison.OrdinalIgnoreCase) ||
+            value.StartsWith(
+                "//",
+                StringComparison.Ordinal) ||
+            value.StartsWith(
+                "data:",
+                StringComparison.OrdinalIgnoreCase) ||
+            value.StartsWith(
+                "blob:",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return value;
+        }
+
+
+        if (value.StartsWith(
+            "~/",
+            StringComparison.Ordinal))
+        {
+            return Url.Content(
+                value);
+        }
+
+
+        if (value.StartsWith(
+            "wwwroot/",
+            StringComparison.OrdinalIgnoreCase))
+        {
+            value =
+                value.Substring(
+                    "wwwroot/".Length);
+        }
+
+
+        if (value.StartsWith(
+            "/",
+            StringComparison.Ordinal))
+        {
+            return value;
+        }
+
+
+        return Url.Content(
+            "~/" +
+            value.TrimStart('/'));
+    }
+
+
+}
+
 <style>
-    .admin-home {
-        min-height: 78vh;
-        padding: 48px 0 72px;
-        background: #f8fafc;
+
+    /* =========================================================
+       EDULEARN - ADMIN DASHBOARD MODERN SAAS V3 / FINAL POLISH
+       Scope toàn bộ bên trong .admin-home-v2
+
+       Chỉ UI:
+       - Không đổi logic / route / binding / data
+       - Không ảnh hưởng Student / Instructor / Guest
+    ========================================================= */
+
+    .admin-home-v2 {
+        --admin-primary: #2563EB;
+        --admin-primary-hover: #1D4ED8;
+
+        --admin-heading: #0F172A;
+        --admin-body: #334155;
+        --admin-muted: #64748B;
+
+        --admin-bg: #F5F7FB;
+        --admin-card: #FFFFFF;
+        --admin-border: #E2E8F0;
+
+        --blue-bg: #EFF6FF;
+        --blue-fg: #2563EB;
+
+        --green-bg: #ECFDF3;
+        --green-fg: #16A34A;
+
+        --purple-bg: #F5F3FF;
+        --purple-fg: #7C3AED;
+
+        --orange-bg: #FFF7ED;
+        --orange-fg: #EA580C;
+
+        --amber-bg: #FFFBEB;
+        --amber-fg: #D97706;
+
+        --red-bg: #FEF2F2;
+        --red-fg: #DC2626;
+
+        width: auto;
+        min-height: calc(100vh - 104px);
+
+        margin:
+            -22px
+            -28px
+            -46px;
+
+        padding:
+            28px
+            28px
+            56px;
+
+        background: var(--admin-bg);
+
+        color: var(--admin-body);
+        font-family:
+            var(--font-main),
+            "Inter",
+            sans-serif;
     }
 
-    .admin-home-container {
-        max-width: 1180px;
-        margin: 0 auto;
-        padding: 0 20px;
+
+    .admin-home-v2 .admin-home-container {
+        width: 100%;
+        max-width: none;
+
+        margin: 0;
+        padding: 0;
     }
 
-    .dashboard-heading {
-        margin-bottom: 24px;
+
+    /* =========================================================
+       COMMON ICON
+    ========================================================= */
+
+    .admin-home-v2 .ui-icon {
+        width: 20px;
+        height: 20px;
+
+        display: block;
+
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.9;
+        stroke-linecap: round;
+        stroke-linejoin: round;
     }
 
-    .dashboard-eyebrow {
-        margin-bottom: 6px;
-        color: #7c3aed;
-        font-size: 11px;
-        font-weight: 800;
+
+    /* =========================================================
+       HEADER
+    ========================================================= */
+
+    .admin-home-v2 .dashboard-heading {
+        width: 100%;
+        min-height: 0;
+
+        margin: 0 0 22px;
+        padding: 0;
+
+        display: block;
+    }
+
+
+    .admin-home-v2 .dashboard-eyebrow {
+        margin-bottom: 5px;
+
+        color: var(--admin-primary);
+
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        line-height: 1.4;
+
+        letter-spacing: .02em;
         text-transform: uppercase;
     }
 
-    .dashboard-title {
+
+    .admin-home-v2 .dashboard-title {
         margin: 0 0 7px;
-        color: #172033;
-        font-size: 32px;
-        font-weight: 800;
+
+        color: var(--admin-heading) !important;
+
+        font-size: 26px !important;
+        font-weight: 700 !important;
+        line-height: 1.3 !important;
+
+        letter-spacing: -0.02em;
     }
 
-    .dashboard-description {
+
+    .admin-home-v2 .dashboard-description {
+        max-width: 720px;
+
         margin: 0;
-        color: #7c8798;
-        font-size: 13px;
-        line-height: 1.7;
+
+        color: var(--admin-muted) !important;
+
+        font-size: 14px !important;
+        font-weight: 400 !important;
+        line-height: 1.5 !important;
     }
 
-    .admin-stats {
+
+    /* =========================================================
+       SIX STAT CARDS
+    ========================================================= */
+
+    .admin-home-v2 .admin-stats {
         display: grid;
-        grid-template-columns: repeat(6, 1fr);
-        gap: 12px;
-        margin-bottom: 28px;
+
+        grid-template-columns:
+            repeat(6, minmax(0, 1fr));
+
+        gap: 14px;
+
+        margin-bottom: 22px;
     }
 
-    .admin-stat {
-        display: block;
-        padding: 18px;
-        border: 1px solid #e3e8ef;
-        border-radius: 13px;
-        background: #ffffff;
+
+    .admin-home-v2 .admin-stat {
+        min-width: 0;
+        min-height: 100px;
+
+        padding: 16px;
+
+        border:
+            1px solid
+            var(--admin-border);
+
+        border-radius: 12px;
+
+        background:
+            var(--admin-card);
+
         color: inherit;
+
+        display: grid;
+        grid-template-columns:
+            44px
+            minmax(0, 1fr);
+        grid-template-rows:
+            auto
+            auto;
+
+        column-gap: 13px;
+        row-gap: 3px;
+
+        align-content: center;
+        align-items: center;
+
         text-decoration: none;
-        cursor: pointer;
+
+        box-shadow: none;
+
         transition:
-            transform .18s ease,
-            border-color .18s ease,
-            box-shadow .18s ease;
+            border-color .16s ease,
+            background .16s ease,
+            box-shadow .16s ease,
+            transform .16s ease;
     }
 
-    .admin-stat:hover {
+
+    .admin-home-v2 .admin-stat:hover {
         color: inherit;
-        transform: translateY(-2px);
-        border-color: #c9b8f7;
+
+        border-color: #BFDBFE;
+
+        background: #FCFDFF;
+
+        transform: translateY(-1px);
+
         box-shadow:
-            0 8px 22px
-            rgba(124, 58, 237, .08);
+            0 6px 16px
+            rgba(37, 99, 235, .055);
     }
 
-    .stat-label {
-        margin-bottom: 7px;
-        color: #7c8798;
-        font-size: 9px;
-        font-weight: 700;
+
+    .admin-home-v2 .stat-top {
+        display: contents;
     }
 
-    .stat-number {
-        color: #172033;
-        font-size: 24px;
-        font-weight: 800;
+
+    .admin-home-v2 .stat-label {
+        grid-column: 2;
+        grid-row: 1;
+
+        align-self: end;
+
+        color:
+            var(--admin-muted) !important;
+
+        font-size: 13px !important;
+        font-weight: 500 !important;
+        line-height: 1.35 !important;
     }
 
-    .admin-grid {
+
+    .admin-home-v2 .stat-icon {
+        grid-column: 1;
+        grid-row: 1 / 3;
+
+        width: 44px;
+        height: 44px;
+
+        border-radius: 11px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        box-shadow:
+            inset 0 0 0 1px
+            rgba(255, 255, 255, .7);
+    }
+
+
+    .admin-home-v2 .stat-icon .ui-icon {
+        width: 21px;
+        height: 21px;
+
+        stroke-width: 2;
+    }
+
+
+    .admin-home-v2 .stat-icon.blue {
+        background: var(--blue-bg);
+        color: var(--blue-fg);
+    }
+
+    .admin-home-v2 .stat-icon.green {
+        background: var(--green-bg);
+        color: var(--green-fg);
+    }
+
+    .admin-home-v2 .stat-icon.purple {
+        background: var(--purple-bg);
+        color: var(--purple-fg);
+    }
+
+    .admin-home-v2 .stat-icon.orange {
+        background: var(--orange-bg);
+        color: var(--orange-fg);
+    }
+
+
+    .admin-home-v2 .stat-number {
+        grid-column: 2;
+        grid-row: 2;
+
+        align-self: start;
+
+        margin-top: 0;
+
+        color: var(--admin-heading) !important;
+
+        font-size: 26px !important;
+        font-weight: 700 !important;
+        line-height: 1.15 !important;
+
+        letter-spacing: -0.02em;
+    }
+
+
+    /* =========================================================
+       65 / 35 GRID
+    ========================================================= */
+
+    .admin-home-v2 .admin-grid {
         display: grid;
-        grid-template-columns: minmax(0, 1.35fr) minmax(300px, .75fr);
-        gap: 18px;
-        margin-bottom: 28px;
-        align-items: start;
+
+        grid-template-columns:
+            minmax(0, 1.85fr)
+            minmax(300px, 1fr);
+
+        gap: 20px;
+
+        margin-bottom: 22px;
+
+        align-items: stretch;
     }
 
-    .panel {
+
+    /* =========================================================
+       PANEL
+    ========================================================= */
+
+    .admin-home-v2 .panel {
+        min-width: 0;
+
         overflow: hidden;
-        border: 1px solid #e3e8ef;
-        border-radius: 15px;
-        background: #ffffff;
+
+        border:
+            1px solid
+            var(--admin-border);
+
+        border-radius: 12px;
+
+        background:
+            var(--admin-card);
+
+        box-shadow: none;
     }
 
-    .panel-header {
+
+    .admin-home-v2 .panel-header {
+        min-height: 62px;
+
+        padding: 0 18px;
+
+        border-bottom:
+            1px solid
+            #EDF1F5;
+
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 12px;
-        padding: 19px 21px;
-        border-bottom: 1px solid #eef1f5;
+
+        gap: 14px;
     }
 
-    .panel-title {
+
+    .admin-home-v2 .panel-title {
+        min-width: 0;
+
         margin: 0;
-        color: #273142;
-        font-size: 16px;
-        font-weight: 800;
+
+        color:
+            var(--admin-heading) !important;
+
+        font-size: 20px !important;
+        font-weight: 600 !important;
+        line-height: 1.3 !important;
+
+        letter-spacing: -0.01em;
     }
 
-    .panel-link {
-        color: #0d6efd;
-        font-size: 10px;
-        font-weight: 800;
+
+    .admin-home-v2 .panel-link {
+        flex-shrink: 0;
+
+        color:
+            var(--admin-primary) !important;
+
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        line-height: 1.4;
+
         text-decoration: none;
+
+        white-space: nowrap;
     }
 
-    .quick-grid {
+
+    .admin-home-v2 .panel-link:hover {
+        color:
+            var(--admin-primary-hover) !important;
+    }
+
+
+    /* =========================================================
+       QUICK MANAGEMENT
+    ========================================================= */
+
+    .admin-home-v2 .quick-grid {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-        padding: 18px;
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 14px;
+
+        padding: 16px;
     }
 
-    .quick-card {
-        padding: 17px;
-        border: 1px solid #e5e9ef;
-        border-radius: 12px;
+
+    .admin-home-v2 .quick-card {
+        min-width: 0;
+        min-height: 108px;
+
+        padding: 14px 38px 14px 14px;
+
+        border:
+            1px solid
+            var(--admin-border);
+
+        border-radius: 10px;
+
+        background:
+            var(--admin-card);
+
         color: inherit;
+
+        position: relative;
+
         text-decoration: none;
+
+        box-shadow: none;
+
+        transition:
+            border-color .16s ease,
+            background .16s ease,
+            box-shadow .16s ease,
+            transform .16s ease;
     }
 
-    .quick-card:hover {
-        border-color: #c9b8f7;
+
+    .admin-home-v2 .quick-card::after {
+        content: "→";
+
+        position: absolute;
+
+        top: 17px;
+        right: 14px;
+
+        color: #94A3B8;
+
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 1;
+
+        transition:
+            color .16s ease,
+            transform .16s ease;
     }
 
-    .quick-icon {
+
+    .admin-home-v2 .quick-card:hover {
+        color: inherit;
+
+        border-color: #BFDBFE;
+
+        background: #F8FBFF;
+
+        box-shadow:
+            0 6px 16px
+            rgba(37, 99, 235, .055);
+
+        transform: translateY(-1px);
+    }
+
+
+    .admin-home-v2 .quick-card:hover::after {
+        color: var(--admin-primary);
+
+        transform: translateX(2px);
+    }
+
+
+    .admin-home-v2 .quick-card-head {
+        display: flex;
+        align-items: center;
+
+        gap: 10px;
+    }
+
+
+    .admin-home-v2 .quick-icon {
         width: 38px;
         height: 38px;
-        margin-bottom: 11px;
+
+        flex: 0 0 38px;
+
         border-radius: 10px;
-        background: #f3ecff;
-        color: #7c3aed;
+
+        background:
+            var(--blue-bg);
+
+        color:
+            var(--blue-fg);
+
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 10px;
-        font-weight: 800;
     }
 
-    .quick-title {
-        color: #344054;
-        font-size: 11px;
-        font-weight: 800;
+
+    .admin-home-v2 .quick-card:nth-child(2) .quick-icon {
+        background: var(--green-bg);
+        color: var(--green-fg);
     }
 
-    .quick-note {
-        margin-top: 4px;
-        color: #98a2b3;
-        font-size: 9px;
-        line-height: 1.5;
+
+    .admin-home-v2 .quick-card:nth-child(3) .quick-icon {
+        background: var(--purple-bg);
+        color: var(--purple-fg);
     }
 
-    .system-list {
-        padding: 8px 18px;
+
+    .admin-home-v2 .quick-card:nth-child(4) .quick-icon {
+        background: var(--orange-bg);
+        color: var(--orange-fg);
     }
 
-    .system-item {
+
+    .admin-home-v2 .quick-title {
+        color:
+            var(--admin-heading) !important;
+
+        font-size: 14px !important;
+        font-weight: 700 !important;
+        line-height: 1.4 !important;
+    }
+
+
+    .admin-home-v2 .quick-note {
+        margin-top: 10px;
+
+        color:
+            var(--admin-muted) !important;
+
+        font-size: 13px !important;
+        font-weight: 400 !important;
+        line-height: 1.5 !important;
+    }
+
+
+    /* =========================================================
+       CONTENT STATUS
+    ========================================================= */
+
+    .admin-home-v2 .status-panel {
+        border-color: #D7E5F8;
+    }
+
+
+    .admin-home-v2 .status-panel .panel-header {
+        background: #FBFDFF;
+    }
+
+
+    .admin-home-v2 .status-panel .panel-title {
         display: flex;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 13px 0;
-        border-bottom: 1px solid #eef1f5;
+        align-items: center;
+        gap: 9px;
     }
 
-    .system-item:last-child {
+
+    .admin-home-v2 .status-panel .panel-title::before {
+        content: "";
+
+        width: 8px;
+        height: 8px;
+
+        flex: 0 0 8px;
+
+        border-radius: 999px;
+
+        background: var(--admin-primary);
+
+        box-shadow:
+            0 0 0 4px
+            rgba(37, 99, 235, .10);
+    }
+
+
+    .admin-home-v2 .status-list {
+        padding: 8px 16px 14px;
+    }
+
+
+    .admin-home-v2 .status-row {
+        min-height: 66px;
+
+        margin: 3px 0;
+        padding: 10px 8px;
+
+        border-bottom:
+            1px solid
+            #EDF1F5;
+
+        border-radius: 9px;
+
+        display: grid;
+
+        grid-template-columns:
+            40px
+            minmax(0, 1fr)
+            auto;
+
+        gap: 11px;
+
+        align-items: center;
+    }
+
+
+    .admin-home-v2 .status-row:last-child {
         border-bottom: none;
     }
 
-    .system-label {
-        color: #475467;
-        font-size: 10px;
-        font-weight: 700;
+
+    .admin-home-v2 .status-row:hover {
+        background: #FAFCFF;
     }
 
-    .system-value {
-        color: #172033;
-        font-size: 11px;
-        font-weight: 800;
+
+    .admin-home-v2 .status-icon {
+        width: 40px;
+        height: 40px;
+
+        border-radius: 10px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
-    .course-table {
-        width: 100%;
-        border-collapse: collapse;
+
+    .admin-home-v2 .status-icon.draft {
+        background: var(--amber-bg);
+        color: var(--amber-fg);
     }
 
-    .course-table th,
-    .course-table td {
-        padding: 13px 16px;
-        border-bottom: 1px solid #eef1f5;
-        text-align: left;
-        vertical-align: middle;
+
+    .admin-home-v2 .status-icon.category {
+        background: var(--blue-bg);
+        color: var(--blue-fg);
     }
 
-    .course-table th {
-        background: #fbfcfe;
-        color: #7c8798;
-        font-size: 9px;
-        font-weight: 800;
+
+    .admin-home-v2 .status-icon.question {
+        background: var(--red-bg);
+        color: var(--red-fg);
     }
 
-    .course-table td {
-        color: #475467;
-        font-size: 10px;
+
+    .admin-home-v2 .status-label {
+        color:
+            var(--admin-body) !important;
+
+        font-size: 13px !important;
+        font-weight: 500 !important;
+        line-height: 1.45 !important;
     }
 
-    .course-name {
-        color: #273142;
-        font-size: 10px;
-        font-weight: 800;
-    }
 
-    .status-badge {
-        display: inline-flex;
-        padding: 4px 7px;
-        border-radius: 20px;
-        background: #edfdf2;
-        color: #198754;
-        font-size: 8px;
-        font-weight: 800;
-    }
+    .admin-home-v2 .status-value {
+        min-width: 34px;
 
-    .status-badge.draft {
-        background: #fff5e8;
-        color: #b26a00;
-    }
+        padding: 5px 9px;
 
-    .manage-link {
-        color: #0d6efd;
-        font-size: 9px;
-        font-weight: 800;
-        text-decoration: none;
-    }
+        border-radius: 999px;
 
-    .empty {
-        padding: 30px;
-        color: #7c8798;
-        font-size: 11px;
+        background: #F1F5F9;
+
+        color:
+            var(--admin-body) !important;
+
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        line-height: 1.2 !important;
+
         text-align: center;
     }
 
-    @@media (max-width: 1050px) {
-        .admin-stats {
-            grid-template-columns: repeat(3, 1fr);
+
+    .admin-home-v2 .status-value.warning {
+        background: var(--amber-bg);
+        color: var(--amber-fg) !important;
+    }
+
+
+    .admin-home-v2 .status-value.danger {
+        background: var(--red-bg);
+        color: var(--red-fg) !important;
+    }
+
+
+    /* =========================================================
+       RECENT COURSES TABLE
+    ========================================================= */
+
+    .admin-home-v2 .table-wrap {
+        width: 100%;
+
+        overflow-x: auto;
+        overflow-y: hidden;
+
+        -webkit-overflow-scrolling: touch;
+    }
+
+
+    .admin-home-v2 .course-table {
+        width: 100%;
+        min-width: 980px;
+
+        border-collapse: collapse;
+
+        table-layout: fixed;
+    }
+
+
+    .admin-home-v2 .course-table th,
+    .admin-home-v2 .course-table td {
+        padding: 10px 14px;
+
+        border-bottom:
+            1px solid
+            #EDF1F5;
+
+        vertical-align: middle;
+    }
+
+
+    .admin-home-v2 .course-table tbody tr {
+        transition:
+            background .14s ease;
+    }
+
+
+    .admin-home-v2 .course-table tbody tr:hover {
+        background: #F7FAFF;
+    }
+
+
+    .admin-home-v2 .course-table tbody tr:hover .course-name {
+        color: #1D4ED8 !important;
+    }
+
+
+    .admin-home-v2 .course-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+
+    .admin-home-v2 .course-table th {
+        height: 44px;
+
+        background: #FAFBFC;
+
+        color:
+            var(--admin-muted) !important;
+
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        line-height: 1.4 !important;
+
+        text-align: left;
+        text-transform: none !important;
+        letter-spacing: 0 !important;
+    }
+
+
+    .admin-home-v2 .course-table td {
+        height: 64px;
+
+        color:
+            var(--admin-body) !important;
+
+        font-size: 14px !important;
+        font-weight: 400 !important;
+        line-height: 1.45 !important;
+    }
+
+
+    .admin-home-v2 .course-table th:nth-child(1),
+    .admin-home-v2 .course-table td:nth-child(1) {
+        width: 32%;
+    }
+
+
+    .admin-home-v2 .course-table th:nth-child(2),
+    .admin-home-v2 .course-table td:nth-child(2) {
+        width: 14%;
+    }
+
+
+    .admin-home-v2 .course-table th:nth-child(3),
+    .admin-home-v2 .course-table td:nth-child(3) {
+        width: 14%;
+    }
+
+
+    .admin-home-v2 .course-table th:nth-child(4),
+    .admin-home-v2 .course-table td:nth-child(4) {
+        width: 8%;
+
+        text-align: center;
+    }
+
+
+    .admin-home-v2 .course-table th:nth-child(5),
+    .admin-home-v2 .course-table td:nth-child(5) {
+        width: 12%;
+
+        text-align: center;
+    }
+
+
+    .admin-home-v2 .course-table th:nth-child(6),
+    .admin-home-v2 .course-table td:nth-child(6) {
+        width: 11%;
+
+        text-align: center;
+    }
+
+
+    .admin-home-v2 .course-table th:nth-child(7),
+    .admin-home-v2 .course-table td:nth-child(7) {
+        width: 9%;
+
+        text-align: right;
+    }
+
+
+    .admin-home-v2 .course-cell {
+        min-width: 0;
+
+        display: grid;
+
+        grid-template-columns:
+            48px
+            minmax(0, 1fr);
+
+        gap: 11px;
+
+        align-items: center;
+    }
+
+
+    .admin-home-v2 .course-thumb {
+        width: 48px;
+        height: 48px;
+
+        overflow: hidden;
+
+        border:
+            1px solid
+            #E2E8F0;
+
+        border-radius: 9px;
+
+        background: #EEF4FF;
+
+        box-shadow:
+            0 2px 8px
+            rgba(15, 23, 42, .05);
+    }
+
+
+    .admin-home-v2 .course-thumb img {
+        width: 100%;
+        height: 100%;
+
+        display: block;
+
+        object-fit: cover;
+    }
+
+
+    .admin-home-v2 .course-thumb-placeholder {
+        width: 100%;
+        height: 100%;
+
+        background: #EEF4FF;
+
+        color: var(--blue-fg);
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        position: relative;
+    }
+
+
+    .admin-home-v2 .course-thumb-placeholder::before {
+        content: "";
+
+        width: 30px;
+        height: 30px;
+
+        border-radius: 9px;
+
+        background: #FFFFFF;
+
+        position: absolute;
+
+        box-shadow:
+            0 2px 8px
+            rgba(37, 99, 235, .08);
+    }
+
+
+    .admin-home-v2 .course-thumb-placeholder .ui-icon {
+        width: 17px;
+        height: 17px;
+
+        position: relative;
+        z-index: 1;
+    }
+
+
+    .admin-home-v2 .course-name {
+        overflow: hidden;
+
+        color:
+            var(--admin-heading) !important;
+
+        font-size: 14px !important;
+        font-weight: 700 !important;
+        line-height: 1.4 !important;
+
+        display: -webkit-box;
+
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+
+        white-space: normal;
+    }
+
+
+    .admin-home-v2 .status-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        padding: 4px 8px;
+
+        border-radius: 999px;
+
+        background: var(--green-bg);
+
+        color: #15803D !important;
+
+        font-size: 12px !important;
+        font-weight: 500 !important;
+        line-height: 1.25 !important;
+
+        white-space: nowrap;
+    }
+
+
+    .admin-home-v2 .status-badge.draft {
+        background: var(--amber-bg);
+
+        color: #B45309 !important;
+    }
+
+
+    .admin-home-v2 .manage-link {
+        color:
+            var(--admin-primary) !important;
+
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        line-height: 1.4;
+
+        text-decoration: none;
+
+        white-space: nowrap;
+    }
+
+
+    .admin-home-v2 .manage-link:hover {
+        color:
+            var(--admin-primary-hover) !important;
+    }
+
+
+    .admin-home-v2 .empty {
+        padding: 42px 20px;
+
+        color:
+            var(--admin-muted) !important;
+
+        font-size: 14px !important;
+        font-weight: 400 !important;
+        line-height: 1.5;
+
+        text-align: center;
+    }
+
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+
+    @@media (max-width: 1280px) {
+
+        .admin-home-v2 .admin-stats {
+            grid-template-columns:
+                repeat(3, minmax(0, 1fr));
+        }
+
+
+        .admin-home-v2 .admin-grid {
+            grid-template-columns:
+                minmax(0, 1.65fr)
+                minmax(280px, .9fr);
         }
     }
 
-    @@media (max-width: 800px) {
-        .admin-grid {
+
+    @@media (max-width: 900px) {
+
+        .admin-home-v2 .admin-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+
+    @@media (max-width: 768px) {
+
+        .admin-home-v2 {
+            margin:
+                -14px
+                -12px
+                -36px;
+
+            padding:
+                20px
+                12px
+                44px;
+        }
+
+
+        .admin-home-v2 .admin-stats {
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+        }
+
+
+        .admin-home-v2 .panel-header {
+            min-height: 58px;
+
+            padding:
+                0
+                15px;
+        }
+
+
+        .admin-home-v2 .quick-grid {
+            padding: 14px;
+        }
+    }
+
+
+    @@media (max-width: 520px) {
+
+        .admin-home-v2 .admin-stats {
             grid-template-columns: 1fr;
         }
 
-        .course-table {
-            min-width: 780px;
+
+        .admin-home-v2 .quick-grid {
+            grid-template-columns: 1fr;
         }
 
-        .table-wrap {
-            overflow-x: auto;
+
+        .admin-home-v2 .panel-header {
+            padding:
+                13px
+                14px;
+
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+
+        .admin-home-v2 .course-table {
+            min-width: 900px;
         }
     }
 
-    @@media (max-width: 600px) {
-        .admin-stats,
-        .quick-grid {
-            grid-template-columns: 1fr 1fr;
-        }
-    }
 </style>
 
-<section class="admin-home">
+
+<section class="admin-home-v2">
+
     <div class="admin-home-container">
 
+
         <div class="dashboard-heading">
+
             <div class="dashboard-eyebrow">
                 Quản trị viên
             </div>
+
 
             <h1 class="dashboard-title">
                 Tổng quan hệ thống
             </h1>
 
+
             <p class="dashboard-description">
-                Theo dõi người dùng, khóa học và hoạt động chính
-                trên toàn bộ nền tảng EduLearn.
+                Theo dõi người dùng, khóa học
+                và hoạt động chính trên toàn bộ nền tảng EduLearn.
             </p>
+
         </div>
 
 
         <div class="admin-stats">
 
+
             <a asp-controller="AdminUsers"
                asp-action="Index"
                class="admin-stat">
-                <div class="stat-label">
-                    Tổng người dùng
+
+                <div class="stat-top">
+
+                    <span class="stat-label">
+                        Tổng người dùng
+                    </span>
+
+                    <span class="stat-icon blue">
+
+                        <svg class="ui-icon"
+                             viewBox="0 0 24 24"
+                             aria-hidden="true">
+
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+
+                        </svg>
+
+                    </span>
+
                 </div>
+
                 <div class="stat-number">
                     @Model.TotalUsers
                 </div>
+
             </a>
+
 
             <a asp-controller="AdminUsers"
                asp-action="Index"
                asp-route-role="Student"
                class="admin-stat">
-                <div class="stat-label">
-                    Học viên
+
+                <div class="stat-top">
+
+                    <span class="stat-label">
+                        Học viên
+                    </span>
+
+                    <span class="stat-icon green">
+
+                        <svg class="ui-icon"
+                             viewBox="0 0 24 24"
+                             aria-hidden="true">
+
+                            <path d="m3 10 9-5 9 5-9 5-9-5Z"></path>
+                            <path d="M7 12v5c3 2 7 2 10 0v-5"></path>
+                            <path d="M21 10v6"></path>
+
+                        </svg>
+
+                    </span>
+
                 </div>
+
                 <div class="stat-number">
                     @Model.StudentCount
                 </div>
+
             </a>
+
 
             <a asp-controller="AdminUsers"
                asp-action="Index"
                asp-route-role="Instructor"
                class="admin-stat">
-                <div class="stat-label">
-                    Giảng viên
+
+                <div class="stat-top">
+
+                    <span class="stat-label">
+                        Giảng viên
+                    </span>
+
+                    <span class="stat-icon purple">
+
+                        <svg class="ui-icon"
+                             viewBox="0 0 24 24"
+                             aria-hidden="true">
+
+                            <circle cx="12" cy="7" r="4"></circle>
+                            <path d="M5.5 21a6.5 6.5 0 0 1 13 0"></path>
+                            <path d="M19 8h3"></path>
+                            <path d="M20.5 6.5v3"></path>
+
+                        </svg>
+
+                    </span>
+
                 </div>
+
                 <div class="stat-number">
                     @Model.InstructorCount
                 </div>
+
             </a>
+
 
             <a asp-controller="AdminCourses"
                asp-action="Index"
                class="admin-stat">
-                <div class="stat-label">
-                    Tổng khóa học
+
+                <div class="stat-top">
+
+                    <span class="stat-label">
+                        Tổng khóa học
+                    </span>
+
+                    <span class="stat-icon blue">
+
+                        <svg class="ui-icon"
+                             viewBox="0 0 24 24"
+                             aria-hidden="true">
+
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                            <path d="M4 4v15.5"></path>
+                            <path d="M6.5 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5"></path>
+
+                        </svg>
+
+                    </span>
+
                 </div>
+
                 <div class="stat-number">
                     @Model.TotalCourses
                 </div>
+
             </a>
+
 
             <a asp-controller="AdminCourses"
                asp-action="Index"
                asp-route-status="published"
                class="admin-stat">
-                <div class="stat-label">
-                    Đã xuất bản
+
+                <div class="stat-top">
+
+                    <span class="stat-label">
+                        Đã xuất bản
+                    </span>
+
+                    <span class="stat-icon green">
+
+                        <svg class="ui-icon"
+                             viewBox="0 0 24 24"
+                             aria-hidden="true">
+
+                            <circle cx="12" cy="12" r="9"></circle>
+                            <path d="m8 12 2.5 2.5L16 9"></path>
+
+                        </svg>
+
+                    </span>
+
                 </div>
+
                 <div class="stat-number">
                     @Model.PublishedCourses
                 </div>
+
             </a>
+
 
             <a asp-controller="AdminCourses"
                asp-action="Index"
                class="admin-stat">
-                <div class="stat-label">
-                    Lượt đăng ký
+
+                <div class="stat-top">
+
+                    <span class="stat-label">
+                        Lượt đăng ký
+                    </span>
+
+                    <span class="stat-icon orange">
+
+                        <svg class="ui-icon"
+                             viewBox="0 0 24 24"
+                             aria-hidden="true">
+
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="8.5" cy="7" r="4"></circle>
+                            <path d="M19 8v6"></path>
+                            <path d="M22 11h-6"></path>
+
+                        </svg>
+
+                    </span>
+
                 </div>
+
                 <div class="stat-number">
                     @Model.TotalEnrollments
                 </div>
+
             </a>
+
 
         </div>
 
 
         <div class="admin-grid">
 
+
             <section class="panel">
 
                 <div class="panel-header">
+
                     <h2 class="panel-title">
                         Quản lý nhanh
                     </h2>
+
 
                     <a asp-controller="AdminUsers"
                        asp-action="Create"
                        class="panel-link">
                         Tạo người dùng →
                     </a>
+
                 </div>
 
+
                 <div class="quick-grid">
+
 
                     <a asp-controller="AdminUsers"
                        asp-action="Index"
                        class="quick-card">
-                        <div class="quick-icon">
-                            U
+
+                        <div class="quick-card-head">
+
+                            <div class="quick-icon">
+
+                                <svg class="ui-icon"
+                                     viewBox="0 0 24 24"
+                                     aria-hidden="true">
+
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+
+                                </svg>
+
+                            </div>
+
+                            <div class="quick-title">
+                                Người dùng
+                            </div>
+
                         </div>
-                        <div class="quick-title">
-                            Người dùng
-                        </div>
+
                         <div class="quick-note">
-                            Tài khoản, vai trò và trạng thái truy cập.
+                            Tài khoản, vai trò
+                            và trạng thái truy cập.
                         </div>
+
                     </a>
+
 
                     <a asp-controller="AdminCourses"
                        asp-action="Index"
                        class="quick-card">
-                        <div class="quick-icon">
-                            KH
+
+                        <div class="quick-card-head">
+
+                            <div class="quick-icon">
+
+                                <svg class="ui-icon"
+                                     viewBox="0 0 24 24"
+                                     aria-hidden="true">
+
+                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                    <path d="M4 4v15.5"></path>
+                                    <path d="M6.5 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5"></path>
+
+                                </svg>
+
+                            </div>
+
+                            <div class="quick-title">
+                                Khóa học
+                            </div>
+
                         </div>
-                        <div class="quick-title">
-                            Khóa học
-                        </div>
+
                         <div class="quick-note">
-                            Xuất bản, nổi bật và quản lý nội dung.
+                            Xuất bản, nổi bật
+                            và quản lý nội dung.
                         </div>
+
                     </a>
+
 
                     <a asp-controller="AdminCategories"
                        asp-action="Index"
                        class="quick-card">
-                        <div class="quick-icon">
-                            DM
+
+                        <div class="quick-card-head">
+
+                            <div class="quick-icon">
+
+                                <svg class="ui-icon"
+                                     viewBox="0 0 24 24"
+                                     aria-hidden="true">
+
+                                    <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                                    <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                                    <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                                    <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+
+                                </svg>
+
+                            </div>
+
+                            <div class="quick-title">
+                                Danh mục
+                            </div>
+
                         </div>
-                        <div class="quick-title">
-                            Danh mục
-                        </div>
+
                         <div class="quick-note">
-                            Cấu trúc lĩnh vực và thứ tự hiển thị.
+                            Cấu trúc lĩnh vực
+                            và thứ tự hiển thị.
                         </div>
+
                     </a>
+
 
                     <a asp-controller="LessonQuestions"
                        asp-action="Index"
                        class="quick-card">
-                        <div class="quick-icon">
-                            Q&A
+
+                        <div class="quick-card-head">
+
+                            <div class="quick-icon">
+
+                                <svg class="ui-icon"
+                                     viewBox="0 0 24 24"
+                                     aria-hidden="true">
+
+                                    <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"></path>
+                                    <path d="M9.5 9a2.5 2.5 0 1 1 3.8 2.1c-.8.5-1.3.9-1.3 1.9"></path>
+                                    <path d="M12 16h.01"></path>
+
+                                </svg>
+
+                            </div>
+
+                            <div class="quick-title">
+                                Hỏi đáp
+                            </div>
+
                         </div>
-                        <div class="quick-title">
-                            Hỏi đáp
-                        </div>
+
                         <div class="quick-note">
-                            Kiểm tra các câu hỏi đang chờ xử lý.
+                            Kiểm tra các câu hỏi
+                            đang chờ xử lý.
                         </div>
+
                     </a>
+
 
                 </div>
 
             </section>
 
 
-            <section class="panel">
+            <section class="panel status-panel">
 
                 <div class="panel-header">
+
                     <h2 class="panel-title">
                         Tình trạng nội dung
                     </h2>
+
 
                     <a asp-controller="AdminDashboard"
                        asp-action="Index"
                        class="panel-link">
                         Dashboard chi tiết →
                     </a>
+
                 </div>
 
-                <div class="system-list">
 
-                    <div class="system-item">
-                        <span class="system-label">
+                <div class="status-list">
+
+
+                    <div class="status-row">
+
+                        <span class="status-icon draft">
+
+                            <svg class="ui-icon"
+                                 viewBox="0 0 24 24"
+                                 aria-hidden="true">
+
+                                <path d="M4 4h16v16H4z"></path>
+                                <path d="M8 9h8"></path>
+                                <path d="M8 13h5"></path>
+
+                            </svg>
+
+                        </span>
+
+                        <span class="status-label">
                             Khóa học bản nháp
                         </span>
-                        <span class="system-value">
+
+                        <span class="status-value @(Model.DraftCourses > 0 ? "warning" : "")">
                             @Model.DraftCourses
                         </span>
+
                     </div>
 
-                    <div class="system-item">
-                        <span class="system-label">
+
+                    <div class="status-row">
+
+                        <span class="status-icon category">
+
+                            <svg class="ui-icon"
+                                 viewBox="0 0 24 24"
+                                 aria-hidden="true">
+
+                                <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                                <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                                <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                                <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+
+                            </svg>
+
+                        </span>
+
+                        <span class="status-label">
                             Danh mục hoạt động
                         </span>
-                        <span class="system-value">
+
+                        <span class="status-value">
                             @Model.ActiveCategories
                         </span>
+
                     </div>
 
-                    <div class="system-item">
-                        <span class="system-label">
+
+                    <div class="status-row">
+
+                        <span class="status-icon question">
+
+                            <svg class="ui-icon"
+                                 viewBox="0 0 24 24"
+                                 aria-hidden="true">
+
+                                <circle cx="12" cy="12" r="9"></circle>
+                                <path d="M9.8 9a2.5 2.5 0 1 1 3.8 2.1c-.9.6-1.6 1-1.6 2.2"></path>
+                                <path d="M12 17h.01"></path>
+
+                            </svg>
+
+                        </span>
+
+                        <span class="status-label">
                             Câu hỏi chưa trả lời
                         </span>
-                        <span class="system-value">
+
+                        <span class="status-value @(Model.PendingQuestions > 0 ? "danger" : "")">
                             @Model.PendingQuestions
                         </span>
+
                     </div>
+
 
                 </div>
 
             </section>
+
 
         </div>
 
 
         <section class="panel">
 
+
             <div class="panel-header">
+
                 <h2 class="panel-title">
                     Khóa học cập nhật gần đây
                 </h2>
+
 
                 <a asp-controller="AdminCourses"
                    asp-action="Index"
                    class="panel-link">
                     Quản lý khóa học →
                 </a>
+
             </div>
+
 
             @if (Model.RecentCourses.Any())
             {
                 <div class="table-wrap">
 
+
                     <table class="course-table">
+
+
                         <thead>
+
                             <tr>
                                 <th>Khóa học</th>
                                 <th>Giảng viên</th>
@@ -534,57 +1809,141 @@
                                 <th>Cập nhật</th>
                                 <th></th>
                             </tr>
+
                         </thead>
 
+
                         <tbody>
+
 
                             @foreach (var course in Model.RecentCourses)
                             {
                                 <tr>
+
+
                                     <td>
-                                        <div class="course-name">
-                                            @course.Title
+
+                                        <div class="course-cell">
+
+
+                                            <div class="course-thumb">
+
+                                                @{
+                                                    string? dashboardThumbnail =
+                                                        GetDashboardCourseThumbnail(
+                                                            course.Title,
+                                                            course.ThumbnailUrl);
+                                                }
+
+                                                @if (!string.IsNullOrWhiteSpace(
+                                                    dashboardThumbnail))
+                                                {
+                                                    <img src="@dashboardThumbnail"
+                                                         alt="@course.Title"
+                                                         onerror="this.hidden=true;this.nextElementSibling.hidden=false;" />
+
+                                                    <div class="course-thumb-placeholder"
+                                                         hidden
+                                                         aria-hidden="true">
+
+                                                        <svg class="ui-icon"
+                                                             viewBox="0 0 24 24">
+
+                                                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                                            <path d="M4 4v15.5"></path>
+                                                            <path d="M6.5 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5"></path>
+
+                                                        </svg>
+
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="course-thumb-placeholder"
+                                                         aria-hidden="true">
+
+                                                        <svg class="ui-icon"
+                                                             viewBox="0 0 24 24">
+
+                                                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                                            <path d="M4 4v15.5"></path>
+                                                            <path d="M6.5 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5"></path>
+
+                                                        </svg>
+
+                                                    </div>
+                                                }
+
+                                            </div>
+
+
+                                            <div class="course-name">
+                                                @course.Title
+                                            </div>
+
+
                                         </div>
+
                                     </td>
+
 
                                     <td>
                                         @course.InstructorName
                                     </td>
 
+
                                     <td>
                                         @course.CategoryName
                                     </td>
+
 
                                     <td>
                                         @course.EnrollmentCount
                                     </td>
 
+
                                     <td>
+
                                         <span class="status-badge @(course.IsPublished ? "" : "draft")">
+
                                             @(course.IsPublished
                                                 ? "Đã xuất bản"
                                                 : "Bản nháp")
+
                                         </span>
+
                                     </td>
 
+
                                     <td>
+
                                         @(course.UpdatedAt
                                             .ToLocalTime()
                                             .ToString("dd/MM/yyyy"))
+
                                     </td>
 
+
                                     <td>
+
                                         <a asp-controller="AdminCourses"
                                            asp-action="Index"
                                            class="manage-link">
                                             Quản lý →
                                         </a>
+
                                     </td>
+
+
                                 </tr>
                             }
 
+
                         </tbody>
+
+
                     </table>
+
 
                 </div>
             }
@@ -595,7 +1954,10 @@
                 </div>
             }
 
+
         </section>
 
+
     </div>
+
 </section>

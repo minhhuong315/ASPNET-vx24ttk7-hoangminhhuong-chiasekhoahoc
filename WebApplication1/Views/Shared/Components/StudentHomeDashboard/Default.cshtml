@@ -1,35 +1,6 @@
-﻿@model OnlineLearningPlatform.ViewModels.StudentHomeDashboardViewModel
+@model OnlineLearningPlatform.ViewModels.StudentHomeDashboardViewModel
 
 @{
-    string GetFallbackThumbnail(string title)
-    {
-        string value =
-            title.ToLowerInvariant();
-
-        if (value.Contains("sql"))
-        {
-            return Url.Content(
-                "~/images/dashboard/sql-server.png");
-        }
-
-        if (value.Contains("git"))
-        {
-            return Url.Content(
-                "~/images/dashboard/git-github.png");
-        }
-
-        if (value.Contains("asp.net") ||
-            value.Contains(".net") ||
-            value.Contains("c#"))
-        {
-            return Url.Content(
-                "~/images/dashboard/aspnet-core.png");
-        }
-
-        return Url.Content(
-            "~/images/dashboard/javascript-advanced.png");
-    }
-
     string GetLevelText(string level)
     {
         return level switch
@@ -40,55 +11,1708 @@
             _ => level
         };
     }
+
+    string? GetDashboardCourseThumbnail(
+        string title,
+        string? rawUrl)
+    {
+        string value =
+            (title ?? string.Empty)
+                .Trim()
+                .ToLowerInvariant();
+
+
+        string? mappedThumbnail =
+            null;
+
+
+        if (value.Contains("git") &&
+            value.Contains("github"))
+        {
+            mappedThumbnail =
+                "~/images/course-thumbnails/git-github.png";
+        }
+        else if (value.Contains(
+            "sql server"))
+        {
+            mappedThumbnail =
+                "~/images/course-thumbnails/sql-server.png";
+        }
+        else if (value.Contains(
+            "asp.net") ||
+            value.Contains(
+                "aspnet"))
+        {
+            mappedThumbnail =
+                "~/images/course-thumbnails/aspnet-core.png";
+        }
+        else if (value.Contains(
+            "c#") ||
+            value.Contains(
+                "csharp"))
+        {
+            mappedThumbnail =
+                "~/images/course-thumbnails/csharp-co-ban.png";
+        }
+        else if (value.Contains(
+            "javascript") &&
+            (
+                value.Contains(
+                    "nâng cao") ||
+                value.Contains(
+                    "es6")
+            ))
+        {
+            mappedThumbnail =
+                "~/images/course-thumbnails/javascript-nang-cao-es6.png";
+        }
+        else if (value.Contains(
+            "javascript"))
+        {
+            mappedThumbnail =
+                "~/images/course-thumbnails/javascript-co-ban.png";
+        }
+
+
+        if (!string.IsNullOrWhiteSpace(
+            mappedThumbnail))
+        {
+            return Url.Content(
+                mappedThumbnail);
+        }
+
+
+        return ResolveDashboardThumbnailUrl(
+            rawUrl);
+    }
+
+
+    string? ResolveDashboardThumbnailUrl(
+        string? rawUrl)
+    {
+        if (string.IsNullOrWhiteSpace(
+            rawUrl))
+        {
+            return null;
+        }
+
+
+        string value =
+            rawUrl
+                .Trim()
+                .Replace(
+                    "\\",
+                    "/");
+
+
+        if (value.StartsWith(
+            "http://",
+            StringComparison.OrdinalIgnoreCase) ||
+            value.StartsWith(
+                "https://",
+                StringComparison.OrdinalIgnoreCase) ||
+            value.StartsWith(
+                "//",
+                StringComparison.Ordinal) ||
+            value.StartsWith(
+                "data:",
+                StringComparison.OrdinalIgnoreCase) ||
+            value.StartsWith(
+                "blob:",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return value;
+        }
+
+
+        if (value.StartsWith(
+            "~/",
+            StringComparison.Ordinal))
+        {
+            return Url.Content(
+                value);
+        }
+
+
+        if (value.StartsWith(
+            "wwwroot/",
+            StringComparison.OrdinalIgnoreCase))
+        {
+            value =
+                value.Substring(
+                    "wwwroot/".Length);
+        }
+
+
+        if (value.StartsWith(
+            "/",
+            StringComparison.Ordinal))
+        {
+            return value;
+        }
+
+
+        return Url.Content(
+            "~/" +
+            value.TrimStart('/'));
+    }
+
+
+
+
+
+    var continueCourse =
+        Model.RecentCourses
+            .FirstOrDefault(c =>
+                c.Progress > 0m &&
+                c.Progress < 100m);
+
+    int recommendationCount =
+        Model.ExploreCourses.Count;
 }
 
 
-<section class="role-dashboard role-dashboard--student">
+<style>
 
-    <div class="dashboard-grid">
+    /* =========================================================
+       EDULEARN STUDENT DASHBOARD - SHARED COURSE THUMBNAILS V7
 
-        <header class="dashboard-heading grid-full">
+       IMPORTANT:
+       - Toàn bộ class dùng prefix studentdash-
+       - Không dùng root .role-dashboard
+       - Không phụ thuộc dashboard-role.css / dashboard-polish.css
+       - Không override class cũ
+    ========================================================= */
 
-            <div>
+    .studentdash-root {
+        --sd-primary: #2563EB;
+        --sd-primary-hover: #1D4ED8;
 
-                <div class="dashboard-eyebrow">
-                    Học viên
-                </div>
+        --sd-heading: #0F172A;
+        --sd-body: #334155;
+        --sd-muted: #64748B;
 
-                <h1 class="dashboard-title">
-                    Tổng quan học tập
-                </h1>
+        --sd-bg: #F5F7FB;
+        --sd-card: #FFFFFF;
+        --sd-border: #E2E8F0;
 
-                <p class="dashboard-subtitle">
-                    Tiếp tục các khóa học đang tham gia,
-                    theo dõi tiến độ và khám phá nội dung mới trên EduLearn.
-                </p>
+        --sd-blue-bg: #EFF6FF;
+        --sd-green-bg: #ECFDF3;
+        --sd-purple-bg: #F5F3FF;
+        --sd-orange-bg: #FFF7ED;
 
+        width: 100%;
+        min-width: 0;
+        min-height: 78vh;
+
+        margin: 0;
+
+        padding:
+            28px
+            0
+            56px;
+
+        background:
+            var(--sd-bg);
+
+        color:
+            var(--sd-body);
+
+        font-family:
+            var(--font-main),
+            "Inter",
+            sans-serif;
+
+        box-sizing: border-box;
+    }
+
+
+    .studentdash-root *,
+    .studentdash-root *::before,
+    .studentdash-root *::after {
+        box-sizing: border-box;
+    }
+
+
+    .studentdash-container {
+        width: 100%;
+        max-width: 1560px;
+
+        margin-inline: auto;
+
+        padding-inline: 0;
+    }
+
+
+    /* =========================================================
+       SVG
+    ========================================================= */
+
+    .studentdash-svg {
+        width: 20px;
+        height: 20px;
+
+        display: block;
+
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.9;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+
+    /* =========================================================
+       HEADER
+    ========================================================= */
+
+    .studentdash-header {
+        margin-bottom: 22px;
+    }
+
+
+    .studentdash-eyebrow {
+        margin-bottom: 5px;
+
+        color:
+            var(--sd-primary);
+
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.4;
+
+        letter-spacing: .02em;
+        text-transform: uppercase;
+    }
+
+
+    .studentdash-title {
+        margin:
+            0
+            0
+            7px;
+
+        color:
+            var(--sd-heading);
+
+        font-size: 26px;
+        font-weight: 700;
+        line-height: 1.3;
+
+        letter-spacing: -0.02em;
+    }
+
+
+    .studentdash-description {
+        max-width: 760px;
+
+        margin: 0;
+
+        color:
+            var(--sd-muted);
+
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1.5;
+    }
+
+
+    /* =========================================================
+       STATS
+    ========================================================= */
+
+    .studentdash-stats {
+        display: grid;
+
+        grid-template-columns:
+            repeat(4, minmax(0, 1fr));
+
+        gap: 14px;
+
+        margin-bottom: 20px;
+    }
+
+
+    .studentdash-stat {
+        min-width: 0;
+        min-height: 100px;
+
+        padding: 16px;
+
+        border:
+            1px solid
+            var(--sd-border);
+
+        border-radius: 12px;
+
+        background:
+            var(--sd-card);
+
+        color: inherit;
+
+        display: grid;
+
+        grid-template-columns:
+            44px
+            minmax(0, 1fr);
+
+        grid-template-rows:
+            auto
+            auto;
+
+        column-gap: 13px;
+        row-gap: 3px;
+
+        align-content: center;
+        align-items: center;
+
+        text-decoration: none;
+
+        box-shadow: none;
+
+        transition:
+            border-color .16s ease,
+            background .16s ease,
+            box-shadow .16s ease,
+            transform .16s ease;
+    }
+
+
+    .studentdash-stat:hover {
+        color: inherit;
+
+        border-color: #BFDBFE;
+
+        background: #FCFDFF;
+
+        box-shadow:
+            0 6px 16px
+            rgba(37, 99, 235, .055);
+
+        transform: translateY(-1px);
+    }
+
+
+    .studentdash-stat-icon {
+        grid-column: 1;
+        grid-row: 1 / 3;
+
+        width: 44px;
+        height: 44px;
+
+        border-radius: 11px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        box-shadow:
+            inset 0 0 0 1px
+            rgba(255, 255, 255, .7);
+    }
+
+
+    .studentdash-stat-icon .studentdash-svg {
+        width: 21px;
+        height: 21px;
+
+        stroke-width: 2;
+    }
+
+
+    .studentdash-stat-icon.blue {
+        background: var(--sd-blue-bg);
+        color: #2563EB;
+    }
+
+
+    .studentdash-stat-icon.green {
+        background: var(--sd-green-bg);
+        color: #16A34A;
+    }
+
+
+    .studentdash-stat-icon.purple {
+        background: var(--sd-purple-bg);
+        color: #7C3AED;
+    }
+
+
+    .studentdash-stat-icon.orange {
+        background: var(--sd-orange-bg);
+        color: #EA580C;
+    }
+
+
+    .studentdash-stat-number {
+        color:
+            var(--sd-heading);
+
+        font-size: 24px;
+        font-weight: 700;
+        line-height: 1.15;
+    }
+
+
+    .studentdash-stat-label {
+        margin-top: 4px;
+
+        color:
+            var(--sd-muted);
+
+        font-size: 13px;
+        font-weight: 500;
+        line-height: 1.4;
+    }
+
+
+    /* =========================================================
+       PANEL
+    ========================================================= */
+
+    .studentdash-panel {
+        min-width: 0;
+
+        overflow: hidden;
+
+        border:
+            1px solid
+            var(--sd-border);
+
+        border-radius: 12px;
+
+        background:
+            var(--sd-card);
+    }
+
+
+    .studentdash-panel-head {
+        min-height: 58px;
+
+        padding:
+            0
+            20px;
+
+        border-bottom:
+            1px solid
+            #EDF1F5;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 14px;
+    }
+
+
+    .studentdash-panel-title {
+        margin: 0;
+
+        color:
+            var(--sd-heading);
+
+        font-size: 18px;
+        font-weight: 600;
+        line-height: 1.3;
+    }
+
+
+    .studentdash-panel-link {
+        flex-shrink: 0;
+
+        color:
+            var(--sd-primary);
+
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1.4;
+
+        text-decoration: none;
+
+        white-space: nowrap;
+    }
+
+
+    .studentdash-panel-link:hover {
+        color:
+            var(--sd-primary-hover);
+    }
+
+
+    /* =========================================================
+       IMAGE / PLACEHOLDER
+    ========================================================= */
+
+    .studentdash-image {
+        width: 100%;
+        height: 100%;
+
+        display: block;
+
+        object-fit: cover;
+        object-position: center;
+    }
+
+
+    .studentdash-image.contain {
+        object-fit: contain;
+
+        padding: 4px;
+
+        background: #F8FAFC;
+    }
+
+
+    .studentdash-placeholder {
+        width: 100%;
+        height: 100%;
+
+        background:
+            #EEF4FF;
+
+        color:
+            var(--sd-primary);
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+
+    .studentdash-placeholder .studentdash-svg {
+        width: 23px;
+        height: 23px;
+    }
+
+
+    /* =========================================================
+       CONTINUE LEARNING
+    ========================================================= */
+
+    .studentdash-continue-wrap {
+        margin-bottom: 20px;
+    }
+
+
+    .studentdash-continue-panel {
+        border-color: #BFDBFE;
+
+        background:
+            #EFF6FF;
+
+        box-shadow:
+            inset 3px 0 0
+            #2563EB;
+    }
+
+
+    .studentdash-continue-panel
+    .studentdash-panel-head {
+        border-bottom-color: #DBEAFE;
+    }
+
+
+    .studentdash-continue-card {
+        padding:
+            18px
+            22px;
+
+        display: grid;
+
+        grid-template-columns:
+            96px
+            minmax(0, 1fr)
+            auto;
+
+        gap: 18px;
+
+        align-items: center;
+    }
+
+
+    .studentdash-continue-thumb {
+        width: 96px;
+        height: 96px;
+
+        overflow: hidden;
+
+        border:
+            1px solid
+            var(--sd-border);
+
+        border-radius: 11px;
+
+        background:
+            #EEF4FF;
+    }
+
+
+    .studentdash-continue-content {
+        min-width: 0;
+    }
+
+
+    .studentdash-continue-title {
+        margin-bottom: 4px;
+
+        color:
+            var(--sd-heading);
+
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+
+
+    .studentdash-continue-meta {
+        color:
+            var(--sd-muted);
+
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 1.45;
+    }
+
+
+    .studentdash-progress-head {
+        margin:
+            11px
+            0
+            6px;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 12px;
+
+        color:
+            var(--sd-muted);
+
+        font-size: 12px;
+        line-height: 1.4;
+    }
+
+
+    .studentdash-progress-percent {
+        color:
+            var(--sd-primary);
+
+        font-weight: 600;
+    }
+
+
+    .studentdash-progress-track {
+        width: 100%;
+        height: 7px;
+
+        overflow: hidden;
+
+        border-radius: 999px;
+
+        background:
+            #E2E8F0;
+    }
+
+
+    .studentdash-progress-fill {
+        height: 100%;
+
+        border-radius: inherit;
+
+        background:
+            var(--sd-primary);
+    }
+
+
+    .studentdash-primary-button {
+        min-width: 132px;
+        min-height: 40px;
+
+        margin-right: 2px;
+
+        padding:
+            0
+            15px;
+
+        border-radius: 9px;
+
+        background:
+            var(--sd-primary);
+
+        color: #FFFFFF;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.2;
+
+        text-decoration: none;
+
+        white-space: nowrap;
+
+        transition:
+            background .16s ease,
+            transform .16s ease;
+    }
+
+
+    .studentdash-primary-button:hover {
+        background:
+            var(--sd-primary-hover);
+
+        color: #FFFFFF;
+
+        transform: translateY(-1px);
+    }
+
+
+    /* =========================================================
+       MY COURSES
+    ========================================================= */
+
+    .studentdash-courses-panel {
+        margin-bottom: 20px;
+    }
+
+
+    .studentdash-tabs {
+        min-height: 46px;
+
+        padding:
+            0
+            20px;
+
+        border-bottom:
+            1px solid
+            #EDF1F5;
+
+        display: flex;
+        align-items: center;
+
+        gap: 22px;
+
+        overflow-x: auto;
+    }
+
+
+    .studentdash-tab {
+        min-height: 46px;
+
+        color:
+            var(--sd-muted);
+
+        display: inline-flex;
+        align-items: center;
+
+        position: relative;
+
+        font-size: 13px;
+        font-weight: 500;
+
+        white-space: nowrap;
+    }
+
+
+    .studentdash-tab.active {
+        color:
+            var(--sd-primary);
+
+        font-weight: 600;
+    }
+
+
+    .studentdash-tab.active::after {
+        content: "";
+
+        position: absolute;
+
+        left: 0;
+        right: 0;
+        bottom: 0;
+
+        height: 2px;
+
+        background:
+            var(--sd-primary);
+    }
+
+
+    .studentdash-course-list {
+        padding:
+            0
+            20px;
+    }
+
+
+    .studentdash-course-row {
+        min-height: 96px;
+
+        padding:
+            9px
+            4px;
+
+        border-bottom:
+            1px solid
+            #EDF1F5;
+
+        border-radius: 10px;
+
+        display: grid;
+
+        grid-template-columns:
+            80px
+            minmax(0, 1fr)
+            136px;
+
+        gap: 16px;
+
+        align-items: center;
+
+        transition:
+            background .14s ease;
+    }
+
+
+    .studentdash-course-row:hover {
+        background:
+            #F8FBFF;
+    }
+
+
+    .studentdash-course-row:last-child {
+        border-bottom: none;
+    }
+
+
+    .studentdash-course-thumb {
+        width: 80px;
+        height: 80px;
+
+        overflow: hidden;
+
+        border:
+            1px solid
+            var(--sd-border);
+
+        border-radius: 11px;
+
+        background:
+            #EEF4FF;
+    }
+
+
+    .studentdash-course-content {
+        min-width: 0;
+    }
+
+
+    .studentdash-course-title {
+        overflow: hidden;
+
+        color:
+            var(--sd-heading);
+
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 1.4;
+
+        display: -webkit-box;
+
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+
+
+    .studentdash-course-category {
+        display: inline-block;
+
+        margin-top: 3px;
+
+        color:
+            var(--sd-muted);
+
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 1.4;
+    }
+
+
+    .studentdash-course-meta-line {
+        margin-top: 3px;
+
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+
+        gap: 7px;
+    }
+
+
+    .studentdash-course-meta-line
+    .studentdash-course-category {
+        margin-top: 0;
+    }
+
+
+    .studentdash-course-state {
+        display: inline-flex;
+        align-items: center;
+
+        min-height: 22px;
+
+        padding:
+            2px
+            7px;
+
+        border-radius: 999px;
+
+        background: #F1F5F9;
+
+        color: #64748B;
+
+        font-size: 11px;
+        font-weight: 500;
+        line-height: 1.2;
+    }
+
+
+    .studentdash-course-state.in-progress {
+        background: #EFF6FF;
+        color: #2563EB;
+    }
+
+
+    .studentdash-course-state.completed {
+        background: #ECFDF3;
+        color: #15803D;
+    }
+
+
+    .studentdash-course-progress {
+        margin-top: 9px;
+
+        display: grid;
+
+        grid-template-columns:
+            minmax(0, 1fr)
+            44px;
+
+        gap: 10px;
+
+        align-items: center;
+    }
+
+
+    .studentdash-course-progress-track {
+        height: 7px;
+
+        overflow: hidden;
+
+        border-radius: 999px;
+
+        background:
+            #E2E8F0;
+    }
+
+
+    .studentdash-course-progress-fill {
+        height: 100%;
+
+        border-radius: inherit;
+
+        background:
+            var(--sd-primary);
+    }
+
+
+    .studentdash-course-progress-value {
+        color:
+            var(--sd-primary);
+
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.2;
+
+        text-align: right;
+    }
+
+
+    .studentdash-course-action {
+        width: 132px;
+        min-height: 38px;
+
+        margin-right: 0;
+
+        padding:
+            0
+            12px;
+
+        border:
+            1px solid
+            #BFDBFE;
+
+        border-radius: 9px;
+
+        background: #FFFFFF;
+
+        color:
+            var(--sd-primary);
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        justify-self: end;
+        align-self: center;
+
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1.2;
+
+        text-decoration: none;
+
+        white-space: nowrap;
+    }
+
+
+    .studentdash-course-action:hover {
+        border-color:
+            var(--sd-primary);
+
+        background:
+            var(--sd-blue-bg);
+
+        color:
+            var(--sd-primary-hover);
+    }
+
+
+    /* =========================================================
+       BOTTOM GRID
+    ========================================================= */
+
+    .studentdash-bottom-grid {
+        display: grid;
+
+        grid-template-columns:
+            minmax(0, 1.7fr)
+            minmax(300px, .8fr);
+
+        gap: 20px;
+
+        align-items: start;
+    }
+
+
+    /* =========================================================
+       RECOMMENDATIONS
+    ========================================================= */
+
+    .studentdash-recommend-grid {
+        padding: 16px;
+
+        display: grid;
+
+        grid-template-columns:
+            repeat(
+                auto-fit,
+                minmax(220px, 1fr)
+            );
+
+        gap: 12px;
+    }
+
+
+    .studentdash-recommend-grid.single {
+        grid-template-columns: 1fr;
+    }
+
+
+    .studentdash-recommend-card {
+        min-width: 0;
+
+        overflow: hidden;
+
+        border:
+            1px solid
+            var(--sd-border);
+
+        border-radius: 10px;
+
+        background: #FFFFFF;
+
+        color: inherit;
+
+        display: grid;
+
+        grid-template-columns: 1fr;
+
+        text-decoration: none;
+
+        transition:
+            border-color .16s ease,
+            background .16s ease,
+            box-shadow .16s ease,
+            transform .16s ease;
+    }
+
+
+    .studentdash-recommend-card:hover {
+        color: inherit;
+
+        border-color: #BFDBFE;
+
+        background: #FCFDFF;
+
+        box-shadow:
+            0 6px 16px
+            rgba(37, 99, 235, .05);
+
+        transform: translateY(-1px);
+    }
+
+
+    .studentdash-recommend-grid.single
+    .studentdash-recommend-card {
+        grid-template-columns:
+            minmax(200px, 250px)
+            minmax(0, 1fr);
+
+        align-items: stretch;
+    }
+
+
+    .studentdash-recommend-thumb {
+        width: 100%;
+        aspect-ratio: 16 / 8.5;
+
+        overflow: hidden;
+
+        border-right:
+            0 solid
+            var(--sd-border);
+
+        background:
+            #F8FAFC;
+    }
+
+
+    .studentdash-recommend-grid.single
+    .studentdash-recommend-thumb {
+        height: 140px;
+
+        aspect-ratio: auto;
+
+        border-right:
+            1px solid
+            var(--sd-border);
+    }
+
+
+    .studentdash-recommend-body {
+        padding: 13px;
+    }
+
+
+    .studentdash-recommend-grid.single
+    .studentdash-recommend-body {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+
+        padding:
+            16px
+            18px;
+    }
+
+
+    .studentdash-recommend-title {
+        overflow: hidden;
+
+        color:
+            var(--sd-heading);
+
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.4;
+
+        display: -webkit-box;
+
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+
+
+    .studentdash-recommend-meta {
+        margin-top: 7px;
+
+        color:
+            var(--sd-muted);
+
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 1.45;
+    }
+
+
+    /* =========================================================
+       QUICK ACCESS
+       NOTE: exactly one icon element per item.
+       No ::before / ::after icon generation.
+    ========================================================= */
+
+    .studentdash-quick-list {
+        padding: 12px;
+
+        display: grid;
+
+        gap: 9px;
+    }
+
+
+    .studentdash-quick-item {
+        min-height: 68px;
+
+        padding:
+            11px
+            12px;
+
+        border:
+            1px solid
+            var(--sd-border);
+
+        border-radius: 10px;
+
+        background: #FFFFFF;
+
+        color: inherit;
+
+        display: grid;
+
+        grid-template-columns:
+            38px
+            minmax(0, 1fr)
+            18px;
+
+        gap: 10px;
+
+        align-items: center;
+
+        text-decoration: none;
+
+        box-shadow: none;
+
+        transition:
+            border-color .16s ease,
+            background .16s ease,
+            box-shadow .16s ease,
+            transform .16s ease;
+    }
+
+
+    .studentdash-quick-item:hover {
+        color: inherit;
+
+        border-color: #BFDBFE;
+
+        background: #F8FBFF;
+
+        box-shadow:
+            0 6px 16px
+            rgba(37, 99, 235, .055);
+
+        transform: translateY(-1px);
+    }
+
+
+    .studentdash-quick-icon {
+        width: 38px;
+        height: 38px;
+
+        border-radius: 10px;
+
+        background:
+            var(--sd-blue-bg);
+
+        color: #2563EB;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+
+    .studentdash-quick-item:nth-child(2)
+    .studentdash-quick-icon {
+        background:
+            var(--sd-purple-bg);
+
+        color: #7C3AED;
+    }
+
+
+    .studentdash-quick-item:nth-child(3)
+    .studentdash-quick-icon {
+        background:
+            var(--sd-orange-bg);
+
+        color: #EA580C;
+    }
+
+
+    .studentdash-quick-item:nth-child(4)
+    .studentdash-quick-icon {
+        background:
+            var(--sd-green-bg);
+
+        color: #16A34A;
+    }
+
+
+    .studentdash-quick-title {
+        color:
+            var(--sd-heading);
+
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+
+
+    .studentdash-quick-note {
+        margin-top: 2px;
+
+        color:
+            var(--sd-muted);
+
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 1.4;
+    }
+
+
+    .studentdash-quick-arrow {
+        color:
+            #94A3B8;
+
+        font-size: 18px;
+        font-weight: 500;
+        line-height: 1;
+
+        text-align: center;
+    }
+
+
+    .studentdash-quick-item:hover
+    .studentdash-quick-arrow {
+        color:
+            var(--sd-primary);
+    }
+
+
+    /* =========================================================
+       EMPTY
+    ========================================================= */
+
+    .studentdash-empty {
+        padding:
+            34px
+            18px;
+
+        color:
+            var(--sd-muted);
+
+        font-size: 14px;
+        line-height: 1.55;
+
+        text-align: center;
+    }
+
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+
+    @@media (max-width: 1180px) {
+
+        .studentdash-stats {
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+        }
+
+
+        .studentdash-bottom-grid {
+            grid-template-columns:
+                minmax(0, 1.45fr)
+                minmax(280px, .85fr);
+        }
+    }
+
+
+    @@media (max-width: 900px) {
+
+        .studentdash-bottom-grid {
+            grid-template-columns: 1fr;
+        }
+
+
+        .studentdash-continue-card {
+            grid-template-columns:
+                88px
+                minmax(0, 1fr)
+                auto;
+        }
+
+
+        .studentdash-continue-thumb {
+            width: 88px;
+            height: 88px;
+        }
+    }
+
+
+    @@media (max-width: 768px) {
+
+        .studentdash-root {
+            padding:
+                22px
+                0
+                44px;
+        }
+
+
+        .studentdash-container {
+            padding-inline: 0;
+        }
+
+
+        .studentdash-continue-card {
+            grid-template-columns:
+                80px
+                minmax(0, 1fr);
+
+            padding:
+                16px
+                18px;
+        }
+
+
+        .studentdash-continue-thumb {
+            width: 80px;
+            height: 80px;
+        }
+
+
+        .studentdash-primary-button {
+            grid-column:
+                1
+                /
+                -1;
+
+            width: 100%;
+        }
+
+
+        .studentdash-course-row {
+            grid-template-columns:
+                76px
+                minmax(0, 1fr)
+                122px;
+        }
+
+
+        .studentdash-course-thumb {
+            width: 76px;
+            height: 76px;
+        }
+
+
+        .studentdash-course-action {
+            width: 118px;
+
+            margin-right: 2px;
+        }
+    }
+
+
+    @@media (max-width: 620px) {
+
+        .studentdash-container {
+            padding-inline: 0;
+        }
+
+
+        .studentdash-stats {
+            grid-template-columns: 1fr;
+        }
+
+
+        .studentdash-continue-card {
+            grid-template-columns: 1fr;
+        }
+
+
+        .studentdash-continue-thumb {
+            width: 100%;
+            height: 160px;
+        }
+
+
+        .studentdash-tabs {
+            gap: 18px;
+
+            padding-inline: 16px;
+        }
+
+
+        .studentdash-course-list {
+            padding-inline: 16px;
+        }
+
+
+        .studentdash-course-row {
+            padding:
+                12px
+                0;
+
+            grid-template-columns:
+                72px
+                minmax(0, 1fr);
+
+            gap: 12px;
+        }
+
+
+        .studentdash-course-thumb {
+            width: 72px;
+            height: 72px;
+        }
+
+
+        .studentdash-course-action {
+            grid-column:
+                1
+                /
+                -1;
+
+            width: 100%;
+
+            margin-right: 0;
+        }
+
+
+        .studentdash-recommend-grid {
+            grid-template-columns: 1fr;
+        }
+
+
+        .studentdash-recommend-grid.single
+        .studentdash-recommend-card {
+            grid-template-columns: 1fr;
+        }
+
+
+        .studentdash-recommend-grid.single
+        .studentdash-recommend-thumb {
+            height: auto;
+            aspect-ratio: 16 / 8.5;
+
+            border-right: 0;
+        }
+
+
+        .studentdash-panel-head {
+            min-height: 56px;
+
+            padding:
+                10px
+                16px;
+
+            flex-wrap: wrap;
+        }
+    }
+
+
+    @@media (max-width: 390px) {
+
+        .studentdash-container {
+            padding-inline: 0;
+        }
+
+
+        .studentdash-stat {
+            min-height: 92px;
+        }
+    }
+
+</style>
+
+
+<section class="studentdash-root">
+
+    <div class="studentdash-container">
+
+
+        <!-- =================================================
+             HEADER
+        ================================================== -->
+
+        <header class="studentdash-header">
+
+            <div class="studentdash-eyebrow">
+                Học viên
             </div>
+
+
+            <h1 class="studentdash-title">
+                Tổng quan học tập
+            </h1>
+
+
+            <p class="studentdash-description">
+                Tiếp tục các khóa học đang tham gia,
+                theo dõi tiến độ và khám phá nội dung mới trên EduLearn.
+            </p>
 
         </header>
 
 
-        <div class="metric-cluster metric-cluster--4 grid-full">
+        <!-- =================================================
+             STATS
+        ================================================== -->
+
+        <div class="studentdash-stats">
+
 
             <a asp-controller="Courses"
                asp-action="MyCourses"
-               class="metric-card">
+               class="studentdash-stat">
 
-                <span class="metric-icon blue"
-                      style="--dash-icon-mask: var(--icon-book);">
+                <span class="studentdash-stat-icon blue">
+
+                    <svg class="studentdash-svg"
+                         viewBox="0 0 24 24"
+                         aria-hidden="true">
+
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                        <path d="M4 4v15.5"></path>
+                        <path d="M6.5 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5"></path>
+
+                    </svg>
+
                 </span>
 
-                <span>
 
-                    <span class="metric-value d-block">
-                        @Model.RegisteredCourseCount
-                    </span>
+                <span class="studentdash-stat-label">
+                    Khóa đã đăng ký
+                </span>
 
-                    <span class="metric-label d-block">
-                        Khóa đã đăng ký
-                    </span>
-
+                <span class="studentdash-stat-number">
+                    @Model.RegisteredCourseCount
                 </span>
 
             </a>
@@ -96,22 +1720,32 @@
 
             <a asp-controller="Courses"
                asp-action="MyCourses"
-               class="metric-card">
+               class="studentdash-stat">
 
-                <span class="metric-icon green"
-                      style="--dash-icon-mask: var(--icon-play);">
+                <span class="studentdash-stat-icon green">
+
+                    <svg class="studentdash-svg"
+                         viewBox="0 0 24 24"
+                         aria-hidden="true">
+
+                        <circle cx="12"
+                                cy="12"
+                                r="9">
+                        </circle>
+
+                        <path d="m10 8 6 4-6 4z"></path>
+
+                    </svg>
+
                 </span>
 
-                <span>
 
-                    <span class="metric-value d-block">
-                        @Model.InProgressCourseCount
-                    </span>
+                <span class="studentdash-stat-label">
+                    Đang học
+                </span>
 
-                    <span class="metric-label d-block">
-                        Đang học
-                    </span>
-
+                <span class="studentdash-stat-number">
+                    @Model.InProgressCourseCount
                 </span>
 
             </a>
@@ -119,22 +1753,32 @@
 
             <a asp-controller="Courses"
                asp-action="MyCourses"
-               class="metric-card">
+               class="studentdash-stat">
 
-                <span class="metric-icon purple"
-                      style="--dash-icon-mask: var(--icon-check);">
+                <span class="studentdash-stat-icon purple">
+
+                    <svg class="studentdash-svg"
+                         viewBox="0 0 24 24"
+                         aria-hidden="true">
+
+                        <circle cx="12"
+                                cy="12"
+                                r="9">
+                        </circle>
+
+                        <path d="m8 12 2.5 2.5L16 9"></path>
+
+                    </svg>
+
                 </span>
 
-                <span>
 
-                    <span class="metric-value d-block">
-                        @Model.CompletedCourseCount
-                    </span>
+                <span class="studentdash-stat-label">
+                    Khóa đã hoàn thành
+                </span>
 
-                    <span class="metric-label d-block">
-                        Khóa đã hoàn thành
-                    </span>
-
+                <span class="studentdash-stat-number">
+                    @Model.CompletedCourseCount
                 </span>
 
             </a>
@@ -142,67 +1786,203 @@
 
             <a asp-controller="Courses"
                asp-action="StudyHistory"
-               class="metric-card">
+               class="studentdash-stat">
 
-                <span class="metric-icon orange"
-                      style="--dash-icon-mask: var(--icon-check);">
+                <span class="studentdash-stat-icon orange">
+
+                    <svg class="studentdash-svg"
+                         viewBox="0 0 24 24"
+                         aria-hidden="true">
+
+                        <path d="M4 6h16"></path>
+                        <path d="M4 12h10"></path>
+                        <path d="M4 18h8"></path>
+                        <path d="m16 17 2 2 4-4"></path>
+
+                    </svg>
+
                 </span>
 
-                <span>
 
-                    <span class="metric-value d-block">
-                        @Model.CompletedLessonCount
-                    </span>
+                <span class="studentdash-stat-label">
+                    Bài học hoàn thành
+                </span>
 
-                    <span class="metric-label d-block">
-                        Bài học hoàn thành
-                    </span>
-
+                <span class="studentdash-stat-number">
+                    @Model.CompletedLessonCount
                 </span>
 
             </a>
+
 
         </div>
 
 
         <!-- =================================================
-             KHÓA HỌC CỦA TÔI - PHẦN CHÍNH
+             CONTINUE LEARNING
         ================================================== -->
 
-        <section class="dashboard-panel grid-full">
+        @if (continueCourse != null)
+        {
+            decimal continueProgress =
+                Math.Clamp(
+                    continueCourse.Progress,
+                    0m,
+                    100m);
 
-            <div class="panel-head">
+            string? continueThumbnail =
+                GetDashboardCourseThumbnail(
+                    continueCourse.Title,
+                    continueCourse.ThumbnailUrl);
 
-                <h2 class="panel-title">
 
-                    <span class="panel-title-icon"
-                          style="--dash-icon-mask: var(--icon-book);">
-                    </span>
+            <section class="studentdash-continue-wrap">
 
+                <div class="studentdash-panel studentdash-continue-panel">
+
+
+                    <div class="studentdash-panel-head">
+
+                        <h2 class="studentdash-panel-title">
+                            Tiếp tục học
+                        </h2>
+
+                    </div>
+
+
+                    <div class="studentdash-continue-card">
+
+
+                        <div class="studentdash-continue-thumb">
+
+                            @if (!string.IsNullOrWhiteSpace(
+                                continueThumbnail))
+                            {
+                                <img src="@continueThumbnail"
+                                     alt="@continueCourse.Title"
+                                     class="studentdash-image"
+                                     onerror="this.hidden=true;this.nextElementSibling.hidden=false;" />
+
+                                <div class="studentdash-placeholder"
+                                     hidden
+                                     aria-hidden="true">
+
+                                    <svg class="studentdash-svg"
+                                         viewBox="0 0 24 24">
+
+                                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                        <path d="M4 4v15.5"></path>
+                                        <path d="M6.5 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5"></path>
+
+                                    </svg>
+
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="studentdash-placeholder"
+                                     aria-hidden="true">
+
+                                    <svg class="studentdash-svg"
+                                         viewBox="0 0 24 24">
+
+                                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                        <path d="M4 4v15.5"></path>
+                                        <path d="M6.5 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5"></path>
+
+                                    </svg>
+
+                                </div>
+                            }
+
+                        </div>
+
+
+                        <div class="studentdash-continue-content">
+
+                            <div class="studentdash-continue-title">
+                                @continueCourse.Title
+                            </div>
+
+                            <div class="studentdash-continue-meta">
+                                @continueCourse.CategoryName
+                            </div>
+
+
+                            <div class="studentdash-progress-head">
+
+                                <span>
+                                    Tiến độ khóa học
+                                </span>
+
+                                <span class="studentdash-progress-percent">
+                                    @continueProgress.ToString("0")%
+                                </span>
+
+                            </div>
+
+
+                            <div class="studentdash-progress-track">
+
+                                <div class="studentdash-progress-fill"
+                                     style="width:@continueProgress.ToString("0")%;">
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <a asp-controller="Courses"
+                           asp-action="Learn"
+                           asp-route-courseId="@continueCourse.CourseId"
+                           class="studentdash-primary-button">
+                            Tiếp tục học
+                        </a>
+
+
+                    </div>
+
+                </div>
+
+            </section>
+        }
+
+
+        <!-- =================================================
+             MY COURSES
+        ================================================== -->
+
+        <section class="studentdash-panel studentdash-courses-panel">
+
+
+            <div class="studentdash-panel-head">
+
+                <h2 class="studentdash-panel-title">
                     Khóa học của tôi
-
                 </h2>
+
 
                 <a asp-controller="Courses"
                    asp-action="MyCourses"
-                   class="panel-link">
+                   class="studentdash-panel-link">
                     Xem tất cả →
                 </a>
 
             </div>
 
 
-            <div class="student-tabs">
+            <div class="studentdash-tabs">
 
-                <span>
+                <span class="studentdash-tab active">
                     Tất cả (@Model.RegisteredCourseCount)
                 </span>
 
-                <span>
+                <span class="studentdash-tab">
                     Đang học (@Model.InProgressCourseCount)
                 </span>
 
-                <span>
+                <span class="studentdash-tab">
                     Đã hoàn thành (@Model.CompletedCourseCount)
                 </span>
 
@@ -211,7 +1991,8 @@
 
             @if (Model.RecentCourses.Any())
             {
-                <div class="student-course-list">
+                <div class="studentdash-course-list">
+
 
                     @foreach (var course in Model.RecentCourses)
                     {
@@ -221,12 +2002,10 @@
                                 0m,
                                 100m);
 
-                        string thumbnail =
-                            !string.IsNullOrWhiteSpace(
-                                course.ThumbnailUrl)
-                                ? course.ThumbnailUrl
-                                : GetFallbackThumbnail(
-                                    course.Title);
+                        string? thumbnail =
+                            GetDashboardCourseThumbnail(
+                                course.Title,
+                                course.ThumbnailUrl);
 
                         string actionText =
                             progress >= 100m
@@ -235,37 +2014,101 @@
                                     ? "Tiếp tục học"
                                     : "Bắt đầu học";
 
-                        <article class="student-course-row">
+                        string progressStateText =
+                            progress >= 100m
+                                ? "Đã hoàn thành"
+                                : progress > 0m
+                                    ? "Đang học"
+                                    : "Chưa bắt đầu";
 
-                            <div class="course-thumb">
+                        string progressStateClass =
+                            progress >= 100m
+                                ? "completed"
+                                : progress > 0m
+                                    ? "in-progress"
+                                    : "";
 
-                                <img src="@thumbnail"
-                                     alt="@course.Title" />
+
+                        <article class="studentdash-course-row">
+
+
+                            <div class="studentdash-course-thumb">
+
+                                @if (!string.IsNullOrWhiteSpace(
+                                    thumbnail))
+                                {
+                                    <img src="@thumbnail"
+                                         alt="@course.Title"
+                                         class="studentdash-image"
+                                         loading="lazy"
+                                         onerror="this.hidden=true;this.nextElementSibling.hidden=false;" />
+
+                                    <div class="studentdash-placeholder"
+                                         hidden
+                                         aria-hidden="true">
+
+                                        <svg class="studentdash-svg"
+                                             viewBox="0 0 24 24">
+
+                                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                            <path d="M4 4v15.5"></path>
+                                            <path d="M6.5 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5"></path>
+
+                                        </svg>
+
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="studentdash-placeholder"
+                                         aria-hidden="true">
+
+                                        <svg class="studentdash-svg"
+                                             viewBox="0 0 24 24">
+
+                                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                            <path d="M4 4v15.5"></path>
+                                            <path d="M6.5 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5"></path>
+
+                                        </svg>
+
+                                    </div>
+                                }
 
                             </div>
 
 
-                            <div>
+                            <div class="studentdash-course-content">
 
-                                <div class="course-title">
+                                <div class="studentdash-course-title">
                                     @course.Title
                                 </div>
 
-                                <span class="course-category">
-                                    @course.CategoryName
-                                </span>
+                                <div class="studentdash-course-meta-line">
 
-                                <div class="course-progress">
+                                    <span class="studentdash-course-category">
+                                        @course.CategoryName
+                                    </span>
 
-                                    <div class="course-progress-track">
+                                    <span class="studentdash-course-state @progressStateClass">
+                                        @progressStateText
+                                    </span>
 
-                                        <div class="course-progress-fill"
-                                             style="width:@progress.ToString("0")%">
+                                </div>
+
+
+                                <div class="studentdash-course-progress">
+
+                                    <div class="studentdash-course-progress-track">
+
+                                        <div class="studentdash-course-progress-fill"
+                                             style="width:@progress.ToString("0")%;">
                                         </div>
 
                                     </div>
 
-                                    <span class="course-progress-value">
+
+                                    <span class="studentdash-course-progress-value">
                                         @progress.ToString("0")%
                                     </span>
 
@@ -277,18 +2120,20 @@
                             <a asp-controller="Courses"
                                asp-action="Learn"
                                asp-route-courseId="@course.CourseId"
-                               class="course-action">
+                               class="studentdash-course-action">
                                 @actionText
                             </a>
 
+
                         </article>
                     }
+
 
                 </div>
             }
             else
             {
-                <div class="dashboard-empty">
+                <div class="studentdash-empty">
 
                     Bạn chưa đăng ký khóa học nào.
                     Hãy khám phá các khóa học trên EduLearn để bắt đầu học tập.
@@ -296,230 +2141,322 @@
                 </div>
             }
 
-        </section>
-
-
-        <!-- =================================================
-             KHÓA HỌC ĐỀ XUẤT
-        ================================================== -->
-
-        <section class="dashboard-panel grid-left">
-
-            <div class="panel-head">
-
-                <h2 class="panel-title">
-
-                    <span class="panel-title-icon"
-                          style="--dash-icon-mask: var(--icon-star);">
-                    </span>
-
-                    Khóa học đề xuất
-
-                </h2>
-
-                <a asp-controller="Courses"
-                   asp-action="Index"
-                   class="panel-link">
-                    Khám phá tất cả →
-                </a>
-
-            </div>
-
-
-            @if (Model.ExploreCourses.Any())
-            {
-                <div class="recommend-list">
-
-                    @foreach (var course in Model.ExploreCourses)
-                    {
-                        string thumbnail =
-                            !string.IsNullOrWhiteSpace(
-                                course.ThumbnailUrl)
-                                ? course.ThumbnailUrl
-                                : GetFallbackThumbnail(
-                                    course.Title);
-
-                        <a asp-controller="Courses"
-                           asp-action="Details"
-                           asp-route-slug="@course.Slug"
-                           class="recommend-item">
-
-                            <div class="course-thumb">
-
-                                <img src="@thumbnail"
-                                     alt="@course.Title" />
-
-                            </div>
-
-
-                            <div>
-
-                                <div class="recommend-title">
-                                    @course.Title
-                                </div>
-
-                                <div class="recommend-meta">
-
-                                    @course.CategoryName
-                                    · @GetLevelText(course.Level)
-                                    · @course.EnrollmentCount học viên
-
-                                </div>
-
-                            </div>
-
-                        </a>
-                    }
-
-                </div>
-            }
-            else
-            {
-                <div class="dashboard-empty">
-                    Hiện chưa có khóa học mới để đề xuất.
-                </div>
-            }
 
         </section>
 
 
         <!-- =================================================
-             TRUY CẬP NHANH
+             RECOMMENDATIONS + QUICK ACCESS
         ================================================== -->
 
-        <aside class="right-stack grid-right">
+        <div class="studentdash-bottom-grid">
 
-            <section class="dashboard-panel">
 
-                <div class="panel-head">
+            <section class="studentdash-panel">
 
-                    <h2 class="panel-title">
 
-                        <span class="panel-title-icon"
-                          style="--dash-icon-mask: var(--icon-grid);">
-                    </span>
+                <div class="studentdash-panel-head">
 
+                    <h2 class="studentdash-panel-title">
+                        Khóa học đề xuất
+                    </h2>
+
+
+                    <a asp-controller="Courses"
+                       asp-action="Index"
+                       class="studentdash-panel-link">
+                        Khám phá tất cả →
+                    </a>
+
+                </div>
+
+
+                @if (Model.ExploreCourses.Any())
+                {
+                    <div class="studentdash-recommend-grid @(recommendationCount == 1 ? "single" : "")">
+
+
+                        @foreach (var course in Model.ExploreCourses)
+                        {
+                            string? thumbnail =
+                            GetDashboardCourseThumbnail(
+                                course.Title,
+                                course.ThumbnailUrl);
+
+
+                            <a asp-controller="Courses"
+                               asp-action="Details"
+                               asp-route-slug="@course.Slug"
+                               class="studentdash-recommend-card">
+
+
+                                <div class="studentdash-recommend-thumb">
+
+                                    @if (!string.IsNullOrWhiteSpace(
+                                        thumbnail))
+                                    {
+                                        <img src="@thumbnail"
+                                             alt="@course.Title"
+                                             class="studentdash-image"
+                                             onerror="this.hidden=true;this.nextElementSibling.hidden=false;" />
+
+                                        <div class="studentdash-placeholder"
+                                             hidden
+                                             aria-hidden="true">
+
+                                            <svg class="studentdash-svg"
+                                                 viewBox="0 0 24 24">
+
+                                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                                <path d="M4 4v15.5"></path>
+                                                <path d="M6.5 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5"></path>
+
+                                            </svg>
+
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="studentdash-placeholder"
+                                             aria-hidden="true">
+
+                                            <svg class="studentdash-svg"
+                                                 viewBox="0 0 24 24">
+
+                                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                                <path d="M4 4v15.5"></path>
+                                                <path d="M6.5 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5"></path>
+
+                                            </svg>
+
+                                        </div>
+                                    }
+
+                                </div>
+
+
+                                <div class="studentdash-recommend-body">
+
+                                    <div class="studentdash-recommend-title">
+                                        @course.Title
+                                    </div>
+
+
+                                    <div class="studentdash-recommend-meta">
+
+                                        @course.CategoryName
+                                        · @GetLevelText(course.Level)
+                                        · @course.EnrollmentCount học viên
+
+                                    </div>
+
+                                </div>
+
+
+                            </a>
+                        }
+
+
+                    </div>
+                }
+                else
+                {
+                    <div class="studentdash-empty">
+                        Hiện chưa có khóa học mới để đề xuất.
+                    </div>
+                }
+
+
+            </section>
+
+
+            <aside class="studentdash-panel">
+
+
+                <div class="studentdash-panel-head">
+
+                    <h2 class="studentdash-panel-title">
                         Truy cập nhanh
-
                     </h2>
 
                 </div>
 
 
-                <div class="quick-list">
+                <div class="studentdash-quick-list">
+
 
                     <a asp-controller="Courses"
                        asp-action="StudyHistory"
-                       class="quick-link">
+                       class="studentdash-quick-item">
 
-                        <span class="quick-icon"
-                              style="--dash-icon-mask: var(--icon-trend);">
+
+                        <span class="studentdash-quick-icon">
+
+                            <svg class="studentdash-svg"
+                                 viewBox="0 0 24 24"
+                                 aria-hidden="true">
+
+                                <path d="M3 3v18h18"></path>
+                                <path d="m7 15 4-4 3 3 5-6"></path>
+
+                            </svg>
+
                         </span>
+
 
                         <span>
 
-                            <span class="quick-title d-block">
+                            <span class="studentdash-quick-title d-block">
                                 Lịch sử học tập
                             </span>
 
-                            <span class="quick-subtitle d-block">
+                            <span class="studentdash-quick-note d-block">
                                 Xem hoạt động và tiến độ gần đây
                             </span>
 
                         </span>
 
-                        <span class="quick-arrow">
+
+                        <span class="studentdash-quick-arrow">
                             ›
                         </span>
+
 
                     </a>
 
 
                     <a asp-controller="Wishlist"
                        asp-action="Index"
-                       class="quick-link">
+                       class="studentdash-quick-item">
 
-                        <span class="quick-icon red"
-                              style="--dash-icon-mask: var(--icon-heart);">
+
+                        <span class="studentdash-quick-icon">
+
+                            <svg class="studentdash-svg"
+                                 viewBox="0 0 24 24"
+                                 aria-hidden="true">
+
+                                <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"></path>
+
+                            </svg>
+
                         </span>
+
 
                         <span>
 
-                            <span class="quick-title d-block">
+                            <span class="studentdash-quick-title d-block">
                                 Khóa học yêu thích
                             </span>
 
-                            <span class="quick-subtitle d-block">
+                            <span class="studentdash-quick-note d-block">
                                 @Model.WishlistCount khóa học đã lưu
                             </span>
 
                         </span>
 
-                        <span class="quick-arrow">
+
+                        <span class="studentdash-quick-arrow">
                             ›
                         </span>
+
 
                     </a>
 
 
                     <a asp-controller="LessonQuestions"
                        asp-action="MyQuestions"
-                       class="quick-link">
+                       class="studentdash-quick-item">
 
-                        <span class="quick-icon"
-                              style="--dash-icon-mask: var(--icon-question);">
+
+                        <span class="studentdash-quick-icon">
+
+                            <svg class="studentdash-svg"
+                                 viewBox="0 0 24 24"
+                                 aria-hidden="true">
+
+                                <circle cx="12"
+                                        cy="12"
+                                        r="9">
+                                </circle>
+
+                                <path d="M9.8 9a2.5 2.5 0 1 1 3.8 2.1c-.9.6-1.6 1-1.6 2.2"></path>
+                                <path d="M12 17h.01"></path>
+
+                            </svg>
+
                         </span>
+
 
                         <span>
 
-                            <span class="quick-title d-block">
+                            <span class="studentdash-quick-title d-block">
                                 Câu hỏi của tôi
                             </span>
 
-                            <span class="quick-subtitle d-block">
+                            <span class="studentdash-quick-note d-block">
                                 @Model.OpenQuestionCount câu đang chờ
                             </span>
 
                         </span>
 
-                        <span class="quick-arrow">
+
+                        <span class="studentdash-quick-arrow">
                             ›
                         </span>
+
 
                     </a>
 
 
                     <a asp-controller="Notifications"
                        asp-action="Index"
-                       class="quick-link">
+                       class="studentdash-quick-item">
 
-                        <span class="quick-icon"
-                              style="--dash-icon-mask: var(--icon-bell);">
+
+                        <span class="studentdash-quick-icon">
+
+                            <svg class="studentdash-svg"
+                                 viewBox="0 0 24 24"
+                                 aria-hidden="true">
+
+                                <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path>
+                                <path d="M10 21h4"></path>
+
+                            </svg>
+
                         </span>
+
 
                         <span>
 
-                            <span class="quick-title d-block">
+                            <span class="studentdash-quick-title d-block">
                                 Thông báo
                             </span>
 
-                            <span class="quick-subtitle d-block">
+                            <span class="studentdash-quick-note d-block">
                                 Theo dõi phản hồi và cập nhật mới
                             </span>
 
                         </span>
 
-                        <span class="quick-arrow">
+
+                        <span class="studentdash-quick-arrow">
                             ›
                         </span>
 
+
                     </a>
+
 
                 </div>
 
-            </section>
 
-        </aside>
+            </aside>
+
+
+        </div>
+
 
     </div>
 

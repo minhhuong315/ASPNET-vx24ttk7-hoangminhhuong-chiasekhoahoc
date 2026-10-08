@@ -1,343 +1,1135 @@
-﻿@model OnlineLearningPlatform.ViewModels.InstructorHomeDashboardViewModel
+@model OnlineLearningPlatform.ViewModels.InstructorHomeDashboardViewModel
 
 @{
-    string GetFallbackThumbnail(string title)
+    string? GetDashboardCourseThumbnail(
+        string title,
+        string? rawUrl)
     {
         string value =
-            title.ToLowerInvariant();
+            (title ?? string.Empty)
+                .Trim()
+                .ToLowerInvariant();
 
-        if (value.Contains("sql"))
+
+        string? mappedThumbnail =
+            null;
+
+
+        if (value.Contains("git") &&
+            value.Contains("github"))
         {
-            return Url.Content(
-                "~/images/dashboard/sql-server.png");
+            mappedThumbnail =
+                "~/images/course-thumbnails/git-github.png";
+        }
+        else if (value.Contains(
+            "sql server"))
+        {
+            mappedThumbnail =
+                "~/images/course-thumbnails/sql-server.png";
+        }
+        else if (value.Contains(
+            "asp.net") ||
+            value.Contains(
+                "aspnet"))
+        {
+            mappedThumbnail =
+                "~/images/course-thumbnails/aspnet-core.png";
+        }
+        else if (value.Contains(
+            "c#") ||
+            value.Contains(
+                "csharp"))
+        {
+            mappedThumbnail =
+                "~/images/course-thumbnails/csharp-co-ban.png";
+        }
+        else if (value.Contains(
+            "javascript") &&
+            (
+                value.Contains(
+                    "nâng cao") ||
+                value.Contains(
+                    "es6")
+            ))
+        {
+            mappedThumbnail =
+                "~/images/course-thumbnails/javascript-nang-cao-es6.png";
+        }
+        else if (value.Contains(
+            "javascript"))
+        {
+            mappedThumbnail =
+                "~/images/course-thumbnails/javascript-co-ban.png";
         }
 
-        if (value.Contains("git"))
+
+        if (!string.IsNullOrWhiteSpace(
+            mappedThumbnail))
         {
             return Url.Content(
-                "~/images/dashboard/git-github.png");
+                mappedThumbnail);
         }
 
-        if (value.Contains("asp.net") ||
-            value.Contains(".net"))
+
+        return ResolveDashboardThumbnailUrl(
+            rawUrl);
+    }
+
+
+    string? ResolveDashboardThumbnailUrl(
+        string? rawUrl)
+    {
+        if (string.IsNullOrWhiteSpace(
+            rawUrl))
         {
-            return Url.Content(
-                "~/images/dashboard/aspnet-core.png");
+            return null;
         }
 
-        if (value.Contains("javascript") &&
-            value.Contains("nâng cao"))
+
+        string value =
+            rawUrl
+                .Trim()
+                .Replace(
+                    "\\",
+                    "/");
+
+
+        if (value.StartsWith(
+            "http://",
+            StringComparison.OrdinalIgnoreCase) ||
+            value.StartsWith(
+                "https://",
+                StringComparison.OrdinalIgnoreCase) ||
+            value.StartsWith(
+                "//",
+                StringComparison.Ordinal) ||
+            value.StartsWith(
+                "data:",
+                StringComparison.OrdinalIgnoreCase) ||
+            value.StartsWith(
+                "blob:",
+                StringComparison.OrdinalIgnoreCase))
         {
-            return Url.Content(
-                "~/images/dashboard/javascript-advanced.png");
+            return value;
         }
 
-        if (value.Contains("javascript"))
+
+        if (value.StartsWith(
+            "~/",
+            StringComparison.Ordinal))
         {
             return Url.Content(
-                "~/images/dashboard/javascript-basic.png");
+                value);
         }
+
+
+        if (value.StartsWith(
+            "wwwroot/",
+            StringComparison.OrdinalIgnoreCase))
+        {
+            value =
+                value.Substring(
+                    "wwwroot/".Length);
+        }
+
+
+        if (value.StartsWith(
+            "/",
+            StringComparison.Ordinal))
+        {
+            return value;
+        }
+
 
         return Url.Content(
-            "~/images/dashboard/aspnet-core.png");
+            "~/" +
+            value.TrimStart('/'));
     }
+
 }
 
-<section class="role-dashboard role-dashboard--instructor">
+<style>
 
-<div class="dashboard-grid">
+    /* =========================================================
+       INSTRUCTOR DASHBOARD V2
+       - Layout riêng, không phụ thuộc dashboard-grid chung
+       - Căn giữa theo cách Admin Dashboard đang dùng
+       - Scope toàn bộ dưới .instructor-home
+    ========================================================= */
 
-                <header class="dashboard-heading grid-full">
+    .instructor-home {
+        width: 100%;
+        min-height: 78vh;
+        padding: 28px 0 64px;
+        background: #f8fafc;
+    }
 
-                    <div>
-                        <div class="dashboard-eyebrow">
-                            Giảng viên
-                        </div>
+    .instructor-home-container {
+        width: 100%;
+        max-width: 1560px;
+        margin: 0 auto;
+        padding: 0 28px;
+    }
 
-                        <h1 class="dashboard-title">
-                            Hoạt động giảng dạy
-                        </h1>
 
-                        <p class="dashboard-subtitle">
-                            Quản lý khóa học, theo dõi học viên
-                            và nắm bắt tình hình giảng dạy trên EduLearn.
-                        </p>
-                    </div>
+    /* =========================================================
+       HEADER
+    ========================================================= */
+
+    .instructor-home .instructor-heading {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 24px;
+        margin-bottom: 24px;
+    }
+
+    .instructor-home .instructor-heading-copy {
+        min-width: 0;
+    }
+
+    .instructor-home .instructor-eyebrow {
+        margin-bottom: 6px;
+        color: #2563eb;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: .02em;
+        text-transform: uppercase;
+    }
+
+    .instructor-home .instructor-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: 40px;
+        font-weight: 700;
+        line-height: 1.2;
+        letter-spacing: -0.025em;
+    }
+
+    .instructor-home .instructor-description {
+        max-width: 720px;
+        margin: 8px 0 0;
+        color: #64748b;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1.6;
+    }
+
+    .instructor-home .create-course-button {
+        min-height: 44px;
+        margin-top: 2px;
+        padding: 0 18px;
+        border-radius: 10px;
+        background: #126bff;
+        color: #ffffff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.2;
+        text-decoration: none;
+        white-space: nowrap;
+        transition:
+            background .18s ease,
+            transform .18s ease;
+    }
+
+    .instructor-home .create-course-button:hover {
+        background: #075ee8;
+        color: #ffffff;
+        transform: translateY(-1px);
+    }
+
+
+    /* =========================================================
+       STATS
+    ========================================================= */
+
+    .instructor-home .instructor-stats {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+        margin-bottom: 18px;
+    }
+
+    .instructor-home .instructor-stat {
+        min-width: 0;
+        min-height: 104px;
+        padding: 18px;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        background: #ffffff;
+        color: inherit;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        text-decoration: none;
+        box-shadow:
+            0 6px 20px
+            rgba(36, 68, 112, .04);
+        transition:
+            border-color .18s ease,
+            box-shadow .18s ease,
+            transform .18s ease;
+    }
+
+    .instructor-home .instructor-stat:hover {
+        color: inherit;
+        border-color: #cbd8e9;
+        box-shadow:
+            0 9px 24px
+            rgba(36, 68, 112, .07);
+        transform: translateY(-1px);
+    }
+
+    .instructor-home .stat-icon {
+        width: 46px;
+        height: 46px;
+        flex: 0 0 46px;
+        border-radius: 13px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .instructor-home .stat-icon.blue {
+        background: #eaf3ff;
+        color: #126bff;
+    }
+
+    .instructor-home .stat-icon.green {
+        background: #eaf9f2;
+        color: #18a76f;
+    }
+
+    .instructor-home .stat-icon.orange {
+        background: #fff3df;
+        color: #f59e0b;
+    }
+
+    .instructor-home .stat-icon.purple {
+        background: #f1ebff;
+        color: #7c4dff;
+    }
+
+    .instructor-home .stat-value {
+        color: #0f172a;
+        font-size: 26px;
+        font-weight: 700;
+        line-height: 1.1;
+    }
+
+    .instructor-home .stat-label {
+        margin-top: 5px;
+        color: #334155;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+
+
+    /* =========================================================
+       MAIN CONTENT
+    ========================================================= */
+
+    .instructor-home .instructor-content-grid {
+        display: grid;
+        grid-template-columns:
+            minmax(0, 2fr)
+            minmax(300px, 1fr);
+        gap: 18px;
+        align-items: start;
+    }
+
+    .instructor-home .instructor-panel {
+        min-width: 0;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+        border-radius: 15px;
+        background: #ffffff;
+        box-shadow:
+            0 7px 24px
+            rgba(36, 68, 112, .04);
+    }
+
+    .instructor-home .panel-header {
+        min-height: 64px;
+        padding: 0 18px;
+        border-bottom: 1px solid #edf2f7;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+    }
+
+    .instructor-home .panel-heading {
+        margin: 0;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 18px;
+        font-weight: 600;
+        line-height: 1.35;
+    }
+
+    .instructor-home .panel-heading-icon {
+        width: 40px;
+        height: 40px;
+        flex: 0 0 40px;
+        border-radius: 11px;
+        background: #eaf3ff;
+        color: #126bff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .instructor-home .panel-link {
+        color: #126bff;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .instructor-home .panel-link:hover {
+        color: #075ee8;
+    }
+
+
+    /* =========================================================
+       COURSE TABLE
+    ========================================================= */
+
+    .instructor-home .course-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .instructor-home .course-table {
+        width: 100%;
+        min-width: 760px;
+        border-collapse: collapse;
+        table-layout: fixed;
+    }
+
+    .instructor-home .course-table th,
+    .instructor-home .course-table td {
+        padding: 13px 14px;
+        border-bottom: 1px solid #edf2f7;
+        vertical-align: middle;
+    }
+
+    .instructor-home .course-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .instructor-home .course-table th {
+        background: #fbfcfe;
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.4;
+        text-align: left;
+    }
+
+    .instructor-home .course-table td {
+        color: #334155;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1.5;
+    }
+
+    .instructor-home .course-table th:nth-child(1),
+    .instructor-home .course-table td:nth-child(1) {
+        width: 48%;
+    }
+
+    .instructor-home .course-table th:nth-child(2),
+    .instructor-home .course-table td:nth-child(2) {
+        width: 10%;
+        text-align: center;
+    }
+
+    .instructor-home .course-table th:nth-child(3),
+    .instructor-home .course-table td:nth-child(3) {
+        width: 10%;
+        text-align: center;
+    }
+
+    .instructor-home .course-table th:nth-child(4),
+    .instructor-home .course-table td:nth-child(4) {
+        width: 18%;
+        text-align: center;
+    }
+
+    .instructor-home .course-table th:nth-child(5),
+    .instructor-home .course-table td:nth-child(5) {
+        width: 14%;
+        text-align: right;
+    }
+
+    .instructor-home .course-cell {
+        min-width: 0;
+        display: grid;
+        grid-template-columns:
+            74px
+            minmax(0, 1fr);
+        gap: 12px;
+        align-items: center;
+    }
+
+    .instructor-home .course-thumb {
+        width: 74px;
+        aspect-ratio: 16 / 9;
+        overflow: hidden;
+        border-radius: 9px;
+        background:
+            linear-gradient(
+                135deg,
+                #0f4fbb,
+                #6d58e7
+            );
+    }
+
+    .instructor-home .course-thumb img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+    }
+
+
+    .instructor-home .course-thumb-fallback {
+        width: 100%;
+        height: 100%;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        background: #EFF6FF;
+        color: #2563EB;
+
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .instructor-home .course-info {
+        min-width: 0;
+    }
+
+    .instructor-home .course-name {
+        overflow: hidden;
+        color: #0f172a;
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 1.4;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .instructor-home .course-category {
+        margin-top: 3px;
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 1.4;
+    }
+
+    .instructor-home .course-status {
+        display: inline-flex;
+        padding: 5px 8px;
+        border-radius: 999px;
+        background: #eaf9f2;
+        color: #148759;
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 1.2;
+        white-space: nowrap;
+    }
+
+    .instructor-home .course-status.draft {
+        background: #fff3df;
+        color: #b97400;
+    }
+
+    .instructor-home .manage-link {
+        color: #126bff;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .instructor-home .manage-link:hover {
+        color: #075ee8;
+    }
+
+
+    /* =========================================================
+       ATTENTION
+    ========================================================= */
+
+    .instructor-home .attention-list {
+        padding: 12px;
+        display: grid;
+        gap: 10px;
+    }
+
+    .instructor-home .attention-item {
+        min-height: 78px;
+        padding: 12px;
+        border: 1px solid #e7edf5;
+        border-radius: 12px;
+        color: inherit;
+        display: grid;
+        grid-template-columns:
+            44px
+            minmax(0, 1fr)
+            18px;
+        gap: 11px;
+        align-items: center;
+        text-decoration: none;
+        transition:
+            background .16s ease,
+            border-color .16s ease;
+    }
+
+    .instructor-home .attention-item:hover {
+        color: inherit;
+        border-color: #d6e2f2;
+        background: #f8fbff;
+    }
+
+    .instructor-home .attention-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: #fff0f4;
+        color: #ef476f;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .instructor-home .attention-icon.orange {
+        background: #fff3df;
+        color: #f59e0b;
+    }
+
+    .instructor-home .attention-icon.blue {
+        background: #eaf3ff;
+        color: #126bff;
+    }
+
+    .instructor-home .attention-value {
+        color: #0f172a;
+        font-size: 22px;
+        font-weight: 700;
+        line-height: 1.1;
+    }
+
+    .instructor-home .attention-label {
+        margin-top: 4px;
+        color: #334155;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 1.4;
+    }
+
+    .instructor-home .attention-arrow {
+        color: #8da2bd;
+        font-size: 18px;
+        line-height: 1;
+        text-align: center;
+    }
+
+    .instructor-home .dashboard-empty {
+        padding: 42px 20px;
+        color: #64748b;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1.6;
+        text-align: center;
+    }
+
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+
+    @@media (max-width: 1180px) {
+
+        .instructor-home-container {
+            padding: 0 24px;
+        }
+
+        .instructor-home .instructor-content-grid {
+            grid-template-columns:
+                minmax(0, 1.65fr)
+                minmax(280px, .85fr);
+        }
+    }
+
+
+    @@media (max-width: 900px) {
+
+        .instructor-home {
+            padding-top: 22px;
+        }
+
+        .instructor-home .instructor-stats {
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+        }
+
+        .instructor-home .instructor-content-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+
+    @@media (max-width: 680px) {
+
+        .instructor-home-container {
+            padding: 0 16px;
+        }
+
+        .instructor-home .instructor-heading {
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .instructor-home .create-course-button {
+            width: 100%;
+        }
+
+        .instructor-home .instructor-title {
+            font-size: 30px;
+        }
+    }
+
+
+    @@media (max-width: 520px) {
+
+        .instructor-home .instructor-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .instructor-home .instructor-stat {
+            min-height: 94px;
+            padding: 15px;
+        }
+    }
+
+</style>
+
+
+<section class="role-dashboard role-dashboard--instructor instructor-home">
+
+    <div class="instructor-home-container">
+
+
+        <header class="instructor-heading">
+
+            <div class="instructor-heading-copy">
+
+                <div class="instructor-eyebrow">
+                    Giảng viên
+                </div>
+
+                <h1 class="instructor-title">
+                    Hoạt động giảng dạy
+                </h1>
+
+                <p class="instructor-description">
+                    Quản lý khóa học, theo dõi học viên
+                    và nắm bắt tình hình giảng dạy trên EduLearn.
+                </p>
+
+            </div>
+
+
+            <a asp-controller="InstructorCourses"
+               asp-action="Create"
+               class="create-course-button">
+                + Tạo khóa học mới
+            </a>
+
+        </header>
+
+
+        <div class="instructor-stats">
+
+            <a asp-controller="InstructorCourses"
+               asp-action="Index"
+               class="instructor-stat">
+
+                <span class="stat-icon blue">
+                    KH
+                </span>
+
+                <span>
+                    <span class="stat-value d-block">
+                        @Model.TotalCourses
+                    </span>
+
+                    <span class="stat-label d-block">
+                        Khóa học
+                    </span>
+                </span>
+
+            </a>
+
+
+            <a asp-controller="InstructorStudents"
+               asp-action="Index"
+               class="instructor-stat">
+
+                <span class="stat-icon green">
+                    HV
+                </span>
+
+                <span>
+                    <span class="stat-value d-block">
+                        @Model.UniqueStudents
+                    </span>
+
+                    <span class="stat-label d-block">
+                        Học viên
+                    </span>
+                </span>
+
+            </a>
+
+
+            <a asp-controller="InstructorAnalytics"
+               asp-action="Index"
+               class="instructor-stat">
+
+                <span class="stat-icon orange">
+                    BH
+                </span>
+
+                <span>
+                    <span class="stat-value d-block">
+                        @Model.TotalLessons
+                    </span>
+
+                    <span class="stat-label d-block">
+                        Bài học
+                    </span>
+                </span>
+
+            </a>
+
+
+            <a asp-controller="InstructorAnalytics"
+               asp-action="Index"
+               class="instructor-stat">
+
+                <span class="stat-icon purple">
+                    ★
+                </span>
+
+                <span>
+                    <span class="stat-value d-block">
+                        @(Model.AverageRating > 0
+                            ? Model.AverageRating.ToString("0.0")
+                            : "—")
+                    </span>
+
+                    <span class="stat-label d-block">
+                        Đánh giá trung bình
+                    </span>
+                </span>
+
+            </a>
+
+        </div>
+
+
+        <div class="instructor-content-grid">
+
+
+            <section class="instructor-panel">
+
+                <div class="panel-header">
+
+                    <h2 class="panel-heading">
+
+                        <span class="panel-heading-icon">
+                            KH
+                        </span>
+
+                        Khóa học của tôi
+
+                    </h2>
+
 
                     <a asp-controller="InstructorCourses"
-                       asp-action="Create"
-                       class="dashboard-heading-action">
-                        + Tạo khóa học mới
-                    </a>
-
-                </header>
-
-                <div class="metric-cluster metric-cluster--4 grid-full">
-
-                    <a asp-controller="InstructorCourses"
                        asp-action="Index"
-                       class="metric-card">
-                        <span class="metric-icon blue">KH</span>
-                        <span>
-                            <span class="metric-value d-block">
-                                @Model.TotalCourses
-                            </span>
-                            <span class="metric-label d-block">
-                                Khóa học
-                            </span>
-                        </span>
-                    </a>
-
-                    <a asp-controller="InstructorStudents"
-                       asp-action="Index"
-                       class="metric-card">
-                        <span class="metric-icon green">HV</span>
-                        <span>
-                            <span class="metric-value d-block">
-                                @Model.UniqueStudents
-                            </span>
-                            <span class="metric-label d-block">
-                                Học viên
-                            </span>
-                        </span>
-                    </a>
-
-                    <a asp-controller="InstructorAnalytics"
-                       asp-action="Index"
-                       class="metric-card">
-                        <span class="metric-icon orange">BH</span>
-                        <span>
-                            <span class="metric-value d-block">
-                                @Model.TotalLessons
-                            </span>
-                            <span class="metric-label d-block">
-                                Bài học
-                            </span>
-                        </span>
-                    </a>
-
-
-
-                    <a asp-controller="InstructorAnalytics"
-                       asp-action="Index"
-                       class="metric-card">
-                        <span class="metric-icon purple">★</span>
-                        <span>
-                            <span class="metric-value d-block">
-                                @(Model.AverageRating > 0
-                                    ? Model.AverageRating.ToString("0.0")
-                                    : "—")
-                            </span>
-                            <span class="metric-label d-block">
-                                Đánh giá trung bình
-                            </span>
-                        </span>
+                       class="panel-link">
+                        Xem tất cả →
                     </a>
 
                 </div>
 
-                <section class="dashboard-panel grid-left">
 
-                    <div class="panel-head">
+                @if (Model.RecentCourses.Any())
+                {
+                    <div class="course-table-wrap">
 
-                        <h2 class="panel-title">
-                            <span class="panel-title-icon">
-                                KH
-                            </span>
-                            Khóa học của tôi
-                        </h2>
+                        <table class="course-table">
 
-                        <a asp-controller="InstructorCourses"
-                           asp-action="Index"
-                           class="panel-link">
-                            Xem tất cả →
-                        </a>
+                            <thead>
+                                <tr>
+                                    <th>Khóa học</th>
+                                    <th>Học viên</th>
+                                    <th>Bài học</th>
+                                    <th>Trạng thái</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
 
-                    </div>
 
-                    @if (Model.RecentCourses.Any())
-                    {
-                        <div class="table-wrap">
+                            <tbody>
 
-                            <table class="dashboard-table instructor-table">
+                                @foreach (var course in Model.RecentCourses)
+                                {
+                                    string? thumbnail =
+                                        GetDashboardCourseThumbnail(
+                                            course.Title,
+                                            course.ThumbnailUrl);
 
-                                <thead>
                                     <tr>
-                                        <th>Khóa học</th>
-                                        <th>Học viên</th>
-                                        <th>Bài học</th>
-                                        <th>Trạng thái</th>
-                                        <th>Thao tác</th>
-                                    </tr>
-                                </thead>
 
-                                <tbody>
+                                        <td>
 
-                                    @foreach (var course in Model.RecentCourses)
-                                    {
-                                        string thumbnail =
-                                            !string.IsNullOrWhiteSpace(
-                                                course.ThumbnailUrl)
-                                                ? course.ThumbnailUrl
-                                                : GetFallbackThumbnail(
-                                                    course.Title);
+                                            <div class="course-cell">
 
-                                        <tr>
+                                                <div class="course-thumb">
 
-                                            <td>
-                                                <div class="table-course-cell">
-
-                                                    <div class="course-thumb">
+                                                    @if (!string.IsNullOrWhiteSpace(
+                                                        thumbnail))
+                                                    {
                                                         <img src="@thumbnail"
-                                                             alt="@course.Title" />
+                                                             alt="@course.Title"
+                                                             onerror="this.hidden=true;this.nextElementSibling.hidden=false;" />
+
+                                                        <div class="course-thumb-fallback"
+                                                             hidden
+                                                             aria-hidden="true">
+                                                            KH
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="course-thumb-fallback"
+                                                             aria-hidden="true">
+                                                            KH
+                                                        </div>
+                                                    }
+
+                                                </div>
+
+
+                                                <div class="course-info">
+
+                                                    <div class="course-name">
+                                                        @course.Title
                                                     </div>
 
-                                                    <div>
-                                                        <div class="table-course-name">
-                                                            @course.Title
-                                                        </div>
-                                                        <div class="table-course-meta">
-                                                            @course.CategoryName
-                                                        </div>
+                                                    <div class="course-category">
+                                                        @course.CategoryName
                                                     </div>
 
                                                 </div>
-                                            </td>
 
-                                            <td>
-                                                @course.EnrollmentCount
-                                            </td>
+                                            </div>
 
-                                            <td>
-                                                @course.LessonCount
-                                            </td>
+                                        </td>
 
-                                            <td>
-                                                <span class="status-pill @(course.IsPublished ? "" : "draft")">
-                                                    @(course.IsPublished
-                                                        ? "Đang xuất bản"
-                                                        : "Bản nháp")
-                                                </span>
-                                            </td>
 
-                                            <td>
-                                                <a asp-controller="InstructorCourses"
-                                                   asp-action="Manage"
-                                                   asp-route-id="@course.CourseId"
-                                                   class="table-action">
-                                                    Quản lý →
-                                                </a>
-                                            </td>
+                                        <td>
+                                            @course.EnrollmentCount
+                                        </td>
 
-                                        </tr>
-                                    }
 
-                                </tbody>
+                                        <td>
+                                            @course.LessonCount
+                                        </td>
 
-                            </table>
 
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="dashboard-empty">
-                            Bạn chưa có khóa học nào.
-                        </div>
-                    }
+                                        <td>
 
-                </section>
+                                            <span class="course-status @(course.IsPublished ? "" : "draft")">
 
-                <aside class="right-stack grid-right">
+                                                @(course.IsPublished
+                                                    ? "Đang xuất bản"
+                                                    : "Bản nháp")
 
-                    <section class="dashboard-panel">
+                                            </span>
 
-                        <div class="panel-head">
-                            <h2 class="panel-title">
-                                <span class="panel-title-icon">
-                                    ⚡
-                                </span>
-                                Cần xử lý
-                            </h2>
-                        </div>
+                                        </td>
 
-                        <div class="attention-list">
 
-                            <a asp-controller="LessonQuestions"
-                               asp-action="Index"
-                               class="attention-item">
+                                        <td>
 
-                                <span class="attention-icon">
-                                    Q
-                                </span>
+                                            <a asp-controller="InstructorCourses"
+                                               asp-action="Manage"
+                                               asp-route-id="@course.CourseId"
+                                               class="manage-link">
+                                                Quản lý →
+                                            </a>
 
-                                <span>
-                                    <span class="attention-value d-block">
-                                        @Model.PendingQuestions
-                                    </span>
-                                    <span class="attention-label d-block">
-                                        Câu hỏi chưa trả lời
-                                    </span>
-                                </span>
+                                        </td>
 
-                                <span class="attention-arrow">
-                                    ›
-                                </span>
+                                    </tr>
+                                }
 
-                            </a>
+                            </tbody>
 
-                            <a asp-controller="InstructorCourses"
-                               asp-action="Index"
-                               asp-route-status="draft"
-                               class="attention-item">
+                        </table>
 
-                                <span class="attention-icon orange">
-                                    BN
-                                </span>
+                    </div>
+                }
+                else
+                {
+                    <div class="dashboard-empty">
+                        Bạn chưa có khóa học nào.
+                    </div>
+                }
 
-                                <span>
-                                    <span class="attention-value d-block">
-                                        @Model.DraftCourses
-                                    </span>
-                                    <span class="attention-label d-block">
-                                        Khóa học bản nháp
-                                    </span>
-                                </span>
+            </section>
 
-                                <span class="attention-arrow">
-                                    ›
-                                </span>
 
-                            </a>
+            <aside class="instructor-panel">
 
-                            <a asp-controller="InstructorAnalytics"
-                               asp-action="Index"
-                               class="attention-item">
+                <div class="panel-header">
 
-                                <span class="attention-icon blue">
-                                    PT
-                                </span>
+                    <h2 class="panel-heading">
 
-                                <span>
-                                    <span class="attention-value d-block">
-                                        @Model.PublishedCourses
-                                    </span>
-                                    <span class="attention-label d-block">
-                                        Khóa đang xuất bản
-                                    </span>
-                                </span>
+                        <span class="panel-heading-icon">
+                            ⚡
+                        </span>
 
-                                <span class="attention-arrow">
-                                    ›
-                                </span>
+                        Cần xử lý
 
-                            </a>
+                    </h2>
 
-                        </div>
+                </div>
 
-                    </section>
 
-                </aside>
+                <div class="attention-list">
 
-            </div>
+
+                    <a asp-controller="LessonQuestions"
+                       asp-action="Index"
+                       class="attention-item">
+
+                        <span class="attention-icon">
+                            Q
+                        </span>
+
+
+                        <span>
+
+                            <span class="attention-value d-block">
+                                @Model.PendingQuestions
+                            </span>
+
+                            <span class="attention-label d-block">
+                                Câu hỏi chưa trả lời
+                            </span>
+
+                        </span>
+
+
+                        <span class="attention-arrow">
+                            ›
+                        </span>
+
+                    </a>
+
+
+                    <a asp-controller="InstructorCourses"
+                       asp-action="Index"
+                       asp-route-status="draft"
+                       class="attention-item">
+
+                        <span class="attention-icon orange">
+                            BN
+                        </span>
+
+
+                        <span>
+
+                            <span class="attention-value d-block">
+                                @Model.DraftCourses
+                            </span>
+
+                            <span class="attention-label d-block">
+                                Khóa học bản nháp
+                            </span>
+
+                        </span>
+
+
+                        <span class="attention-arrow">
+                            ›
+                        </span>
+
+                    </a>
+
+
+                    <a asp-controller="InstructorAnalytics"
+                       asp-action="Index"
+                       class="attention-item">
+
+                        <span class="attention-icon blue">
+                            PT
+                        </span>
+
+
+                        <span>
+
+                            <span class="attention-value d-block">
+                                @Model.PublishedCourses
+                            </span>
+
+                            <span class="attention-label d-block">
+                                Khóa đang xuất bản
+                            </span>
+
+                        </span>
+
+
+                        <span class="attention-arrow">
+                            ›
+                        </span>
+
+                    </a>
+
+
+                </div>
+
+            </aside>
+
+
+        </div>
+
+    </div>
 
 </section>
