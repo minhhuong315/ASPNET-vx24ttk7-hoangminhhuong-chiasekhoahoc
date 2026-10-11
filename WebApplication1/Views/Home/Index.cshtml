@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Trang chủ";
 
     bool isAuthenticated =
@@ -22,15 +22,7 @@
 
 <style>
     .home-page {
-        background: transparent;
-    }
-
-    .home-page--guest {
         background: #ffffff;
-    }
-
-    .home-page--workspace {
-        background: transparent;
     }
 
     .home-container {
@@ -616,204 +608,11 @@
 </style>
 
 
-<div class="home-page @(isAuthenticated ? "home-page--workspace" : "home-page--guest")">
+<div class="home-page">
 
     @if (!isAuthenticated)
     {
-        <section class="guest-hero">
-
-            <div class="home-container">
-
-                <div class="guest-hero-grid">
-
-                    <div>
-
-                        <div class="guest-badge">
-                            Nền tảng khóa học Công nghệ thông tin
-                        </div>
-
-                        <h1 class="guest-title">
-                            Chia sẻ tri thức,<br />
-                            <span>
-                                kiến tạo tương lai
-                            </span>
-                        </h1>
-
-                        <p class="guest-description">
-                            Khám phá các khóa học Công nghệ thông tin
-                            từ cơ bản đến nâng cao, học theo tiến độ
-                            phù hợp và phát triển kỹ năng thực hành
-                            cùng EduLearn.
-                        </p>
-
-                        <div class="guest-actions">
-
-                            <a asp-controller="Courses"
-                               asp-action="Index"
-                               class="guest-primary">
-                                Khám phá khóa học
-                            </a>
-
-                            <a asp-controller="Account"
-                               asp-action="Register"
-                               class="guest-secondary">
-                                Đăng ký ngay
-                            </a>
-
-                        </div>
-
-                        <div class="guest-techs">
-                            <span class="guest-tech">ASP.NET Core</span>
-                            <span class="guest-tech">C#</span>
-                            <span class="guest-tech">JavaScript</span>
-                            <span class="guest-tech">Python</span>
-                            <span class="guest-tech">SQL Server</span>
-                            <span class="guest-tech">Git & GitHub</span>
-                        </div>
-
-                    </div>
-
-
-                    <div class="guest-course-box">
-
-                        <div class="guest-course-box-header">
-
-                            <div class="guest-course-box-title">
-                                Khám phá theo trình độ
-                            </div>
-
-                            <div class="guest-course-box-note">
-                                Bắt đầu học
-                            </div>
-
-                        </div>
-
-
-                        <div class="guest-level-list">
-
-                            <a asp-controller="Courses"
-                               asp-action="Index"
-                               asp-route-level="beginner"
-                               class="guest-level-card">
-
-                                <div class="guest-level-icon">
-                                    CB
-                                </div>
-
-                                <div>
-                                    <div class="guest-level-title">
-                                        Khóa học cơ bản
-                                    </div>
-
-                                    <div class="guest-level-description">
-                                        Xây dựng kiến thức nền tảng
-                                        và làm quen với công nghệ.
-                                    </div>
-                                </div>
-
-                                <div class="guest-level-arrow">
-                                    →
-                                </div>
-
-                            </a>
-
-
-                            <a asp-controller="Courses"
-                               asp-action="Index"
-                               asp-route-level="intermediate"
-                               class="guest-level-card">
-
-                                <div class="guest-level-icon intermediate">
-                                    TC
-                                </div>
-
-                                <div>
-                                    <div class="guest-level-title">
-                                        Khóa học trung cấp
-                                    </div>
-
-                                    <div class="guest-level-description">
-                                        Phát triển kỹ năng từ nền tảng
-                                        và tăng khả năng thực hành.
-                                    </div>
-                                </div>
-
-                                <div class="guest-level-arrow">
-                                    →
-                                </div>
-
-                            </a>
-
-
-                            <a asp-controller="Courses"
-                               asp-action="Index"
-                               asp-route-level="advanced"
-                               class="guest-level-card">
-
-                                <div class="guest-level-icon advanced">
-                                    NC
-                                </div>
-
-                                <div>
-                                    <div class="guest-level-title">
-                                        Khóa học nâng cao
-                                    </div>
-
-                                    <div class="guest-level-description">
-                                        Học chuyên sâu và hoàn thiện
-                                        kỹ năng xây dựng ứng dụng.
-                                    </div>
-                                </div>
-
-                                <div class="guest-level-arrow">
-                                    →
-                                </div>
-
-                            </a>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        @await Component.InvokeAsync(
-            "HomePublicData")
-
-
-        <section class="guest-cta">
-
-            <div class="home-container">
-
-                <div class="guest-cta-box">
-
-                    <div>
-                        <div class="guest-cta-title">
-                            Bắt đầu học cùng EduLearn
-                        </div>
-
-                        <p class="guest-cta-text">
-                            Tạo tài khoản để đăng ký khóa học,
-                            lưu yêu thích và theo dõi tiến độ học tập.
-                        </p>
-                    </div>
-
-                    <a asp-controller="Account"
-                       asp-action="Register"
-                       class="guest-cta-button">
-                        Đăng ký tài khoản →
-                    </a>
-
-                </div>
-
-            </div>
-
-        </section>
+        <partial name="_GuestHomeModern" />
     }
     else if (isStudent)
     {

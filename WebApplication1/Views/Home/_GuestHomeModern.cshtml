@@ -1,0 +1,116 @@
+@* Guest-only Modern Flat EdTech landing page. *@
+<script>
+    document.body.classList.add("edg-home-active");
+</script>
+
+<link rel="stylesheet"
+      href="~/css/guest-home.css"
+      asp-append-version="true" />
+
+<div class="edg-home">
+    <header class="edg-header">
+        <div class="edg-container edg-header__inner">
+            <a asp-controller="Home" asp-action="Index" class="edg-brand" aria-label="EduLearn - Trang chủ">
+                <span class="edg-brand__mark" aria-hidden="true">
+                    <svg viewBox="0 0 28 28"><path d="M5 4.5h7.1c1.2 0 2.2.4 2.9 1.2.7-.8 1.7-1.2 2.9-1.2H23v17h-5.1c-1.4 0-2.4.4-2.9 1.2-.6-.8-1.6-1.2-2.9-1.2H5z"/><path d="M14 6v16"/></svg>
+                </span>
+                <span>EduLearn</span>
+            </a>
+
+            <button type="button" class="edg-menu-toggle" data-edg-menu-toggle aria-label="Mở menu" aria-controls="edgPrimaryNav" aria-expanded="false">
+                <span></span><span></span><span></span>
+            </button>
+
+            <nav id="edgPrimaryNav" class="edg-nav" data-edg-nav aria-label="Điều hướng chính">
+                <a asp-controller="Home" asp-action="Index" class="edg-nav__link active">Trang chủ</a>
+                <a asp-controller="Courses" asp-action="Index" class="edg-nav__link">Khóa học</a>
+                <a asp-controller="Explore" asp-action="Instructors" class="edg-nav__link">Giảng viên</a>
+                <a asp-controller="Explore" asp-action="About" class="edg-nav__link">Về EduLearn</a>
+            </nav>
+
+            <form asp-controller="Courses" asp-action="Index" method="get" class="edg-header-search" role="search">
+                <span class="edg-search-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.2 4.2"/></svg>
+                </span>
+                <input type="search" name="search" class="edg-header-search__input" placeholder="Tìm kiếm khóa học..." aria-label="Tìm kiếm khóa học" />
+            </form>
+
+            <div class="edg-auth">
+                <a asp-controller="Account" asp-action="Login" class="edg-button edg-button--outline">Đăng nhập</a>
+                <a asp-controller="Account" asp-action="Register" class="edg-button edg-button--primary">Đăng ký</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="edg-main">
+        <section class="edg-hero">
+            <div class="edg-container edg-hero__grid">
+                <div class="edg-hero__content">
+                    <div class="edg-eyebrow">Nền tảng khóa học Công nghệ thông tin</div>
+                    <h1 class="edg-hero__title">Chia sẻ tri thức,<br /><span>kiến tạo tương lai</span></h1>
+                    <p class="edg-hero__description">EduLearn giúp bạn tiếp cận kiến thức Công nghệ thông tin từ cơ bản đến nâng cao, học theo lộ trình rõ ràng và phát triển kỹ năng thực hành theo tiến độ của riêng mình.</p>
+
+                    <form asp-controller="Courses" asp-action="Index" method="get" class="edg-hero-search" role="search">
+                        <span class="edg-search-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.2 4.2"/></svg>
+                        </span>
+                        <input type="search" name="search" class="edg-hero-search__input" placeholder="Tìm khóa học, ví dụ: ASP.NET, JavaScript, SQL Server..." aria-label="Tìm kiếm khóa học" />
+                        <button type="submit" class="edg-hero-search__button">Tìm kiếm</button>
+                    </form>
+
+                    <div class="edg-topic-list" aria-label="Chủ đề phổ biến">
+                        <a asp-controller="Courses" asp-action="Index" asp-route-search="ASP.NET Core" class="edg-topic">ASP.NET Core</a>
+                        <a asp-controller="Courses" asp-action="Index" asp-route-search="C#" class="edg-topic">C#</a>
+                        <a asp-controller="Courses" asp-action="Index" asp-route-search="JavaScript" class="edg-topic">JavaScript</a>
+                        <a asp-controller="Courses" asp-action="Index" asp-route-search="Python" class="edg-topic">Python</a>
+                        <a asp-controller="Courses" asp-action="Index" asp-route-search="SQL Server" class="edg-topic">SQL Server</a>
+                        <a asp-controller="Courses" asp-action="Index" asp-route-search="Git" class="edg-topic">Git &amp; GitHub</a>
+                    </div>
+                </div>
+
+                <div class="edg-hero__visual" aria-hidden="true">
+                    <img src="~/images/guest/hero-learning-person.png" alt="" class="edg-hero__illustration" />
+                </div>
+            </div>
+        </section>
+
+        @await Component.InvokeAsync("HomePublicData")
+
+        <section class="edg-cta-section">
+            <div class="edg-container">
+                <div class="edg-cta">
+                    <div>
+                        <span class="edg-cta__eyebrow">Học theo cách của bạn</span>
+                        <h2 class="edg-cta__title">Bắt đầu hành trình học tập cùng EduLearn</h2>
+                        <p class="edg-cta__text">Tạo tài khoản để đăng ký khóa học, lưu danh sách yêu thích và theo dõi tiến độ học tập.</p>
+                    </div>
+                    <a asp-controller="Account" asp-action="Register" class="edg-cta__button">Đăng ký tài khoản <span aria-hidden="true">→</span></a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer class="edg-footer">
+        <div class="edg-container edg-footer__inner">
+            <div class="edg-footer__brand">
+                <a asp-controller="Home" asp-action="Index" class="edg-brand edg-brand--footer">
+                    <span class="edg-brand__mark" aria-hidden="true"><svg viewBox="0 0 28 28"><path d="M5 4.5h7.1c1.2 0 2.2.4 2.9 1.2.7-.8 1.7-1.2 2.9-1.2H23v17h-5.1c-1.4 0-2.4.4-2.9 1.2-.6-.8-1.6-1.2-2.9-1.2H5z"/><path d="M14 6v16"/></svg></span>
+                    <span>EduLearn</span>
+                </a>
+                <p>Nền tảng chia sẻ khóa học Công nghệ thông tin, hỗ trợ người học khám phá và phát triển kỹ năng.</p>
+            </div>
+            <nav class="edg-footer__links" aria-label="Liên kết cuối trang">
+                <a asp-controller="Courses" asp-action="Index">Khóa học</a>
+                <a asp-controller="Explore" asp-action="Instructors">Giảng viên</a>
+                <a asp-controller="Explore" asp-action="About">Về EduLearn</a>
+                <a asp-controller="Account" asp-action="Login">Đăng nhập</a>
+            </nav>
+        </div>
+        <div class="edg-container edg-footer__bottom">
+            <span>© 2026 EduLearn</span>
+            <span>Chia sẻ tri thức, kiến tạo tương lai</span>
+        </div>
+    </footer>
+</div>
+
+<script src="~/js/guest-home.js" asp-append-version="true"></script>

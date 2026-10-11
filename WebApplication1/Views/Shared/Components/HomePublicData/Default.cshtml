@@ -1,326 +1,92 @@
-﻿@model OnlineLearningPlatform.ViewModels.HomePublicDataViewModel
+@model OnlineLearningPlatform.ViewModels.HomePublicDataViewModel
 
 @{
-    string ratingText =
-        Model.AverageRating > 0
-            ? $"{Model.AverageRating:0.0}/5"
-            : "—";
+    string ratingText = Model.AverageRating > 0 ? $"{Model.AverageRating:0.0}/5" : "—";
+    string LevelText(string level) => level switch { "Beginner" => "Cơ bản", "Intermediate" => "Trung cấp", "Advanced" => "Nâng cao", _ => level };
+    string LevelClass(string level) => level switch { "Intermediate" => "edg-level--intermediate", "Advanced" => "edg-level--advanced", _ => "edg-level--beginner" };
+    string ThumbnailForSlug(string slug) => Url.Content($"~/images/course-thumbnails/by-slug/{slug}.png");
+    string placeholderThumbnail = Url.Content("~/images/course-thumbnails/by-slug/course-placeholder.svg");
 }
 
-
-<style>
-    /* =========================================
-       MÀU KHÓA HỌC NỔI BẬT THEO TRÌNH ĐỘ
-    ========================================= */
-
-    .featured-level-basic {
-        background: linear-gradient(135deg, #0f55c9, #488dff) !important;
-    }
-
-    .featured-level-intermediate {
-        background: linear-gradient(135deg, #6246cc, #8c79e8) !important;
-    }
-
-    .featured-level-advanced {
-        background: linear-gradient(135deg, #087f8c, #2bb4b8) !important;
-    }
-
-    .course-level.level-basic {
-        background: #edf4ff;
-        color: #0d6efd;
-    }
-
-    .course-level.level-intermediate {
-        background: #f2edff;
-        color: #6f42c1;
-    }
-
-    .course-level.level-advanced {
-        background: #e5f8f5;
-        color: #087f73;
-    }
-
-    .course-thumbnail {
-        position: relative;
-        overflow: hidden;
-    }
-
-</style>
-
-<!-- =========================================
-     THỐNG KÊ NỀN TẢNG - DỮ LIỆU THẬT
-========================================== -->
-
-<section class="stats-section">
-
-    <div class="home-container">
-
-        <div class="stats-grid">
-
-
-            <div class="stat-item">
-
-                <div class="stat-number">
-                    @Model.PublishedCourseCount
-                </div>
-
-                <div class="stat-label">
-                    Khóa học CNTT
-                </div>
-
+<section class="edg-stats-section">
+    <div class="edg-container">
+        <div class="edg-stats">
+            <div class="edg-stat-card">
+                <span class="edg-stat-icon edg-stat-icon--blue" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 5.5h6.2c1.1 0 1.9.3 2.3 1 .5-.7 1.3-1 2.3-1h6.2v13h-6.2c-1 0-1.8.3-2.3 1-.4-.7-1.2-1-2.3-1H3.5z"/><path d="M12 6.5v13"/></svg></span>
+                <span><strong class="edg-stat-value">@Model.PublishedCourseCount</strong><span class="edg-stat-label">Khóa học đã xuất bản</span></span>
             </div>
-
-
-            <div class="stat-item">
-
-                <div class="stat-number">
-                    @Model.StudentCount
-                </div>
-
-                <div class="stat-label">
-                    Học viên
-                </div>
-
+            <div class="edg-stat-card">
+                <span class="edg-stat-icon edg-stat-icon--green" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M3.8 19c.3-3.5 2.2-5.5 5.2-5.5s5 2 5.2 5.5"/><path d="M14.2 14.6c.8-.7 1.8-1.1 3-1.1 2.3 0 3.7 1.7 4 4.5"/></svg></span>
+                <span><strong class="edg-stat-value">@Model.InstructorCount</strong><span class="edg-stat-label">Giảng viên đang hoạt động</span></span>
             </div>
-
-
-            <div class="stat-item">
-
-                <div class="stat-number">
-                    @Model.InstructorCount
-                </div>
-
-                <div class="stat-label">
-                    Giảng viên
-                </div>
-
+            <div class="edg-stat-card">
+                <span class="edg-stat-icon edg-stat-icon--violet" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.2"/><path d="M5 19c.3-4 2.8-6.2 7-6.2S18.7 15 19 19"/></svg></span>
+                <span><strong class="edg-stat-value">@Model.StudentCount</strong><span class="edg-stat-label">Học viên đang hoạt động</span></span>
             </div>
-
-
-            <div class="stat-item">
-
-                <div class="stat-number">
-                    @ratingText
-                </div>
-
-                <div class="stat-label">
-                    Đánh giá trung bình
-                </div>
-
+            <div class="edg-stat-card">
+                <span class="edg-stat-icon edg-stat-icon--orange" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3 2.5 5.2 5.7.8-4.1 4 1 5.7-5.1-2.7-5.1 2.7 1-5.7-4.1-4 5.7-.8z"/></svg></span>
+                <span><strong class="edg-stat-value">@ratingText</strong><span class="edg-stat-label">Đánh giá trung bình</span></span>
             </div>
-
-
         </div>
-
     </div>
-
 </section>
 
-
-
-<!-- =========================================
-     CATEGORIES - DỮ LIỆU THẬT
-========================================== -->
-
-<section class="home-section category-section">
-
-    <div class="home-container">
-
-        <div class="section-header">
-
-            <div>
-
-                <h2 class="section-title">
-                    Khám phá theo lĩnh vực
-                </h2>
-
-                <p class="section-description">
-                    Lựa chọn lĩnh vực Công nghệ thông tin
-                    phù hợp với mục tiêu của bạn.
-                </p>
-
-            </div>
-
+<section class="edg-section edg-section--soft">
+    <div class="edg-container">
+        <div class="edg-section-heading">
+            <div><span class="edg-section-kicker">Danh mục</span><h2 class="edg-section-title">Khám phá theo lĩnh vực</h2><p class="edg-section-description">Chọn lĩnh vực Công nghệ thông tin phù hợp với mục tiêu học tập của bạn.</p></div>
+            <a asp-controller="Courses" asp-action="Index" class="edg-section-link">Xem tất cả khóa học <span aria-hidden="true">→</span></a>
         </div>
-
-
         @if (Model.Categories.Any())
         {
-            <div class="category-grid">
-
+            <div class="edg-category-grid">
                 @foreach (var category in Model.Categories)
                 {
-                    <a asp-controller="Courses"
-                       asp-action="Index"
-                       asp-route-categoryId="@category.Id"
-                       class="category-card">
-
-                        <div class="category-icon">
-                            @category.Icon
-                        </div>
-
-                        <div class="category-name">
-                            @category.Name
-                        </div>
-
-                        <div class="category-count">
-                            @category.PublishedCourseCount khóa học
-                        </div>
-
+                    <a asp-controller="Courses" asp-action="Index" asp-route-categoryId="@category.Id" class="edg-category-card">
+                        <span class="edg-category-icon" aria-hidden="true">@category.Icon</span>
+                        <span class="edg-category-name">@category.Name</span>
+                        <span class="edg-category-count">@category.PublishedCourseCount khóa học</span>
                     </a>
                 }
-
             </div>
         }
         else
         {
-            <div style="
-                padding: 24px;
-                border: 1px dashed #d7dee8;
-                border-radius: 14px;
-                background: #ffffff;
-                color: #8992a3;
-                text-align: center;">
-                Hiện chưa có danh mục đang hoạt động.
-            </div>
+            <div class="edg-empty-state">Hiện chưa có danh mục đang hoạt động.</div>
         }
-
     </div>
-
 </section>
 
-
-
-<!-- =========================================
-     FEATURED COURSES - DỮ LIỆU THẬT
-========================================== -->
-
-<section class="home-section"
-         id="featured-courses">
-
-    <div class="home-container">
-
-        <div class="section-header">
-
-            <div>
-
-                <h2 class="section-title">
-                    Khóa học nổi bật
-                </h2>
-
-                <p class="section-description">
-                    Các khóa học đã xuất bản
-                    được ưu tiên theo trạng thái nổi bật
-                    và mức độ quan tâm trên EduLearn.
-                </p>
-
-            </div>
-
-            <a asp-controller="Courses"
-               asp-action="Index"
-               class="section-link">
-                Xem tất cả →
-            </a>
-
+<section class="edg-section" id="featured-courses">
+    <div class="edg-container">
+        <div class="edg-section-heading">
+            <div><span class="edg-section-kicker">Đề xuất học tập</span><h2 class="edg-section-title">Khóa học nổi bật</h2><p class="edg-section-description">Các khóa học đã xuất bản được sắp xếp theo trạng thái nổi bật và mức độ quan tâm hiện có.</p></div>
+            <a asp-controller="Courses" asp-action="Index" class="edg-section-link">Xem tất cả khóa học <span aria-hidden="true">→</span></a>
         </div>
-
-
         @if (Model.FeaturedCourses.Any())
         {
-            <div class="course-grid">
-
+            <div class="edg-course-grid">
                 @foreach (var course in Model.FeaturedCourses)
                 {
-                    string thumbnailClass =
-                        course.Level switch
-                        {
-                            "Beginner" => "featured-level-basic",
-                            "Intermediate" => "featured-level-intermediate",
-                            "Advanced" => "featured-level-advanced",
-                            _ => "featured-level-basic"
-                        };
-
-
-                    string levelClass =
-                        course.Level switch
-                        {
-                            "Beginner" => "level-basic",
-                            "Intermediate" => "level-intermediate",
-                            "Advanced" => "level-advanced",
-                            _ => "level-basic"
-                        };
-
-
-                    string levelText =
-                        course.Level switch
-                        {
-                            "Beginner" => "Cơ bản",
-                            "Intermediate" => "Trung cấp",
-                            "Advanced" => "Nâng cao",
-                            _ => course.Level
-                        };
-
-
-                    <a asp-controller="Courses"
-                       asp-action="Details"
-                       asp-route-slug="@course.Slug"
-                       class="course-card">
-
-                        <div class="course-thumbnail @thumbnailClass">
-
-                            <div class="course-tech">
-                                @course.CategoryName
-                            </div>
-
-                            <div class="course-tech-logo">
-                                @course.CategoryIcon
-                            </div>
-</div>
-
-
-                        <div class="course-body">
-
-                            <span class="course-level @levelClass">
-                                @levelText
-                            </span>
-
-                            <div class="course-name">
-                                @course.Title
-                            </div>
-
-                            <div class="course-instructor">
-                                @course.InstructorName
-                            </div>
-
-                            <div class="course-footer">
-
-                                <span class="course-detail">
-                                    @course.EnrollmentCount học viên · Xem chi tiết →
-                                </span>
-
-                            </div>
-
+                    string thumbnail = ThumbnailForSlug(course.Slug);
+                    <article class="edg-course-card">
+                        <a asp-controller="Courses" asp-action="Details" asp-route-slug="@course.Slug" class="edg-course-media">
+                            <img src="@thumbnail" alt="" loading="lazy" onerror="this.onerror=null;this.src='@placeholderThumbnail';" />
+                            @if (course.IsFeatured) { <span class="edg-featured-badge">Nổi bật</span> }
+                        </a>
+                        <div class="edg-course-body">
+                            <div class="edg-course-meta"><span class="edg-course-category">@course.CategoryName</span><span class="edg-course-level @LevelClass(course.Level)">@LevelText(course.Level)</span></div>
+                            <h3 class="edg-course-title"><a asp-controller="Courses" asp-action="Details" asp-route-slug="@course.Slug">@course.Title</a></h3>
+                            <div class="edg-course-instructor"><span class="edg-course-avatar" aria-hidden="true">GV</span><span>@course.InstructorName</span></div>
+                            <div class="edg-course-footer"><span class="edg-course-students">@course.EnrollmentCount học viên</span><a asp-controller="Courses" asp-action="Details" asp-route-slug="@course.Slug" class="edg-course-link">Xem chi tiết <span aria-hidden="true">→</span></a></div>
                         </div>
-
-                    </a>
-
+                    </article>
                 }
-
             </div>
         }
         else
         {
-            <div style="
-                padding: 28px;
-                border: 1px dashed #d7dee8;
-                border-radius: 14px;
-                background: #ffffff;
-                color: #8992a3;
-                text-align: center;">
-                Hiện chưa có khóa học đã xuất bản.
-            </div>
+            <div class="edg-empty-state">Hiện chưa có khóa học đã xuất bản.</div>
         }
-
     </div>
-
 </section>
