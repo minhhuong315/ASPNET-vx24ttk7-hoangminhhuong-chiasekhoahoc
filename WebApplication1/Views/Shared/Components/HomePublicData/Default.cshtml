@@ -277,36 +277,126 @@
 
 </section>
 
-<section class="edg-section" id="featured-courses">
+<section class="edg-section edg-featured-section"
+         id="featured-courses">
+
     <div class="edg-container">
+
         <div class="edg-section-heading">
-            <div><span class="edg-section-kicker">Đề xuất học tập</span><h2 class="edg-section-title">Khóa học nổi bật</h2><p class="edg-section-description">Các khóa học đã xuất bản được sắp xếp theo trạng thái nổi bật và mức độ quan tâm hiện có.</p></div>
-            <a asp-controller="Courses" asp-action="Index" class="edg-section-link">Xem tất cả khóa học <span aria-hidden="true">→</span></a>
+
+            <div>
+
+                <span class="edg-section-kicker">
+                    Đề xuất học tập
+                </span>
+
+                <h2 class="edg-section-title">
+                    Khóa học nổi bật
+                </h2>
+
+                <p class="edg-section-description">
+                    Các khóa học đã xuất bản được sắp xếp theo
+                    trạng thái nổi bật và mức độ quan tâm hiện có.
+                </p>
+
+            </div>
+
+            <a asp-controller="Courses"
+               asp-action="Index"
+               class="edg-section-link">
+                Xem tất cả khóa học
+                <span aria-hidden="true">→</span>
+            </a>
+
         </div>
+
+
         @if (Model.FeaturedCourses.Any())
         {
             <div class="edg-course-grid">
+
                 @foreach (var course in Model.FeaturedCourses)
                 {
-                    string thumbnail = ThumbnailForSlug(course.Slug);
+                    string thumbnail =
+                        ThumbnailForSlug(
+                            course.Slug);
+
                     <article class="edg-course-card">
-                        <a asp-controller="Courses" asp-action="Details" asp-route-slug="@course.Slug" class="edg-course-media">
-                            <img src="@thumbnail" alt="" loading="lazy" onerror="this.onerror=null;this.src='@placeholderThumbnail';" />
-                            @if (course.IsFeatured) { <span class="edg-featured-badge">Nổi bật</span> }
+
+                        <a asp-controller="Courses"
+                           asp-action="Details"
+                           asp-route-slug="@course.Slug"
+                           class="edg-course-media"
+                           aria-label="Xem khóa học @course.Title">
+
+                            <img src="@thumbnail"
+                                 alt="@course.Title"
+                                 loading="lazy"
+                                 onerror="this.onerror=null;this.src='@placeholderThumbnail';" />
+
+                            @if (course.IsFeatured)
+                            {
+                                <span class="edg-featured-badge">
+                                    Nổi bật
+                                </span>
+                            }
+
                         </a>
+
+
                         <div class="edg-course-body">
-                            <div class="edg-course-meta"><span class="edg-course-category">@course.CategoryName</span><span class="edg-course-level @LevelClass(course.Level)">@LevelText(course.Level)</span></div>
-                            <h3 class="edg-course-title"><a asp-controller="Courses" asp-action="Details" asp-route-slug="@course.Slug">@course.Title</a></h3>
-                            <div class="edg-course-instructor"><span class="edg-course-avatar" aria-hidden="true">GV</span><span>@course.InstructorName</span></div>
-                            <div class="edg-course-footer"><span class="edg-course-students">@course.EnrollmentCount học viên</span><a asp-controller="Courses" asp-action="Details" asp-route-slug="@course.Slug" class="edg-course-link">Xem chi tiết <span aria-hidden="true">→</span></a></div>
+
+                            <div class="edg-course-meta">
+
+                                <span class="edg-course-category"
+                                      title="@course.CategoryName">
+                                    @course.CategoryName
+                                </span>
+
+                                <span class="edg-course-level @LevelClass(course.Level)">
+                                    @LevelText(course.Level)
+                                </span>
+
+                            </div>
+
+
+                            <h3 class="edg-course-title">
+
+                                <a asp-controller="Courses"
+                                   asp-action="Details"
+                                   asp-route-slug="@course.Slug">
+                                    @course.Title
+                                </a>
+
+                            </h3>
+
+
+                            <div class="edg-course-footer">
+
+                                <a asp-controller="Courses"
+                                   asp-action="Details"
+                                   asp-route-slug="@course.Slug"
+                                   class="edg-course-link">
+                                    Xem chi tiết
+                                    <span aria-hidden="true">→</span>
+                                </a>
+
+                            </div>
+
                         </div>
+
                     </article>
                 }
+
             </div>
         }
         else
         {
-            <div class="edg-empty-state">Hiện chưa có khóa học đã xuất bản.</div>
+            <div class="edg-empty-state">
+                Hiện chưa có khóa học đã xuất bản.
+            </div>
         }
+
     </div>
+
 </section>
