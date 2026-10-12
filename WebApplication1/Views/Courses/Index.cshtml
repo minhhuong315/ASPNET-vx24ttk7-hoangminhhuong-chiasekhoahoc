@@ -1,4 +1,4 @@
-@model IEnumerable<OnlineLearningPlatform.Models.Course>
+﻿@model IEnumerable<OnlineLearningPlatform.Models.Course>
 
 @{
     string pageTitle =
@@ -21,10 +21,6 @@
 
     string searchValue =
         ViewBag.Search?.ToString()
-        ?? string.Empty;
-
-    string selectedPriceRange =
-        ViewBag.PriceRange?.ToString()
         ?? string.Empty;
 
     decimal? minPrice =
@@ -69,7 +65,7 @@
 
     int pageSize =
         ViewBag.PageSize == null
-            ? 9
+            ? 8
             : Convert.ToInt32(
                 ViewBag.PageSize);
 
@@ -109,34 +105,15 @@
             as IEnumerable<
                 OnlineLearningPlatform.Models.Category>;
 
-    var selectedCategory =
-        categories?
-            .FirstOrDefault(c =>
-                c.Id == selectedCategoryId);
-
-    bool hasCustomPrice =
-        string.IsNullOrWhiteSpace(
-            selectedPriceRange) &&
-        (minPrice.HasValue ||
-         maxPrice.HasValue);
-
     bool hasFilter =
         selectedCategoryId.HasValue ||
         !string.IsNullOrWhiteSpace(
             selectedLevel) ||
         !string.IsNullOrWhiteSpace(
             searchValue) ||
-        !string.IsNullOrWhiteSpace(
-            selectedPriceRange) ||
-        hasCustomPrice ||
+        minPrice.HasValue ||
+        maxPrice.HasValue ||
         minRating.HasValue;
-
-    int activeFilterCount =
-        (selectedCategoryId.HasValue ? 1 : 0) +
-        (!string.IsNullOrWhiteSpace(selectedLevel) ? 1 : 0) +
-        (!string.IsNullOrWhiteSpace(searchValue) ? 1 : 0) +
-        (!string.IsNullOrWhiteSpace(selectedPriceRange) || hasCustomPrice ? 1 : 0) +
-        (minRating.HasValue ? 1 : 0);
 }
 
 @functions {
@@ -191,1278 +168,185 @@
             .Average(r =>
                 r.Rating);
     }
-
-    string GetPriceRangeLabel(
-        string? value)
-    {
-        return value switch
-        {
-            "free" => "Miễn phí",
-            "under-1m" => "Dưới 1.000.000đ",
-            "1m-2m" => "1.000.000đ – 2.000.000đ",
-            "over-2m" => "Trên 2.000.000đ",
-            _ => string.Empty
-        };
-    }
-
-    string GetInitials(
-        string? fullName)
-    {
-        if (string.IsNullOrWhiteSpace(
-            fullName))
-        {
-            return "GV";
-        }
-
-        var words =
-            fullName
-                .Split(
-                    ' ',
-                    StringSplitOptions.RemoveEmptyEntries);
-
-        if (words.Length == 1)
-        {
-            return words[0]
-                .Substring(
-                    0,
-                    Math.Min(2, words[0].Length))
-                .ToUpperInvariant();
-        }
-
-        return $"{words[0][0]}{words[^1][0]}"
-            .ToUpperInvariant();
-    }
 }
 
-<style>
-    .course-catalog-page,
-    .course-catalog-page * {
-        box-sizing: border-box;
-    }
+<script>
+    document.body.classList.add("courses-index-page");
+</script>
 
-    .course-catalog-page {
-        min-height: calc(100vh - 150px);
-        padding: 42px 0 72px;
-        background: #f7f9fc;
-    }
+<link rel="stylesheet"
+      href="~/css/courses-index.css"
+      asp-append-version="true" />
 
-    .catalog-container {
-        width: min(1240px, calc(100% - 40px));
-        margin: 0 auto;
-    }
 
-    .catalog-header {
-        margin-bottom: 24px;
-    }
+<div class="courses-page">
+    <div class="courses-container">
 
-    .catalog-eyebrow {
-        margin-bottom: 8px;
-        color: #0d6efd;
-        font-size: 11px;
-        font-weight: 800;
-        letter-spacing: .08em;
-        text-transform: uppercase;
-    }
-
-    .catalog-title {
-        margin: 0 0 8px;
-        color: #102044;
-        font-size: 36px;
-        font-weight: 800;
-        line-height: 1.2;
-    }
-
-    .catalog-subtitle {
-        max-width: 720px;
-        margin: 0;
-        color: #718096;
-        font-size: 14px;
-        line-height: 1.65;
-    }
-
-    .catalog-layout {
-        display: grid;
-        grid-template-columns: 258px minmax(0, 1fr);
-        gap: 24px;
-        align-items: start;
-    }
-
-    .catalog-filter {
-        position: sticky;
-        top: 92px;
-        overflow: hidden;
-        border: 1px solid #e2e8f0;
-        border-radius: 16px;
-        background: #ffffff;
-        box-shadow: 0 8px 28px rgba(31, 54, 88, .045);
-    }
-
-    .catalog-filter-head {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 18px 18px 15px;
-        border-bottom: 1px solid #edf1f6;
-    }
-
-    .catalog-filter-heading {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        color: #182230;
-        font-size: 16px;
-        font-weight: 800;
-    }
-
-    .catalog-filter-count {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 22px;
-        height: 22px;
-        padding: 0 6px;
-        border-radius: 999px;
-        background: #edf4ff;
-        color: #0d6efd;
-        font-size: 10px;
-        font-weight: 800;
-    }
-
-    .catalog-clear-all {
-        color: #0d6efd;
-        font-size: 11px;
-        font-weight: 750;
-        text-decoration: none;
-    }
-
-    .catalog-clear-all:hover {
-        text-decoration: underline;
-    }
-
-    .catalog-filter-body {
-        padding: 0 18px 18px;
-    }
-
-    .catalog-filter-section {
-        padding-top: 17px;
-    }
-
-    .catalog-filter-section +
-    .catalog-filter-section {
-        margin-top: 17px;
-        border-top: 1px solid #edf1f6;
-    }
-
-    .catalog-filter-title {
-        margin-bottom: 10px;
-        color: #1d2939;
-        font-size: 12px;
-        font-weight: 800;
-    }
-
-    .catalog-filter-options {
-        display: grid;
-        gap: 3px;
-    }
-
-    .catalog-filter-option {
-        display: flex;
-        align-items: center;
-        gap: 9px;
-        min-height: 33px;
-        padding: 6px 7px;
-        border-radius: 8px;
-        color: #667085;
-        font-size: 11px;
-        font-weight: 650;
-        text-decoration: none;
-        transition:
-            background .15s ease,
-            color .15s ease;
-    }
-
-    .catalog-filter-option:hover {
-        background: #f7f9fc;
-        color: #344054;
-    }
-
-    .catalog-filter-option.active {
-        background: #edf4ff;
-        color: #0d6efd;
-    }
-
-    .catalog-check {
-        position: relative;
-        width: 15px;
-        height: 15px;
-        flex: 0 0 15px;
-        border: 1.5px solid #cbd5e1;
-        border-radius: 4px;
-        background: #ffffff;
-    }
-
-    .catalog-filter-option.active
-    .catalog-check {
-        border-color: #0d6efd;
-        background: #0d6efd;
-    }
-
-    .catalog-filter-option.active
-    .catalog-check::after {
-        content: "";
-        position: absolute;
-        left: 4px;
-        top: 1px;
-        width: 4px;
-        height: 7px;
-        border: solid #ffffff;
-        border-width: 0 1.5px 1.5px 0;
-        transform: rotate(45deg);
-    }
-
-    .catalog-option-label {
-        min-width: 0;
-        flex: 1;
-    }
-
-    .catalog-rating-star {
-        color: #f59e0b;
-    }
-
-    .catalog-main {
-        min-width: 0;
-    }
-
-    .catalog-toolbar {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
-        gap: 14px;
-        align-items: center;
-        margin-bottom: 14px;
-    }
-
-    .catalog-search-form {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
-        gap: 9px;
-    }
-
-    .catalog-search-wrap {
-        position: relative;
-    }
-
-    .catalog-search-icon {
-        position: absolute;
-        left: 14px;
-        top: 50%;
-        color: #98a2b3;
-        font-size: 15px;
-        transform: translateY(-50%);
-        pointer-events: none;
-    }
-
-    .catalog-search-input {
-        width: 100%;
-        height: 44px;
-        padding: 0 14px 0 39px;
-        border: 1px solid #dde4ee;
-        border-radius: 10px;
-        background: #ffffff;
-        color: #344054;
-        font: inherit;
-        font-size: 12px;
-        outline: none;
-        transition:
-            border-color .15s ease,
-            box-shadow .15s ease;
-    }
-
-    .catalog-search-input:focus,
-    .catalog-sort-select:focus {
-        border-color: #8eb9fa;
-        box-shadow: 0 0 0 3px rgba(13, 110, 253, .08);
-    }
-
-    .catalog-search-button {
-        height: 44px;
-        padding: 0 20px;
-        border: 0;
-        border-radius: 10px;
-        background: #0d6efd;
-        color: #ffffff;
-        font: inherit;
-        font-size: 11px;
-        font-weight: 800;
-        cursor: pointer;
-    }
-
-    .catalog-search-button:hover {
-        background: #0b5ed7;
-    }
-
-    .catalog-sort-form {
-        display: flex;
-        align-items: center;
-        gap: 9px;
-        white-space: nowrap;
-    }
-
-    .catalog-sort-label {
-        color: #667085;
-        font-size: 10px;
-        font-weight: 700;
-    }
-
-    .catalog-sort-select {
-        min-width: 142px;
-        height: 44px;
-        padding: 0 34px 0 12px;
-        border: 1px solid #dde4ee;
-        border-radius: 10px;
-        background: #ffffff;
-        color: #344054;
-        font: inherit;
-        font-size: 11px;
-        font-weight: 700;
-        outline: none;
-    }
-
-    .catalog-filter-summary {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 14px;
-        min-height: 38px;
-        margin-bottom: 16px;
-    }
-
-    .catalog-chips {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 7px;
-        min-width: 0;
-    }
-
-    .catalog-chip {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        min-height: 30px;
-        padding: 6px 9px 6px 10px;
-        border: 1px solid #d9e7ff;
-        border-radius: 8px;
-        background: #edf4ff;
-        color: #0d6efd;
-        font-size: 10px;
-        font-weight: 750;
-        text-decoration: none;
-    }
-
-    .catalog-chip:hover {
-        border-color: #b8d3ff;
-        background: #e4efff;
-    }
-
-    .catalog-chip-x {
-        font-size: 13px;
-        font-weight: 500;
-        line-height: 1;
-    }
-
-    .catalog-result-count {
-        flex: 0 0 auto;
-        color: #667085;
-        font-size: 11px;
-        font-weight: 650;
-        white-space: nowrap;
-    }
-
-    .catalog-result-count strong {
-        color: #0d6efd;
-        font-size: 13px;
-    }
-
-    .catalog-grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 14px;
-    }
-
-    .catalog-card {
-        min-width: 0;
-        overflow: hidden;
-        border: 1px solid #e1e7ef;
-        border-radius: 14px;
-        background: #ffffff;
-        box-shadow: 0 7px 22px rgba(31, 54, 88, .04);
-        transition:
-            transform .16s ease,
-            box-shadow .16s ease,
-            border-color .16s ease;
-    }
-
-    .catalog-card:hover {
-        transform: translateY(-2px);
-        border-color: #d4dfef;
-        box-shadow: 0 12px 28px rgba(31, 54, 88, .08);
-    }
-
-    .catalog-card-media {
-        position: relative;
-        display: block;
-        height: 146px;
-        overflow: hidden;
-        text-decoration: none;
-    }
-
-    .catalog-card-media img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-    }
-
-    .catalog-card-fallback {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background:
-            linear-gradient(
-                135deg,
-                #245dc7,
-                #377be5);
-        color: #ffffff;
-    }
-
-    .catalog-card-fallback.intermediate {
-        background:
-            linear-gradient(
-                135deg,
-                #6941c6,
-                #8b5cf6);
-    }
-
-    .catalog-card-fallback.advanced {
-        background:
-            linear-gradient(
-                135deg,
-                #087f73,
-                #16a394);
-    }
-
-    .catalog-card-fallback.default {
-        background:
-            linear-gradient(
-                135deg,
-                #344054,
-                #667085);
-    }
-
-    .catalog-fallback-icon {
-        max-width: 84%;
-        font-size: 33px;
-        font-weight: 850;
-        letter-spacing: -.03em;
-        text-align: center;
-        opacity: .96;
-    }
-
-    .catalog-featured-badge {
-        position: absolute;
-        left: 11px;
-        top: 11px;
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        min-height: 25px;
-        padding: 5px 8px;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, .96);
-        color: #dc2626;
-        font-size: 9px;
-        font-weight: 850;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, .12);
-    }
-
-    .catalog-card-body {
-        padding: 14px;
-    }
-
-    .catalog-card-topline {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 9px;
-        margin-bottom: 8px;
-    }
-
-    .catalog-course-category {
-        min-width: 0;
-        overflow: hidden;
-        color: #0d6efd;
-        font-size: 9px;
-        font-weight: 800;
-        text-overflow: ellipsis;
-        text-transform: uppercase;
-        white-space: nowrap;
-    }
-
-    .catalog-course-level {
-        flex: 0 0 auto;
-        padding: 4px 7px;
-        border-radius: 999px;
-        background: #f2f4f7;
-        color: #667085;
-        font-size: 8px;
-        font-weight: 800;
-    }
-
-    .catalog-course-level.beginner {
-        background: #edf4ff;
-        color: #0d6efd;
-    }
-
-    .catalog-course-level.intermediate {
-        background: #f3efff;
-        color: #6941c6;
-    }
-
-    .catalog-course-level.advanced {
-        background: #ecfdf8;
-        color: #087f73;
-    }
-
-    .catalog-course-name {
-        display: -webkit-box;
-        min-height: 42px;
-        margin: 0 0 7px;
-        overflow: hidden;
-        color: #172033;
-        font-size: 14px;
-        font-weight: 800;
-        line-height: 1.45;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 2;
-    }
-
-    .catalog-course-name a {
-        color: inherit;
-        text-decoration: none;
-    }
-
-    .catalog-course-name a:hover {
-        color: #0d6efd;
-    }
-
-    .catalog-course-description {
-        display: -webkit-box;
-        min-height: 35px;
-        margin-bottom: 12px;
-        overflow: hidden;
-        color: #7b8798;
-        font-size: 10px;
-        line-height: 1.65;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 2;
-    }
-
-    .catalog-instructor-row {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding-bottom: 11px;
-        border-bottom: 1px solid #edf1f6;
-    }
-
-    .catalog-instructor-avatar {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 30px;
-        height: 30px;
-        flex: 0 0 30px;
-        border-radius: 50%;
-        background: #edf4ff;
-        color: #0d6efd;
-        font-size: 9px;
-        font-weight: 850;
-        text-transform: uppercase;
-    }
-
-    .catalog-instructor-info {
-        min-width: 0;
-        flex: 1;
-    }
-
-    .catalog-instructor-name {
-        overflow: hidden;
-        color: #344054;
-        font-size: 10px;
-        font-weight: 750;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .catalog-instructor-role {
-        margin-top: 2px;
-        color: #98a2b3;
-        font-size: 8px;
-    }
-
-    .catalog-card-stats {
-        flex: 0 0 auto;
-        text-align: right;
-    }
-
-    .catalog-rating {
-        color: #475467;
-        font-size: 9px;
-        font-weight: 750;
-    }
-
-    .catalog-rating .star {
-        color: #f59e0b;
-    }
-
-    .catalog-students {
-        margin-top: 3px;
-        color: #98a2b3;
-        font-size: 8px;
-    }
-
-    .catalog-card-footer {
-        display: flex;
-        align-items: end;
-        justify-content: space-between;
-        gap: 10px;
-        padding-top: 12px;
-    }
-
-    .catalog-price {
-        color: #e52d27;
-        font-size: 14px;
-        font-weight: 850;
-    }
-
-    .catalog-price.free {
-        color: #198754;
-    }
-
-    .catalog-old-price {
-        margin-top: 2px;
-        color: #98a2b3;
-        font-size: 8px;
-        text-decoration: line-through;
-    }
-
-    .catalog-detail-button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 34px;
-        padding: 0 12px;
-        border-radius: 8px;
-        background: #0d6efd;
-        color: #ffffff;
-        font-size: 9px;
-        font-weight: 800;
-        text-decoration: none;
-        white-space: nowrap;
-    }
-
-    .catalog-detail-button:hover {
-        background: #0b5ed7;
-        color: #ffffff;
-    }
-
-    .catalog-empty {
-        padding: 68px 24px;
-        border: 1px solid #e1e7ef;
-        border-radius: 16px;
-        background: #ffffff;
-        text-align: center;
-    }
-
-    .catalog-empty-icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 52px;
-        height: 52px;
-        margin: 0 auto 14px;
-        border-radius: 14px;
-        background: #edf4ff;
-        color: #0d6efd;
-        font-size: 13px;
-        font-weight: 850;
-    }
-
-    .catalog-empty-title {
-        margin-bottom: 7px;
-        color: #172033;
-        font-size: 15px;
-        font-weight: 800;
-    }
-
-    .catalog-empty-text {
-        max-width: 420px;
-        margin: 0 auto 17px;
-        color: #8a94a5;
-        font-size: 11px;
-        line-height: 1.65;
-    }
-
-    .catalog-empty-button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 38px;
-        padding: 0 15px;
-        border-radius: 9px;
-        background: #0d6efd;
-        color: #ffffff;
-        font-size: 10px;
-        font-weight: 800;
-        text-decoration: none;
-    }
-
-    .catalog-pagination-wrap {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 18px;
-        margin-top: 24px;
-        padding-top: 18px;
-        border-top: 1px solid #e5eaf1;
-    }
-
-    .catalog-pagination-info {
-        color: #8a94a5;
-        font-size: 10px;
-        font-weight: 650;
-    }
-
-    .catalog-pagination {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
-
-    .catalog-page-link,
-    .catalog-page-current,
-    .catalog-page-disabled {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 34px;
-        height: 34px;
-        padding: 0 9px;
-        border: 1px solid #dfe5ee;
-        border-radius: 8px;
-        background: #ffffff;
-        color: #667085;
-        font-size: 10px;
-        font-weight: 750;
-        text-decoration: none;
-    }
-
-    .catalog-page-link:hover {
-        border-color: #b9d3fb;
-        background: #f5f9ff;
-        color: #0d6efd;
-    }
-
-    .catalog-page-current {
-        border-color: #0d6efd;
-        background: #0d6efd;
-        color: #ffffff;
-    }
-
-    .catalog-page-disabled {
-        color: #c0c7d2;
-        cursor: default;
-    }
-
-    @@media (max-width: 1120px) {
-        .catalog-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-    }
-
-    @@media (max-width: 900px) {
-        .course-catalog-page {
-            padding-top: 28px;
-        }
-
-        .catalog-layout {
-            grid-template-columns: 1fr;
-        }
-
-        .catalog-filter {
-            position: static;
-        }
-
-        .catalog-filter-body {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 0 20px;
-        }
-
-        .catalog-filter-section +
-        .catalog-filter-section {
-            margin-top: 0;
-            border-top: 0;
-        }
-
-        .catalog-toolbar {
-            grid-template-columns: 1fr;
-        }
-
-        .catalog-sort-form {
-            justify-content: flex-end;
-        }
-    }
-
-    @@media (max-width: 640px) {
-        .catalog-container {
-            width: min(100% - 24px, 1240px);
-        }
-
-        .catalog-title {
-            font-size: 29px;
-        }
-
-        .catalog-filter-body {
-            grid-template-columns: 1fr;
-        }
-
-        .catalog-filter-section +
-        .catalog-filter-section {
-            margin-top: 16px;
-            border-top: 1px solid #edf1f6;
-        }
-
-        .catalog-search-form {
-            grid-template-columns: 1fr;
-        }
-
-        .catalog-search-button {
-            width: 100%;
-        }
-
-        .catalog-sort-form {
-            align-items: stretch;
-            justify-content: initial;
-            flex-direction: column;
-        }
-
-        .catalog-sort-select {
-            width: 100%;
-        }
-
-        .catalog-filter-summary {
-            align-items: flex-start;
-            flex-direction: column;
-        }
-
-        .catalog-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .catalog-pagination-wrap {
-            align-items: flex-start;
-            flex-direction: column;
-        }
-
-        .catalog-pagination {
-            max-width: 100%;
-            flex-wrap: wrap;
-        }
-    }
-</style>
-
-<div class="course-catalog-page">
-    <div class="catalog-container">
-
-        <header class="catalog-header">
-            <div class="catalog-eyebrow">
+        <div class="courses-header">
+            <div class="courses-eyebrow">
                 Khám phá khóa học
             </div>
 
-            <h1 class="catalog-title">
+            <div class="courses-title"
+                 role="heading"
+                 aria-level="1">
                 @pageTitle
-            </h1>
+            </div>
 
-            <p class="catalog-subtitle">
+            <p class="courses-subtitle">
                 @pageDescription
             </p>
-        </header>
 
-        <div class="catalog-layout">
+            @if (!string.IsNullOrWhiteSpace(
+                selectedLevel))
+            {
+                <div class="active-level">
+                    <span class="active-level-dot"></span>
+                    Cấp độ:
+                    @GetLevelText(
+                        ViewBag.NormalizedLevel?.ToString())
+                </div>
+            }
+        </div>
 
-            <aside class="catalog-filter">
-                <div class="catalog-filter-head">
-                    <div class="catalog-filter-heading">
-                        <span>Bộ lọc</span>
 
-                        @if (activeFilterCount > 0)
-                        {
-                            <span class="catalog-filter-count">
-                                @activeFilterCount
-                            </span>
-                        }
+        <div class="courses-filter-overlay"
+             data-courses-filter-overlay
+             hidden></div>
+
+        <div class="courses-layout">
+
+            <aside id="coursesFilterPanel"
+                   class="filter-box"
+                   aria-label="Bộ lọc khóa học">
+
+                <div class="filter-mobile-head">
+                    <div class="filter-mobile-title">
+                        Bộ lọc
                     </div>
 
-                    @if (hasFilter)
+                    <button type="button"
+                            class="filter-close"
+                            data-courses-filter-close
+                            aria-label="Đóng bộ lọc">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+
+                <div class="filter-section">
+                    <div class="filter-title">
+                        Danh mục
+                    </div>
+
+                    <a asp-controller="Courses"
+                       asp-action="Index"
+                       asp-route-search="@searchValue"
+                       asp-route-level="@selectedLevel"
+                       asp-route-minPrice="@minPrice"
+                       asp-route-maxPrice="@maxPrice"
+                       asp-route-minRating="@minRating"
+                       asp-route-sort="@selectedSort"
+                       class="category-link @(selectedCategoryId == null ? "active" : "")">
+                        Tất cả danh mục
+                    </a>
+
+                    @if (categories != null)
                     {
-                        <a asp-controller="Courses"
-                           asp-action="Index"
-                           class="catalog-clear-all">
-                            Bỏ lọc ↻
-                        </a>
+                        foreach (var category in categories)
+                        {
+                            <a asp-controller="Courses"
+                               asp-action="Index"
+                               asp-route-categoryId="@category.Id"
+                               asp-route-search="@searchValue"
+                               asp-route-level="@selectedLevel"
+                               asp-route-minPrice="@minPrice"
+                               asp-route-maxPrice="@maxPrice"
+                               asp-route-minRating="@minRating"
+                               asp-route-sort="@selectedSort"
+                               class="category-link @(selectedCategoryId == category.Id ? "active" : "")">
+                                @category.Name
+                            </a>
+                        }
                     }
                 </div>
 
-                <div class="catalog-filter-body">
 
-                    <section class="catalog-filter-section">
-                        <div class="catalog-filter-title">
-                            Danh mục
-                        </div>
+                <div class="filter-section">
+                    <div class="filter-title">
+                        Trình độ
+                    </div>
 
-                        <div class="catalog-filter-options">
-                            <a asp-controller="Courses"
-                               asp-action="Index"
-                               asp-route-search="@searchValue"
-                               asp-route-level="@selectedLevel"
-                               asp-route-priceRange="@selectedPriceRange"
-                               asp-route-minPrice="@(hasCustomPrice ? minPrice : null)"
-                               asp-route-maxPrice="@(hasCustomPrice ? maxPrice : null)"
-                               asp-route-minRating="@minRating"
-                               asp-route-sort="@selectedSort"
-                               class="catalog-filter-option @(!selectedCategoryId.HasValue ? "active" : "")">
-                                <span class="catalog-check"></span>
-                                <span class="catalog-option-label">
-                                    Tất cả danh mục
-                                </span>
-                            </a>
+                    <a asp-controller="Courses"
+                       asp-action="Index"
+                       asp-route-categoryId="@selectedCategoryId"
+                       asp-route-search="@searchValue"
+                       asp-route-minPrice="@minPrice"
+                       asp-route-maxPrice="@maxPrice"
+                       asp-route-minRating="@minRating"
+                       asp-route-sort="@selectedSort"
+                       class="category-link @(string.IsNullOrWhiteSpace(selectedLevel) ? "active" : "")">
+                        <span class="level-dot"></span>
+                        Tất cả trình độ
+                    </a>
 
-                            @if (categories != null)
-                            {
-                                @foreach (var category in categories)
-                                {
-                                    <a asp-controller="Courses"
-                                       asp-action="Index"
-                                       asp-route-categoryId="@category.Id"
-                                       asp-route-search="@searchValue"
-                                       asp-route-level="@selectedLevel"
-                                       asp-route-priceRange="@selectedPriceRange"
-                                       asp-route-minPrice="@(hasCustomPrice ? minPrice : null)"
-                                       asp-route-maxPrice="@(hasCustomPrice ? maxPrice : null)"
-                                       asp-route-minRating="@minRating"
-                                       asp-route-sort="@selectedSort"
-                                       class="catalog-filter-option @(selectedCategoryId == category.Id ? "active" : "")">
-                                        <span class="catalog-check"></span>
-                                        <span class="catalog-option-label">
-                                            @category.Name
-                                        </span>
-                                    </a>
-                                }
-                            }
-                        </div>
-                    </section>
+                    <a asp-controller="Courses"
+                       asp-action="Index"
+                       asp-route-categoryId="@selectedCategoryId"
+                       asp-route-search="@searchValue"
+                       asp-route-level="beginner"
+                       asp-route-minPrice="@minPrice"
+                       asp-route-maxPrice="@maxPrice"
+                       asp-route-minRating="@minRating"
+                       asp-route-sort="@selectedSort"
+                       class="category-link @(selectedLevel == "beginner" ? "active" : "")">
+                        <span class="level-dot beginner"></span>
+                        Cơ bản
+                    </a>
 
-                    <section class="catalog-filter-section">
-                        <div class="catalog-filter-title">
-                            Trình độ
-                        </div>
+                    <a asp-controller="Courses"
+                       asp-action="Index"
+                       asp-route-categoryId="@selectedCategoryId"
+                       asp-route-search="@searchValue"
+                       asp-route-level="intermediate"
+                       asp-route-minPrice="@minPrice"
+                       asp-route-maxPrice="@maxPrice"
+                       asp-route-minRating="@minRating"
+                       asp-route-sort="@selectedSort"
+                       class="category-link @(selectedLevel == "intermediate" ? "active" : "")">
+                        <span class="level-dot intermediate"></span>
+                        Trung cấp
+                    </a>
 
-                        <div class="catalog-filter-options">
-                            <a asp-controller="Courses"
-                               asp-action="Index"
-                               asp-route-categoryId="@selectedCategoryId"
-                               asp-route-search="@searchValue"
-                               asp-route-priceRange="@selectedPriceRange"
-                               asp-route-minPrice="@(hasCustomPrice ? minPrice : null)"
-                               asp-route-maxPrice="@(hasCustomPrice ? maxPrice : null)"
-                               asp-route-minRating="@minRating"
-                               asp-route-sort="@selectedSort"
-                               class="catalog-filter-option @(string.IsNullOrWhiteSpace(selectedLevel) ? "active" : "")">
-                                <span class="catalog-check"></span>
-                                <span class="catalog-option-label">
-                                    Tất cả trình độ
-                                </span>
-                            </a>
-
-                            <a asp-controller="Courses"
-                               asp-action="Index"
-                               asp-route-categoryId="@selectedCategoryId"
-                               asp-route-search="@searchValue"
-                               asp-route-level="beginner"
-                               asp-route-priceRange="@selectedPriceRange"
-                               asp-route-minPrice="@(hasCustomPrice ? minPrice : null)"
-                               asp-route-maxPrice="@(hasCustomPrice ? maxPrice : null)"
-                               asp-route-minRating="@minRating"
-                               asp-route-sort="@selectedSort"
-                               class="catalog-filter-option @(selectedLevel == "beginner" ? "active" : "")">
-                                <span class="catalog-check"></span>
-                                <span class="catalog-option-label">
-                                    Cơ bản
-                                </span>
-                            </a>
-
-                            <a asp-controller="Courses"
-                               asp-action="Index"
-                               asp-route-categoryId="@selectedCategoryId"
-                               asp-route-search="@searchValue"
-                               asp-route-level="intermediate"
-                               asp-route-priceRange="@selectedPriceRange"
-                               asp-route-minPrice="@(hasCustomPrice ? minPrice : null)"
-                               asp-route-maxPrice="@(hasCustomPrice ? maxPrice : null)"
-                               asp-route-minRating="@minRating"
-                               asp-route-sort="@selectedSort"
-                               class="catalog-filter-option @(selectedLevel == "intermediate" ? "active" : "")">
-                                <span class="catalog-check"></span>
-                                <span class="catalog-option-label">
-                                    Trung cấp
-                                </span>
-                            </a>
-
-                            <a asp-controller="Courses"
-                               asp-action="Index"
-                               asp-route-categoryId="@selectedCategoryId"
-                               asp-route-search="@searchValue"
-                               asp-route-level="advanced"
-                               asp-route-priceRange="@selectedPriceRange"
-                               asp-route-minPrice="@(hasCustomPrice ? minPrice : null)"
-                               asp-route-maxPrice="@(hasCustomPrice ? maxPrice : null)"
-                               asp-route-minRating="@minRating"
-                               asp-route-sort="@selectedSort"
-                               class="catalog-filter-option @(selectedLevel == "advanced" ? "active" : "")">
-                                <span class="catalog-check"></span>
-                                <span class="catalog-option-label">
-                                    Nâng cao
-                                </span>
-                            </a>
-                        </div>
-                    </section>
-
-                    <section class="catalog-filter-section">
-                        <div class="catalog-filter-title">
-                            Khoảng giá
-                        </div>
-
-                        <div class="catalog-filter-options">
-                            <a asp-controller="Courses"
-                               asp-action="Index"
-                               asp-route-categoryId="@selectedCategoryId"
-                               asp-route-search="@searchValue"
-                               asp-route-level="@selectedLevel"
-                               asp-route-minRating="@minRating"
-                               asp-route-sort="@selectedSort"
-                               class="catalog-filter-option @(string.IsNullOrWhiteSpace(selectedPriceRange) && !hasCustomPrice ? "active" : "")">
-                                <span class="catalog-check"></span>
-                                <span class="catalog-option-label">
-                                    Tất cả
-                                </span>
-                            </a>
-
-                            <a asp-controller="Courses"
-                               asp-action="Index"
-                               asp-route-categoryId="@selectedCategoryId"
-                               asp-route-search="@searchValue"
-                               asp-route-level="@selectedLevel"
-                               asp-route-priceRange="free"
-                               asp-route-minRating="@minRating"
-                               asp-route-sort="@selectedSort"
-                               class="catalog-filter-option @(selectedPriceRange == "free" ? "active" : "")">
-                                <span class="catalog-check"></span>
-                                <span class="catalog-option-label">
-                                    Miễn phí
-                                </span>
-                            </a>
-
-                            <a asp-controller="Courses"
-                               asp-action="Index"
-                               asp-route-categoryId="@selectedCategoryId"
-                               asp-route-search="@searchValue"
-                               asp-route-level="@selectedLevel"
-                               asp-route-priceRange="under-1m"
-                               asp-route-minRating="@minRating"
-                               asp-route-sort="@selectedSort"
-                               class="catalog-filter-option @(selectedPriceRange == "under-1m" ? "active" : "")">
-                                <span class="catalog-check"></span>
-                                <span class="catalog-option-label">
-                                    Dưới 1.000.000đ
-                                </span>
-                            </a>
-
-                            <a asp-controller="Courses"
-                               asp-action="Index"
-                               asp-route-categoryId="@selectedCategoryId"
-                               asp-route-search="@searchValue"
-                               asp-route-level="@selectedLevel"
-                               asp-route-priceRange="1m-2m"
-                               asp-route-minRating="@minRating"
-                               asp-route-sort="@selectedSort"
-                               class="catalog-filter-option @(selectedPriceRange == "1m-2m" ? "active" : "")">
-                                <span class="catalog-check"></span>
-                                <span class="catalog-option-label">
-                                    1.000.000đ – 2.000.000đ
-                                </span>
-                            </a>
-
-                            <a asp-controller="Courses"
-                               asp-action="Index"
-                               asp-route-categoryId="@selectedCategoryId"
-                               asp-route-search="@searchValue"
-                               asp-route-level="@selectedLevel"
-                               asp-route-priceRange="over-2m"
-                               asp-route-minRating="@minRating"
-                               asp-route-sort="@selectedSort"
-                               class="catalog-filter-option @(selectedPriceRange == "over-2m" ? "active" : "")">
-                                <span class="catalog-check"></span>
-                                <span class="catalog-option-label">
-                                    Trên 2.000.000đ
-                                </span>
-                            </a>
-                        </div>
-                    </section>
-
-                    <section class="catalog-filter-section">
-                        <div class="catalog-filter-title">
-                            Đánh giá
-                        </div>
-
-                        <div class="catalog-filter-options">
-                            <a asp-controller="Courses"
-                               asp-action="Index"
-                               asp-route-categoryId="@selectedCategoryId"
-                               asp-route-search="@searchValue"
-                               asp-route-level="@selectedLevel"
-                               asp-route-priceRange="@selectedPriceRange"
-                               asp-route-minPrice="@(hasCustomPrice ? minPrice : null)"
-                               asp-route-maxPrice="@(hasCustomPrice ? maxPrice : null)"
-                               asp-route-sort="@selectedSort"
-                               class="catalog-filter-option @(!minRating.HasValue ? "active" : "")">
-                                <span class="catalog-check"></span>
-                                <span class="catalog-option-label">
-                                    Tất cả đánh giá
-                                </span>
-                            </a>
-
-                            @for (int rating = 4;
-                                  rating >= 2;
-                                  rating--)
-                            {
-                                <a asp-controller="Courses"
-                                   asp-action="Index"
-                                   asp-route-categoryId="@selectedCategoryId"
-                                   asp-route-search="@searchValue"
-                                   asp-route-level="@selectedLevel"
-                                   asp-route-priceRange="@selectedPriceRange"
-                                   asp-route-minPrice="@(hasCustomPrice ? minPrice : null)"
-                                   asp-route-maxPrice="@(hasCustomPrice ? maxPrice : null)"
-                                   asp-route-minRating="@rating"
-                                   asp-route-sort="@selectedSort"
-                                   class="catalog-filter-option @(minRating == rating ? "active" : "")">
-                                    <span class="catalog-check"></span>
-                                    <span class="catalog-option-label">
-                                        Từ @rating.0
-                                        <span class="catalog-rating-star">★</span>
-                                        trở lên
-                                    </span>
-                                </a>
-                            }
-                        </div>
-                    </section>
-
+                    <a asp-controller="Courses"
+                       asp-action="Index"
+                       asp-route-categoryId="@selectedCategoryId"
+                       asp-route-search="@searchValue"
+                       asp-route-level="advanced"
+                       asp-route-minPrice="@minPrice"
+                       asp-route-maxPrice="@maxPrice"
+                       asp-route-minRating="@minRating"
+                       asp-route-sort="@selectedSort"
+                       class="category-link @(selectedLevel == "advanced" ? "active" : "")">
+                        <span class="level-dot advanced"></span>
+                        Nâng cao
+                    </a>
                 </div>
-            </aside>
 
-            <main class="catalog-main">
 
-                <div class="catalog-toolbar">
-                    <form asp-controller="Courses"
-                          asp-action="Index"
-                          method="get"
-                          class="catalog-search-form">
-
-                        @if (selectedCategoryId.HasValue)
-                        {
-                            <input type="hidden"
-                                   name="categoryId"
-                                   value="@selectedCategoryId.Value" />
-                        }
-
-                        @if (!string.IsNullOrWhiteSpace(
-                            selectedLevel))
-                        {
-                            <input type="hidden"
-                                   name="level"
-                                   value="@selectedLevel" />
-                        }
-
-                        @if (!string.IsNullOrWhiteSpace(
-                            selectedPriceRange))
-                        {
-                            <input type="hidden"
-                                   name="priceRange"
-                                   value="@selectedPriceRange" />
-                        }
-                        else if (hasCustomPrice)
-                        {
-                            @if (minPrice.HasValue)
-                            {
-                                <input type="hidden"
-                                       name="minPrice"
-                                       value="@minPrice.Value" />
-                            }
-
-                            @if (maxPrice.HasValue)
-                            {
-                                <input type="hidden"
-                                       name="maxPrice"
-                                       value="@maxPrice.Value" />
-                            }
-                        }
-
-                        @if (minRating.HasValue)
-                        {
-                            <input type="hidden"
-                                   name="minRating"
-                                   value="@minRating.Value" />
-                        }
-
-                        <input type="hidden"
-                               name="sort"
-                               value="@selectedSort" />
-
-                        <div class="catalog-search-wrap">
-                            <span class="catalog-search-icon">
-                                ⌕
-                            </span>
-
-                            <input type="text"
-                                   name="search"
-                                   value="@searchValue"
-                                   class="catalog-search-input"
-                                   placeholder="Tìm khóa học, chủ đề, công nghệ..." />
-                        </div>
-
-                        <button type="submit"
-                                class="catalog-search-button">
-                            Tìm kiếm
-                        </button>
-                    </form>
+                <div class="filter-section">
+                    <div class="filter-title">
+                        Khoảng giá
+                    </div>
 
                     <form asp-controller="Courses"
                           asp-action="Index"
                           method="get"
-                          class="catalog-sort-form">
+                          class="sort-form">
+
+                        <label for="coursesSort"
+                               class="sort-label">
+                            Sắp xếp theo
+                        </label>
 
                         @if (selectedCategoryId.HasValue)
                         {
@@ -1487,28 +371,146 @@
                                    value="@searchValue" />
                         }
 
-                        @if (!string.IsNullOrWhiteSpace(
-                            selectedPriceRange))
+                        @if (minRating.HasValue)
                         {
                             <input type="hidden"
-                                   name="priceRange"
-                                   value="@selectedPriceRange" />
+                                   name="minRating"
+                                   value="@minRating.Value" />
                         }
-                        else if (hasCustomPrice)
-                        {
-                            @if (minPrice.HasValue)
-                            {
-                                <input type="hidden"
-                                       name="minPrice"
-                                       value="@minPrice.Value" />
-                            }
 
-                            @if (maxPrice.HasValue)
-                            {
-                                <input type="hidden"
-                                       name="maxPrice"
-                                       value="@maxPrice.Value" />
-                            }
+                        <input type="hidden"
+                               name="sort"
+                               value="@selectedSort" />
+
+                        <div class="price-grid">
+                            <input type="number"
+                                   min="0"
+                                   step="10000"
+                                   name="minPrice"
+                                   value="@minPrice"
+                                   class="filter-input"
+                                   placeholder="Từ" />
+
+                            <input type="number"
+                                   min="0"
+                                   step="10000"
+                                   name="maxPrice"
+                                   value="@maxPrice"
+                                   class="filter-input"
+                                   placeholder="Đến" />
+                        </div>
+
+                        <button type="submit"
+                                class="filter-submit">
+                            Áp dụng giá
+                        </button>
+                    </form>
+                </div>
+
+
+                <div class="filter-section">
+                    <div class="filter-title">
+                        Đánh giá
+                    </div>
+
+                    <div class="rating-options">
+                        <a asp-controller="Courses"
+                           asp-action="Index"
+                           asp-route-categoryId="@selectedCategoryId"
+                           asp-route-search="@searchValue"
+                           asp-route-level="@selectedLevel"
+                           asp-route-minPrice="@minPrice"
+                           asp-route-maxPrice="@maxPrice"
+                           asp-route-sort="@selectedSort"
+                           class="rating-link @(!minRating.HasValue ? "active" : "")">
+                            Tất cả đánh giá
+                        </a>
+
+                        @for (int rating = 5;
+                              rating >= 3;
+                              rating--)
+                        {
+                            <a asp-controller="Courses"
+                               asp-action="Index"
+                               asp-route-categoryId="@selectedCategoryId"
+                               asp-route-search="@searchValue"
+                               asp-route-level="@selectedLevel"
+                               asp-route-minPrice="@minPrice"
+                               asp-route-maxPrice="@maxPrice"
+                               asp-route-minRating="@rating"
+                               asp-route-sort="@selectedSort"
+                               class="rating-link @(minRating == rating ? "active" : "")">
+
+                                <span class="stars">
+                                    @for (int star = 1;
+                                          star <= rating;
+                                          star++)
+                                    {
+                                        <text>★</text>
+                                    }
+                                </span>
+
+                                <span>
+                                    từ @rating.0
+                                </span>
+                            </a>
+                        }
+                    </div>
+                </div>
+
+            </aside>
+
+
+            <main class="main-panel">
+
+                <button type="button"
+                        class="courses-filter-toggle"
+                        data-courses-filter-toggle
+                        aria-controls="coursesFilterPanel"
+                        aria-expanded="false">
+                    <span class="courses-filter-toggle__icon"
+                          aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M4 6h16M7 12h10M10 18h4" />
+                        </svg>
+                    </span>
+                    Bộ lọc
+                </button>
+
+                <div class="toolbar">
+
+                    <form asp-controller="Courses"
+                          asp-action="Index"
+                          method="get"
+                          class="search-row">
+
+                        @if (selectedCategoryId.HasValue)
+                        {
+                            <input type="hidden"
+                                   name="categoryId"
+                                   value="@selectedCategoryId.Value" />
+                        }
+
+                        @if (!string.IsNullOrWhiteSpace(
+                            selectedLevel))
+                        {
+                            <input type="hidden"
+                                   name="level"
+                                   value="@selectedLevel" />
+                        }
+
+                        @if (minPrice.HasValue)
+                        {
+                            <input type="hidden"
+                                   name="minPrice"
+                                   value="@minPrice.Value" />
+                        }
+
+                        @if (maxPrice.HasValue)
+                        {
+                            <input type="hidden"
+                                   name="maxPrice"
+                                   value="@maxPrice.Value" />
                         }
 
                         @if (minRating.HasValue)
@@ -1518,13 +520,78 @@
                                    value="@minRating.Value" />
                         }
 
-                        <span class="catalog-sort-label">
-                            Sắp xếp theo:
-                        </span>
+                        <input type="hidden"
+                               name="sort"
+                               value="@selectedSort" />
 
-                        <select name="sort"
-                                class="catalog-sort-select"
+                        <input type="text"
+                               name="search"
+                               value="@searchValue"
+                               class="search-input"
+                               placeholder="Tìm khóa học, chủ đề..."
+                               aria-label="Tìm kiếm khóa học" />
+
+                        <button type="submit"
+                                class="search-button">
+                            Tìm kiếm
+                        </button>
+                    </form>
+
+
+                    <form asp-controller="Courses"
+                          asp-action="Index"
+                          method="get">
+
+                        @if (selectedCategoryId.HasValue)
+                        {
+                            <input type="hidden"
+                                   name="categoryId"
+                                   value="@selectedCategoryId.Value" />
+                        }
+
+                        @if (!string.IsNullOrWhiteSpace(
+                            selectedLevel))
+                        {
+                            <input type="hidden"
+                                   name="level"
+                                   value="@selectedLevel" />
+                        }
+
+                        @if (!string.IsNullOrWhiteSpace(
+                            searchValue))
+                        {
+                            <input type="hidden"
+                                   name="search"
+                                   value="@searchValue" />
+                        }
+
+                        @if (minPrice.HasValue)
+                        {
+                            <input type="hidden"
+                                   name="minPrice"
+                                   value="@minPrice.Value" />
+                        }
+
+                        @if (maxPrice.HasValue)
+                        {
+                            <input type="hidden"
+                                   name="maxPrice"
+                                   value="@maxPrice.Value" />
+                        }
+
+                        @if (minRating.HasValue)
+                        {
+                            <input type="hidden"
+                                   name="minRating"
+                                   value="@minRating.Value" />
+                        }
+
+                        <select id="coursesSort"
+                                name="sort"
+                                class="sort-select"
+                                aria-label="Sắp xếp khóa học"
                                 onchange="this.form.submit()">
+
                             <option value="popular"
                                     selected="@(selectedSort == "popular" ? "selected" : null)">
                                 Phổ biến
@@ -1551,158 +618,31 @@
                             </option>
                         </select>
                     </form>
+
                 </div>
 
-                <div class="catalog-filter-summary">
-                    <div class="catalog-chips">
 
-                        @if (!string.IsNullOrWhiteSpace(
-                            searchValue))
-                        {
-                            <a asp-controller="Courses"
-                               asp-action="Index"
-                               asp-route-categoryId="@selectedCategoryId"
-                               asp-route-level="@selectedLevel"
-                               asp-route-priceRange="@selectedPriceRange"
-                               asp-route-minPrice="@(hasCustomPrice ? minPrice : null)"
-                               asp-route-maxPrice="@(hasCustomPrice ? maxPrice : null)"
-                               asp-route-minRating="@minRating"
-                               asp-route-sort="@selectedSort"
-                               class="catalog-chip"
-                               title="Bỏ từ khóa tìm kiếm">
-                                <span>Từ khóa: @searchValue</span>
-                                <span class="catalog-chip-x">×</span>
-                            </a>
-                        }
-
-                        @if (selectedCategoryId.HasValue &&
-                             selectedCategory != null)
-                        {
-                            <a asp-controller="Courses"
-                               asp-action="Index"
-                               asp-route-search="@searchValue"
-                               asp-route-level="@selectedLevel"
-                               asp-route-priceRange="@selectedPriceRange"
-                               asp-route-minPrice="@(hasCustomPrice ? minPrice : null)"
-                               asp-route-maxPrice="@(hasCustomPrice ? maxPrice : null)"
-                               asp-route-minRating="@minRating"
-                               asp-route-sort="@selectedSort"
-                               class="catalog-chip"
-                               title="Bỏ lọc danh mục">
-                                <span>@selectedCategory.Name</span>
-                                <span class="catalog-chip-x">×</span>
-                            </a>
-                        }
-
-                        @if (!string.IsNullOrWhiteSpace(
-                            selectedLevel))
-                        {
-                            string levelChipText =
-                                selectedLevel switch
-                                {
-                                    "beginner" => "Cơ bản",
-                                    "intermediate" => "Trung cấp",
-                                    "advanced" => "Nâng cao",
-                                    _ => selectedLevel
-                                };
-
-                            <a asp-controller="Courses"
-                               asp-action="Index"
-                               asp-route-categoryId="@selectedCategoryId"
-                               asp-route-search="@searchValue"
-                               asp-route-priceRange="@selectedPriceRange"
-                               asp-route-minPrice="@(hasCustomPrice ? minPrice : null)"
-                               asp-route-maxPrice="@(hasCustomPrice ? maxPrice : null)"
-                               asp-route-minRating="@minRating"
-                               asp-route-sort="@selectedSort"
-                               class="catalog-chip"
-                               title="Bỏ lọc trình độ">
-                                <span>@levelChipText</span>
-                                <span class="catalog-chip-x">×</span>
-                            </a>
-                        }
-
-                        @if (!string.IsNullOrWhiteSpace(
-                            selectedPriceRange))
-                        {
-                            <a asp-controller="Courses"
-                               asp-action="Index"
-                               asp-route-categoryId="@selectedCategoryId"
-                               asp-route-search="@searchValue"
-                               asp-route-level="@selectedLevel"
-                               asp-route-minRating="@minRating"
-                               asp-route-sort="@selectedSort"
-                               class="catalog-chip"
-                               title="Bỏ lọc khoảng giá">
-                                <span>@GetPriceRangeLabel(selectedPriceRange)</span>
-                                <span class="catalog-chip-x">×</span>
-                            </a>
-                        }
-                        else if (hasCustomPrice)
-                        {
-                            string customPriceLabel;
-
-                            if (minPrice.HasValue &&
-                                maxPrice.HasValue)
-                            {
-                                customPriceLabel =
-                                    $"{minPrice.Value:N0}đ – {maxPrice.Value:N0}đ";
-                            }
-                            else if (minPrice.HasValue)
-                            {
-                                customPriceLabel =
-                                    $"Từ {minPrice.Value:N0}đ";
-                            }
-                            else
-                            {
-                                customPriceLabel =
-                                    $"Đến {maxPrice!.Value:N0}đ";
-                            }
-
-                            <a asp-controller="Courses"
-                               asp-action="Index"
-                               asp-route-categoryId="@selectedCategoryId"
-                               asp-route-search="@searchValue"
-                               asp-route-level="@selectedLevel"
-                               asp-route-minRating="@minRating"
-                               asp-route-sort="@selectedSort"
-                               class="catalog-chip"
-                               title="Bỏ lọc khoảng giá cũ">
-                                <span>@customPriceLabel</span>
-                                <span class="catalog-chip-x">×</span>
-                            </a>
-                        }
-
-                        @if (minRating.HasValue)
-                        {
-                            <a asp-controller="Courses"
-                               asp-action="Index"
-                               asp-route-categoryId="@selectedCategoryId"
-                               asp-route-search="@searchValue"
-                               asp-route-level="@selectedLevel"
-                               asp-route-priceRange="@selectedPriceRange"
-                               asp-route-minPrice="@(hasCustomPrice ? minPrice : null)"
-                               asp-route-maxPrice="@(hasCustomPrice ? maxPrice : null)"
-                               asp-route-sort="@selectedSort"
-                               class="catalog-chip"
-                               title="Bỏ lọc đánh giá">
-                                <span>
-                                    Từ @minRating.Value.0 ★
-                                </span>
-                                <span class="catalog-chip-x">×</span>
-                            </a>
-                        }
+                <div class="result-header">
+                    <div class="result-count">
+                        @totalItems khóa học phù hợp
                     </div>
 
-                    <div class="catalog-result-count">
-                        Có <strong>@totalItems</strong>
-                        khóa học phù hợp
-                    </div>
+                    @if (hasFilter)
+                    {
+                        <a asp-controller="Courses"
+                           asp-action="Index"
+                           asp-route-sort="@selectedSort"
+                           class="clear-filter">
+                            Xóa bộ lọc
+                        </a>
+                    }
                 </div>
+
 
                 @if (Model.Any())
                 {
-                    <div class="catalog-grid">
+                    <div class="course-list">
+
                         @foreach (var course in Model)
                         {
                             string levelClass =
@@ -1721,162 +661,121 @@
                                 effectivePrice <
                                 course.Price;
 
-                            double averageRating =
-                                GetAverageRating(
-                                    course);
+                            string sharedThumbnail =
+                                Url.Content(
+                                    $"~/images/course-thumbnails/by-slug/{course.Slug}.png");
 
-                            int reviewCount =
-                                course.Reviews?
-                                    .Count(r =>
-                                        r.IsApproved)
-                                ?? 0;
+                            string placeholderThumbnail =
+                                Url.Content(
+                                    "~/images/course-thumbnails/by-slug/course-placeholder.svg");
 
-                            int enrollmentCount =
-                                course.Enrollments?
-                                    .Count
-                                ?? 0;
+                            string thumbnailUrl =
+                                string.IsNullOrWhiteSpace(
+                                    course.ThumbnailUrl)
+                                    ? sharedThumbnail
+                                    : Url.Content(
+                                        course.ThumbnailUrl);
 
-                            string instructorName =
-                                course.Instructor?.FullName
-                                ?? "Giảng viên EduLearn";
+                            <article class="course-card">
 
-                            <article class="catalog-card">
                                 <a asp-controller="Courses"
                                    asp-action="Details"
                                    asp-route-slug="@course.Slug"
-                                   class="catalog-card-media">
+                                   class="course-thumbnail-link"
+                                   aria-label="Xem khóa học @course.Title">
 
-                                    @if (!string.IsNullOrWhiteSpace(
-                                        course.ThumbnailUrl))
-                                    {
-                                        <img src="@course.ThumbnailUrl"
-                                             alt="@course.Title" />
-                                    }
-                                    else
-                                    {
-                                        <div class="catalog-card-fallback @levelClass">
-                                            <div class="catalog-fallback-icon">
-                                                @(course.Category?.Icon
-                                                    ?? "IT")
-                                            </div>
-                                        </div>
-                                    }
+                                    <span class="course-thumbnail">
 
-                                    @if (course.IsFeatured)
-                                    {
-                                        <span class="catalog-featured-badge">
-                                            🔥 Nổi bật
-                                        </span>
-                                    }
+                                        <img src="@thumbnailUrl"
+                                             alt="@course.Title"
+                                             loading="lazy"
+                                             data-course-thumbnail
+                                             data-fallback="@sharedThumbnail"
+                                             data-placeholder="@placeholderThumbnail" />
+
+                                    </span>
+
                                 </a>
 
-                                <div class="catalog-card-body">
-                                    <div class="catalog-card-topline">
-                                        <div class="catalog-course-category">
+
+                                <div class="course-body">
+
+                                    <div class="course-topline">
+
+                                        <span class="course-category"
+                                              title="@(course.Category?.Name ?? "Công nghệ thông tin")">
                                             @(course.Category?.Name
                                                 ?? "Công nghệ thông tin")
-                                        </div>
+                                        </span>
 
-                                        <span class="catalog-course-level @levelClass">
+                                        <span class="course-level @levelClass">
                                             @levelText
                                         </span>
+
                                     </div>
 
-                                    <h2 class="catalog-course-name">
+
+                                    <div class="course-name"
+                                         role="heading"
+                                         aria-level="2">
+
                                         <a asp-controller="Courses"
                                            asp-action="Details"
                                            asp-route-slug="@course.Slug">
                                             @course.Title
                                         </a>
-                                    </h2>
 
-                                    <div class="catalog-course-description">
-                                        @(string.IsNullOrWhiteSpace(
-                                            course.ShortDescription)
-                                            ? "Khám phá nội dung và lộ trình học tập của khóa học này."
-                                            : course.ShortDescription)
                                     </div>
 
-                                    <div class="catalog-instructor-row">
-                                        <div class="catalog-instructor-avatar">
-                                            @GetInitials(instructorName)
-                                        </div>
 
-                                        <div class="catalog-instructor-info">
-                                            <div class="catalog-instructor-name">
-                                                @instructorName
-                                            </div>
-                                            <div class="catalog-instructor-role">
-                                                Giảng viên
-                                            </div>
-                                        </div>
+                                    <div class="course-footer">
 
-                                        <div class="catalog-card-stats">
-                                            <div class="catalog-rating">
-                                                @if (reviewCount > 0)
-                                                {
-                                                    <span class="star">★</span>
-                                                    <span>
-                                                        @averageRating.ToString("0.0")
-                                                        (@reviewCount)
-                                                    </span>
-                                                }
-                                                else
-                                                {
-                                                    <span>Chưa có đánh giá</span>
-                                                }
-                                            </div>
+                                        <div class="course-price-wrap">
 
-                                            <div class="catalog-students">
-                                                @enrollmentCount học viên
+                                            <div class="course-price">
+                                                @effectivePrice.ToString(
+                                                    "N0",
+                                                    System.Globalization.CultureInfo.GetCultureInfo("vi-VN"))đ
                                             </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="catalog-card-footer">
-                                        <div>
-                                            @if (effectivePrice <= 0)
-                                            {
-                                                <div class="catalog-price free">
-                                                    Miễn phí
-                                                </div>
-                                            }
-                                            else
-                                            {
-                                                <div class="catalog-price">
-                                                    @effectivePrice.ToString("N0")đ
-                                                </div>
-                                            }
 
                                             @if (hasDiscount)
                                             {
-                                                <div class="catalog-old-price">
-                                                    @course.Price.ToString("N0")đ
+                                                <div class="course-old-price">
+                                                    @course.Price.ToString(
+                                                        "N0",
+                                                        System.Globalization.CultureInfo.GetCultureInfo("vi-VN"))đ
                                                 </div>
                                             }
+
                                         </div>
+
 
                                         <a asp-controller="Courses"
                                            asp-action="Details"
                                            asp-route-slug="@course.Slug"
-                                           class="catalog-detail-button">
-                                            Xem chi tiết →
+                                           class="course-detail">
+                                            Xem chi tiết
+                                            <span aria-hidden="true">→</span>
                                         </a>
+
                                     </div>
+
                                 </div>
+
                             </article>
                         }
+
                     </div>
 
                     @if (totalPages > 1)
                     {
-                        <div class="catalog-pagination-wrap">
-                            <div class="catalog-pagination-info">
+                        <div class="pagination-wrap">
+                            <div class="pagination-info">
                                 Hiển thị @firstItem–@lastItem
                                 trong @totalItems khóa học
                             </div>
 
-                            <nav class="catalog-pagination"
+                            <nav class="pagination-list"
                                  aria-label="Phân trang khóa học">
 
                                 @if (currentPage > 1)
@@ -1886,53 +785,40 @@
                                        asp-route-search="@searchValue"
                                        asp-route-categoryId="@selectedCategoryId"
                                        asp-route-level="@selectedLevel"
-                                       asp-route-priceRange="@selectedPriceRange"
-                                       asp-route-minPrice="@(hasCustomPrice ? minPrice : null)"
-                                       asp-route-maxPrice="@(hasCustomPrice ? maxPrice : null)"
+                                       asp-route-minPrice="@minPrice"
+                                       asp-route-maxPrice="@maxPrice"
                                        asp-route-minRating="@minRating"
                                        asp-route-sort="@selectedSort"
                                        asp-route-page="@(currentPage - 1)"
-                                       class="catalog-page-link">
-                                        ←
+                                       class="page-link-button">
+                                        ← Trước
                                     </a>
                                 }
                                 else
                                 {
-                                    <span class="catalog-page-disabled">
-                                        ←
+                                    <span class="page-link-button disabled">
+                                        ← Trước
                                     </span>
                                 }
 
-                                @for (int pageNumber =
-                                          paginationStart;
-                                      pageNumber <=
-                                          paginationEnd;
+                                @for (int pageNumber = paginationStart;
+                                      pageNumber <= paginationEnd;
                                       pageNumber++)
                                 {
-                                    if (pageNumber ==
-                                        currentPage)
-                                    {
-                                        <span class="catalog-page-current">
-                                            @pageNumber
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <a asp-controller="Courses"
-                                           asp-action="Index"
-                                           asp-route-search="@searchValue"
-                                           asp-route-categoryId="@selectedCategoryId"
-                                           asp-route-level="@selectedLevel"
-                                           asp-route-priceRange="@selectedPriceRange"
-                                           asp-route-minPrice="@(hasCustomPrice ? minPrice : null)"
-                                           asp-route-maxPrice="@(hasCustomPrice ? maxPrice : null)"
-                                           asp-route-minRating="@minRating"
-                                           asp-route-sort="@selectedSort"
-                                           asp-route-page="@pageNumber"
-                                           class="catalog-page-link">
-                                            @pageNumber
-                                        </a>
-                                    }
+                                    <a asp-controller="Courses"
+                                       asp-action="Index"
+                                       asp-route-search="@searchValue"
+                                       asp-route-categoryId="@selectedCategoryId"
+                                       asp-route-level="@selectedLevel"
+                                       asp-route-minPrice="@minPrice"
+                                       asp-route-maxPrice="@maxPrice"
+                                       asp-route-minRating="@minRating"
+                                       asp-route-sort="@selectedSort"
+                                       asp-route-page="@pageNumber"
+                                       class="page-link-button @(pageNumber == currentPage ? "active" : "")"
+                                       aria-current="@(pageNumber == currentPage ? "page" : null)">
+                                        @pageNumber
+                                    </a>
                                 }
 
                                 @if (currentPage < totalPages)
@@ -1942,51 +828,57 @@
                                        asp-route-search="@searchValue"
                                        asp-route-categoryId="@selectedCategoryId"
                                        asp-route-level="@selectedLevel"
-                                       asp-route-priceRange="@selectedPriceRange"
-                                       asp-route-minPrice="@(hasCustomPrice ? minPrice : null)"
-                                       asp-route-maxPrice="@(hasCustomPrice ? maxPrice : null)"
+                                       asp-route-minPrice="@minPrice"
+                                       asp-route-maxPrice="@maxPrice"
                                        asp-route-minRating="@minRating"
                                        asp-route-sort="@selectedSort"
                                        asp-route-page="@(currentPage + 1)"
-                                       class="catalog-page-link">
-                                        →
+                                       class="page-link-button">
+                                        Sau →
                                     </a>
                                 }
                                 else
                                 {
-                                    <span class="catalog-page-disabled">
-                                        →
+                                    <span class="page-link-button disabled">
+                                        Sau →
                                     </span>
                                 }
+
                             </nav>
                         </div>
                     }
                 }
                 else
                 {
-                    <div class="catalog-empty">
-                        <div class="catalog-empty-icon">
+                    <div class="empty-box">
+                        <div class="empty-icon">
                             KH
                         </div>
 
-                        <div class="catalog-empty-title">
+                        <div class="empty-title">
                             Chưa có khóa học phù hợp
                         </div>
 
-                        <p class="catalog-empty-text">
-                            Hiện chưa có khóa học đáp ứng bộ lọc bạn đã chọn.
-                            Hãy bỏ bớt điều kiện lọc hoặc xem lại toàn bộ khóa học.
-                        </p>
+                        <div class="empty-description">
+                            Hiện chưa có khóa học đáp ứng
+                            bộ lọc bạn đã chọn.
+                        </div>
 
                         <a asp-controller="Courses"
                            asp-action="Index"
-                           class="catalog-empty-button">
+                           class="empty-button">
                             Xem tất cả khóa học
                         </a>
                     </div>
                 }
 
             </main>
+
         </div>
+
     </div>
 </div>
+
+<script src="~/js/courses-index.js"
+        asp-append-version="true"
+        defer></script>
