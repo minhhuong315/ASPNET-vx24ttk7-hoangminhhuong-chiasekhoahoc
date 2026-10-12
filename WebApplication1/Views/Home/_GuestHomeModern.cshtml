@@ -175,17 +175,47 @@
 
         @await Component.InvokeAsync("HomePublicData")
 
-        <section class="edg-cta-section">
+        <section class="edg-cta-section"
+                 aria-labelledby="edgCtaTitle">
+
             <div class="edg-container">
+
                 <div class="edg-cta">
-                    <div>
-                        <span class="edg-cta__eyebrow">Học theo cách của bạn</span>
-                        <h2 class="edg-cta__title">Bắt đầu hành trình học tập cùng EduLearn</h2>
-                        <p class="edg-cta__text">Tạo tài khoản để đăng ký khóa học, lưu danh sách yêu thích và theo dõi tiến độ học tập.</p>
+
+                    <div class="edg-cta__content">
+
+                        <span class="edg-cta__eyebrow">
+                            Học theo cách của bạn
+                        </span>
+
+                        <div id="edgCtaTitle"
+                             class="edg-cta__title"
+                             role="heading"
+                             aria-level="2">
+                            Bắt đầu hành trình học tập cùng EduLearn
+                        </div>
+
+                        <p class="edg-cta__text">
+                            Tạo tài khoản để đăng ký khóa học, lưu danh sách yêu thích
+                            và theo dõi tiến độ học tập.
+                        </p>
+
                     </div>
-                    <a asp-controller="Account" asp-action="Register" class="edg-cta__button">Đăng ký tài khoản <span aria-hidden="true">→</span></a>
+
+
+                    <a asp-controller="Account"
+                       asp-action="Register"
+                       class="edg-cta__button">
+
+                        <span>Đăng ký tài khoản</span>
+                        <span aria-hidden="true">→</span>
+
+                    </a>
+
                 </div>
+
             </div>
+
         </section>
     </div>
 
