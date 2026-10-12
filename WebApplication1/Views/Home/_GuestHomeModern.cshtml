@@ -10,35 +10,134 @@
 <div class="edg-home">
     <header class="edg-header">
         <div class="edg-container edg-header__inner">
-            <a asp-controller="Home" asp-action="Index" class="edg-brand" aria-label="EduLearn - Trang chủ">
-                <span class="edg-brand__mark" aria-hidden="true">
-                    <svg viewBox="0 0 28 28"><path d="M5 4.5h7.1c1.2 0 2.2.4 2.9 1.2.7-.8 1.7-1.2 2.9-1.2H23v17h-5.1c-1.4 0-2.4.4-2.9 1.2-.6-.8-1.6-1.2-2.9-1.2H5z"/><path d="M14 6v16"/></svg>
+
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="edg-brand"
+               aria-label="EduLearn - Trang chủ">
+
+                <span class="edg-brand__mark"
+                      aria-hidden="true">
+                    <svg viewBox="0 0 28 28">
+                        <path d="M5 4.5h7.1c1.2 0 2.2.4 2.9 1.2.7-.8 1.7-1.2 2.9-1.2H23v17h-5.1c-1.4 0-2.4.4-2.9 1.2-.6-.8-1.6-1.2-2.9-1.2H5z" />
+                        <path d="M14 6v16" />
+                    </svg>
                 </span>
+
                 <span>EduLearn</span>
+
             </a>
 
-            <button type="button" class="edg-menu-toggle" data-edg-menu-toggle aria-label="Mở menu" aria-controls="edgPrimaryNav" aria-expanded="false">
-                <span></span><span></span><span></span>
-            </button>
 
-            <nav id="edgPrimaryNav" class="edg-nav" data-edg-nav aria-label="Điều hướng chính">
-                <a asp-controller="Home" asp-action="Index" class="edg-nav__link active">Trang chủ</a>
-                <a asp-controller="Courses" asp-action="Index" class="edg-nav__link">Khóa học</a>
-                <a asp-controller="Explore" asp-action="Instructors" class="edg-nav__link">Giảng viên</a>
-                <a asp-controller="Explore" asp-action="About" class="edg-nav__link">Về EduLearn</a>
+            <nav id="edgPrimaryNav"
+                 class="edg-nav"
+                 data-edg-nav
+                 aria-label="Điều hướng chính">
+
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   class="edg-nav__link active">
+                    Trang chủ
+                </a>
+
+                <a asp-controller="Courses"
+                   asp-action="Index"
+                   class="edg-nav__link">
+                    Khóa học
+                </a>
+
+                <a asp-controller="Explore"
+                   asp-action="Instructors"
+                   class="edg-nav__link">
+                    Giảng viên
+                </a>
+
+                <a asp-controller="Explore"
+                   asp-action="About"
+                   class="edg-nav__link">
+                    Về EduLearn
+                </a>
+
+
+                <div class="edg-nav__auth"
+                     aria-label="Tài khoản">
+
+                    <a asp-controller="Account"
+                       asp-action="Login"
+                       class="edg-button edg-button--outline">
+                        Đăng nhập
+                    </a>
+
+                    <a asp-controller="Account"
+                       asp-action="Register"
+                       class="edg-button edg-button--primary">
+                        Đăng ký
+                    </a>
+
+                </div>
+
             </nav>
 
-            <form asp-controller="Courses" asp-action="Index" method="get" class="edg-header-search" role="search">
-                <span class="edg-search-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.2 4.2"/></svg>
-                </span>
-                <input type="search" name="search" class="edg-header-search__input" placeholder="Tìm kiếm khóa học..." aria-label="Tìm kiếm khóa học" />
-            </form>
 
-            <div class="edg-auth">
-                <a asp-controller="Account" asp-action="Login" class="edg-button edg-button--outline">Đăng nhập</a>
-                <a asp-controller="Account" asp-action="Register" class="edg-button edg-button--primary">Đăng ký</a>
+            <div class="edg-header__right">
+
+                <form asp-controller="Courses"
+                      asp-action="Index"
+                      method="get"
+                      class="edg-header-search"
+                      role="search">
+
+                    <span class="edg-search-icon"
+                          aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="11"
+                                    cy="11"
+                                    r="6.5" />
+                            <path d="m16 16 4.2 4.2" />
+                        </svg>
+                    </span>
+
+                    <input type="search"
+                           name="search"
+                           class="edg-header-search__input"
+                           placeholder="Tìm kiếm khóa học..."
+                           aria-label="Tìm kiếm khóa học" />
+
+                </form>
+
+
+                <div class="edg-auth">
+
+                    <a asp-controller="Account"
+                       asp-action="Login"
+                       class="edg-button edg-button--outline">
+                        Đăng nhập
+                    </a>
+
+                    <a asp-controller="Account"
+                       asp-action="Register"
+                       class="edg-button edg-button--primary">
+                        Đăng ký
+                    </a>
+
+                </div>
+
             </div>
+
+
+            <button type="button"
+                    class="edg-menu-toggle"
+                    data-edg-menu-toggle
+                    aria-label="Mở menu"
+                    aria-controls="edgPrimaryNav"
+                    aria-expanded="false">
+
+                <span></span>
+                <span></span>
+                <span></span>
+
+            </button>
+
         </div>
     </header>
 
@@ -54,7 +153,7 @@
                         <span class="edg-search-icon" aria-hidden="true">
                             <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.2 4.2"/></svg>
                         </span>
-                        <input type="search" name="search" class="edg-hero-search__input" placeholder="Tìm khóa học, ví dụ: ASP.NET, JavaScript, SQL Server..." aria-label="Tìm kiếm khóa học" />
+                        <input type="search" name="search" class="edg-hero-search__input" placeholder="Tìm khóa học, chủ đề, công nghệ..." aria-label="Tìm kiếm khóa học" />
                         <button type="submit" class="edg-hero-search__button">Tìm kiếm</button>
                     </form>
 
