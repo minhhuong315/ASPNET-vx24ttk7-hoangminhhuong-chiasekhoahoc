@@ -475,87 +475,144 @@
 }
 
 /* =========================
-   MODULE / LESSON
+   CURRICULUM (COURSE DETAILS ONLY)
 ========================= */
 
-.module-card {
-    margin-bottom: 10px;
-
-    overflow: hidden;
-
+.curriculum-section .curriculum-module {
+    margin: 0 0 12px;
     border: 1px solid #E2E8F0;
-    border-radius: 10px;
-
+    border-radius: 12px;
     background: #FFFFFF;
+    overflow: hidden;
 }
 
-.module-card:last-child {
+.curriculum-section .curriculum-module:last-child {
     margin-bottom: 0;
 }
 
-.module-title {
-    padding: 12px 14px;
-
-    background: #F8FAFC;
-    color: #334155;
-
-    font-size: 14px;
-    line-height: 1.4;
-    font-weight: 600;
-}
-
-.lesson-row {
-    padding: 11px 14px;
-
-    border-top: 1px solid #EEF2F7;
-
-    display: flex;
+.curriculum-section .curriculum-module__header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto 18px;
     align-items: center;
-    justify-content: space-between;
-
-    gap: 14px;
-
-    color: #64748B;
-
-    font-size: 13px;
-    line-height: 1.45;
+    gap: 12px;
+    min-height: 50px;
+    padding: 12px 14px;
+    background: #F8FAFC;
+    color: #0F172A;
+    list-style: none;
+    cursor: pointer;
 }
 
-.lesson-row > span:first-child {
+.curriculum-section .curriculum-module__header::-webkit-details-marker {
+    display: none;
+}
+
+.curriculum-section .curriculum-module__header:hover {
+    background: #F1F5F9;
+}
+
+.curriculum-section .curriculum-module__header:focus-visible {
+    outline: 2px solid #2563EB;
+    outline-offset: -3px;
+}
+
+.curriculum-section .curriculum-module__title {
     min-width: 0;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.45;
     overflow-wrap: anywhere;
 }
 
-.lesson-row > span:last-child {
-    flex: 0 0 auto;
+.curriculum-section .curriculum-module__meta {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    color: #64748B;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.4;
     white-space: nowrap;
 }
 
-.lesson-row a,
-.lesson-row button {
-    flex: 0 0 auto;
-    max-width: 100%;
+.curriculum-section .curriculum-module__chevron {
+    display: inline-flex;
+    width: 18px;
+    height: 18px;
+    color: #64748B;
+    transition: transform .2s ease;
 }
 
-.lesson-main {
-    display: flex;
-    flex: 1 1 auto;
-    flex-wrap: wrap;
+.curriculum-section .curriculum-module__chevron svg {
+    width: 100%;
+    height: 100%;
+}
+
+.curriculum-section .curriculum-module[open] .curriculum-module__chevron {
+    transform: rotate(180deg);
+}
+
+.curriculum-section .curriculum-lessons {
+    border-top: 1px solid #E2E8F0;
+}
+
+.curriculum-section .curriculum-lesson {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
-    gap: 6px 9px;
+    gap: 12px;
+    min-width: 0;
+    padding: 12px 14px;
+    border-bottom: 1px solid #EEF2F7;
+}
+
+.curriculum-section .curriculum-lesson:last-child {
+    border-bottom: none;
+}
+
+.curriculum-section .curriculum-lesson__info {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
     min-width: 0;
 }
 
-.lesson-title-text {
+.curriculum-section .curriculum-lesson__icon {
+    display: inline-flex;
+    flex: 0 0 20px;
+    width: 20px;
+    height: 20px;
+    margin-top: 1px;
+    color: #64748B;
+}
+
+.curriculum-section .curriculum-lesson__icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.curriculum-section .curriculum-lesson__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
     min-width: 0;
-    color: #334155;
+}
+
+.curriculum-section .curriculum-lesson__title {
+    min-width: 0;
+    color: #0F172A;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
     overflow-wrap: anywhere;
 }
 
-.lesson-free-badge {
+.curriculum-section .curriculum-lesson__badge {
     display: inline-flex;
-    align-items: center;
-    flex: 0 0 auto;
+    width: fit-content;
+    max-width: 100%;
     padding: 4px 7px;
     border-radius: 6px;
     background: #EFF6FF;
@@ -563,60 +620,66 @@
     font-size: 11px;
     font-weight: 600;
     line-height: 1.2;
+    overflow-wrap: anywhere;
 }
 
-.lesson-side {
+.curriculum-section .curriculum-lesson__actions {
     display: flex;
-    flex: 0 0 auto;
     flex-wrap: wrap;
     align-items: center;
     justify-content: flex-end;
-    gap: 8px 10px;
-    max-width: 100%;
+    gap: 8px 12px;
+    min-width: 0;
 }
 
-.lesson-duration {
+.curriculum-section .curriculum-lesson__duration {
+    flex: 0 0 auto;
+    color: #64748B;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.4;
     white-space: nowrap;
 }
 
-.lesson-preview-link {
+.curriculum-section .curriculum-lesson__preview {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 40px;
-    padding: 8px 11px;
+    flex: 0 0 auto;
+    min-height: 42px;
+    padding: 8px 12px;
     border: 1px solid #BFDBFE;
     border-radius: 8px;
     background: #EFF6FF;
     color: #1D4ED8;
     font-size: 12px;
     font-weight: 600;
-    line-height: 1.25;
+    line-height: 1.3;
     text-decoration: none;
     white-space: nowrap;
 }
 
-.lesson-preview-link:hover {
+.curriculum-section .curriculum-lesson__preview:hover {
     background: #DBEAFE;
     color: #1E40AF;
 }
 
-.lesson-preview-link:focus-visible {
+.curriculum-section .curriculum-lesson__preview:focus-visible {
     outline: 2px solid #2563EB;
     outline-offset: 2px;
 }
 
-.empty-content {
-    padding: 15px;
-
-    border: 1px solid #EEF2F7;
-    border-radius: 9px;
-
-    background: #F8FAFC;
+.curriculum-section .curriculum-lesson__empty {
+    padding: 12px 14px;
     color: #64748B;
-
     font-size: 13px;
     line-height: 1.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .curriculum-section .curriculum-module__chevron {
+        transition: none;
+    }
 }
 
 /* =========================
@@ -1046,6 +1109,48 @@
     }
 }
 
+@media (max-width: 600px) {
+    .curriculum-section .curriculum-module__header {
+        grid-template-columns: minmax(0, 1fr) 18px;
+        gap: 4px 10px;
+        padding: 12px;
+    }
+
+    .curriculum-section .curriculum-module__title {
+        grid-column: 1;
+        grid-row: 1;
+        font-size: 14px;
+    }
+
+    .curriculum-section .curriculum-module__meta {
+        grid-column: 1;
+        grid-row: 2;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        white-space: normal;
+    }
+
+    .curriculum-section .curriculum-module__chevron {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    .curriculum-section .curriculum-lesson {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 6px;
+        padding: 12px;
+    }
+
+    .curriculum-section .curriculum-lesson__title {
+        font-size: 13px;
+    }
+
+    .curriculum-section .curriculum-lesson__actions {
+        justify-content: flex-start;
+        padding-left: 30px;
+    }
+}
+
 @media (max-width: 480px) {
     .details-container {
         width: min(100% - 24px, 1240px);
@@ -1069,30 +1174,6 @@
 
     .course-price {
         font-size: 22px;
-    }
-
-    .lesson-row {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 6px;
-    }
-
-    .lesson-row > span:last-child {
-        white-space: normal;
-    }
-
-    .lesson-row a,
-    .lesson-row button {
-        width: auto;
-    }
-
-    .lesson-main,
-    .lesson-side {
-        width: 100%;
-    }
-
-    .lesson-side {
-        justify-content: flex-start;
     }
 
     .toast-position {
