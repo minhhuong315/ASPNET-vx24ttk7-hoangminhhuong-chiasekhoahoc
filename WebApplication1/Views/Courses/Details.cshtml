@@ -657,8 +657,7 @@
 
                     <!-- ĐÁNH GIÁ -->
 
-                    <div class="content-card"
-                         id="reviews">
+                    <div class="content-card course-reviews" id="reviews">
 
                         <div class="details-section-title"
                              role="heading"
@@ -666,6 +665,35 @@
                             Đánh giá khóa học
                         </div>
 
+                        @if (approvedReviews.Any())
+                        {
+                            <div class="rating-summary">
+                                <div class="rating-number">
+                                    @averageRating.ToString("0.0")
+                                </div>
+
+                                <div class="rating-summary__details">
+                                    <div class="rating-scale"
+                                         role="img"
+                                         aria-label="@averageRating.ToString("0.0") trên 5 sao">
+                                        <span class="rating-scale__base" aria-hidden="true">★★★★★</span>
+                                        <span class="rating-scale__fill"
+                                              style="width:@((Math.Clamp(averageRating, 0d, 5d) * 20d).ToString("0.#", System.Globalization.CultureInfo.InvariantCulture))%"
+                                              aria-hidden="true">★★★★★</span>
+                                    </div>
+                                    <div class="rating-summary__count">
+                                        @approvedReviews.Count đánh giá
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="review-empty">
+                                <span class="review-empty__icon" aria-hidden="true">☆</span>
+                                <span>Khóa học chưa có đánh giá.</span>
+                            </div>
+                        }
 
                         @if (isStudent &&
                              isEnrolled)
@@ -814,75 +842,73 @@
                         }
 
 
+
                         @if (approvedReviews.Any())
                         {
-                            <div class="rating-summary">
+                            <div class="reviews-list">
+                                @foreach (var review in approvedReviews.OrderByDescending(r => r.UpdatedAt))
+                                {
+                                    <article class="review-item">
+                                        <div class="review-item__header">
+                                            <span class="review-avatar" aria-hidden="true">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                     stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                                    <circle cx="12" cy="8" r="3.5" />
+                                                    <path d="M5 20c.3-3.8 3-6 7-6s6.7 2.2 7 6" />
+                                                </svg>
+                                            </span>
 
-                                <div class="rating-number">
-                                    @averageRating.ToString("0.0")
-                                </div>
+                                            <div class="review-item__identity">
+                                                <div class="review-user">
+                                                    @(string.IsNullOrWhiteSpace(review.User.FullName)
+                                                        ? "Học viên EduLearn"
+                                                        : review.User.FullName)
+                                                </div>
 
-                                <div>
+                                                <div class="review-item__meta">
+                                                    <div class="review-stars"
+                                                         role="img"
+                                                         aria-label="@review.Rating trên 5 sao">
+                                                        @for (int star = 1; star <= 5; star++)
+                                                        {
+                                                            <span class="@(star <= review.Rating ? "review-stars__filled" : "review-stars__empty")"
+                                                                  aria-hidden="true">★</span>
+                                                        }
+                                                    </div>
 
-                                    <div class="rating-stars">
-                                        ★★★★★
-                                    </div>
-
-                                    <div class="text-muted small">
-                                        @approvedReviews.Count đánh giá
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-
-                            foreach (var review in
-                                approvedReviews
-                                    .OrderByDescending(r =>
-                                        r.UpdatedAt))
-                            {
-                                <div class="review-item">
-
-                                    <div class="review-user">
-
-                                        @(string.IsNullOrWhiteSpace(
-                                            review.User.FullName)
-                                            ? "Học viên EduLearn"
-                                            : review.User.FullName)
-
-                                    </div>
-
-
-                                    <div class="rating-stars">
-                                        @review.Rating / 5 ★
-                                    </div>
-
-
-                                    @if (!string.IsNullOrWhiteSpace(
-                                        review.Comment))
-                                    {
-                                        <div class="review-comment">
-                                            @review.Comment
+                                                    <time class="review-date"
+                                                          datetime="@review.UpdatedAt.ToUniversalTime().ToString("o")">
+                                                        @(review.UpdatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm"))
+                                                    </time>
+                                                </div>
+                                            </div>
                                         </div>
-                                    }
 
+                                        @if (!string.IsNullOrWhiteSpace(review.Comment))
+                                        {
+                                            <div class="review-comment">@review.Comment</div>
+                                        }
 
-                                    <div class="review-date">
-
-                                        @(review.UpdatedAt
-                                            .ToLocalTime()
-                                            .ToString("dd/MM/yyyy HH:mm"))
-
-                                    </div>
-
-                                </div>
-                            }
-                        }
-                        else
-                        {
-                            <div class="empty-content">
-                                Khóa học chưa có đánh giá.
+                                        @if (!string.IsNullOrWhiteSpace(review.InstructorReply))
+                                        {
+                                            <div class="instructor-reply">
+                                                <div class="instructor-reply__header">
+                                                    <span class="instructor-reply__label">
+                                                        Phản hồi từ giảng viên
+                                                    </span>
+                                                    @if (review.InstructorReplyUpdatedAt.HasValue)
+                                                    {
+                                                        <time class="instructor-reply__date"
+                                                              datetime="@review.InstructorReplyUpdatedAt.Value.ToUniversalTime().ToString("o")">
+                                                            @(review.InstructorReplyUpdatedAt.Value.ToLocalTime().ToString("dd/MM/yyyy HH:mm"))
+                                                        </time>
+                                                    }
+                                                </div>
+                                                <div class="instructor-reply__text">@review.InstructorReply</div>
+                                            </div>
+                                        }
+                                    </article>
+                                }
                             </div>
                         }
 
