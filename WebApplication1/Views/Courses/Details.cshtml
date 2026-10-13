@@ -54,16 +54,6 @@
         isAuthenticated &&
         User.IsInRole("Instructor");
 
-    string? currentUserId =
-        User.FindFirst(
-            System.Security.Claims.ClaimTypes.NameIdentifier)
-            ?.Value;
-
-    bool canReplyToReviews =
-        isInstructor &&
-        !string.IsNullOrWhiteSpace(currentUserId) &&
-        Model.InstructorId == currentUserId;
-
     string? successMessage =
         TempData["SuccessMessage"]?.ToString();
 
@@ -85,869 +75,64 @@
     string? reviewErrorMessage =
         TempData["ReviewError"]?.ToString();
 
-    string? reviewReplySuccessMessage =
-        TempData["ReviewReplySuccess"]?.ToString();
-
-    string? reviewReplyInfoMessage =
-        TempData["ReviewReplyInfo"]?.ToString();
-
-    string? reviewReplyErrorMessage =
-        TempData["ReviewReplyError"]?.ToString();
-
     string? toastMessage =
         successMessage ??
         wishlistSuccessMessage ??
         reviewSuccessMessage ??
-        reviewReplySuccessMessage ??
         reviewErrorMessage ??
-        reviewReplyErrorMessage ??
         infoMessage ??
         wishlistInfoMessage ??
-        reviewInfoMessage ??
-        reviewReplyInfoMessage;
+        reviewInfoMessage;
 
     bool toastIsSuccess =
         !string.IsNullOrWhiteSpace(successMessage) ||
         !string.IsNullOrWhiteSpace(wishlistSuccessMessage) ||
-        !string.IsNullOrWhiteSpace(reviewSuccessMessage) ||
-        !string.IsNullOrWhiteSpace(reviewReplySuccessMessage);
+        !string.IsNullOrWhiteSpace(reviewSuccessMessage);
 
     bool toastIsError =
-        !string.IsNullOrWhiteSpace(reviewErrorMessage) ||
-        !string.IsNullOrWhiteSpace(reviewReplyErrorMessage);
+        !string.IsNullOrWhiteSpace(reviewErrorMessage);
+
+    string levelText =
+        Model.Level switch
+        {
+            "Beginner" => "Cơ bản",
+            "Intermediate" => "Trung cấp",
+            "Advanced" => "Nâng cao",
+            _ => Model.Level
+        };
+
+    decimal effectivePrice =
+        Model.DiscountPrice.HasValue &&
+        Model.DiscountPrice.Value < Model.Price
+            ? Model.DiscountPrice.Value
+            : Model.Price;
+
+    bool hasDiscount =
+        effectivePrice < Model.Price;
+
+    var viCulture =
+        System.Globalization.CultureInfo
+            .GetCultureInfo("vi-VN");
+
+    string sharedThumbnail =
+        Url.Content(
+            $"~/images/course-thumbnails/by-slug/{Model.Slug}.png");
+
+    string placeholderThumbnail =
+        Url.Content(
+            "~/images/course-thumbnails/by-slug/course-placeholder.svg");
+
+    string thumbnailUrl =
+        string.IsNullOrWhiteSpace(
+            Model.ThumbnailUrl)
+            ? sharedThumbnail
+            : Url.Content(
+                Model.ThumbnailUrl);
 }
 
-<style>
-
-    .details-page {
-        background: #f8fafc;
-        min-height: 80vh;
-    }
-
-    .details-container {
-        max-width: 1180px;
-        margin: 0 auto;
-        padding: 0 20px;
-    }
-
-    /* =========================
-           HERO
-        ========================= */
-
-    .course-hero {
-        background: #172033;
-        color: #ffffff;
-        padding: 55px 0;
-    }
-
-    .course-hero-grid {
-        display: grid;
-        grid-template-columns: 1fr 380px;
-        gap: 50px;
-        align-items: center;
-    }
-
-    .breadcrumb-text {
-        color: #aeb8c8;
-        font-size: 13px;
-        margin-bottom: 20px;
-    }
-
-        .breadcrumb-text a {
-            color: #d5dfed;
-            text-decoration: none;
-        }
-
-            .breadcrumb-text a:hover {
-                color: #ffffff;
-            }
-
-    .course-category-badge {
-        display: inline-block;
-        padding: 6px 11px;
-        border-radius: 20px;
-        background: rgba(255, 255, 255, 0.12);
-        color: #bcd5ff;
-        font-size: 12px;
-        font-weight: 700;
-        margin-bottom: 16px;
-    }
-
-    .course-main-title {
-        font-size: 38px;
-        line-height: 1.25;
-        font-weight: 800;
-        margin-bottom: 18px;
-    }
-
-    .course-short-description {
-        color: #c4cbd6;
-        font-size: 16px;
-        line-height: 1.7;
-        margin-bottom: 22px;
-    }
-
-    .course-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-        color: #d7dce4;
-        font-size: 13px;
-    }
-
-    /* =========================
-           CARD ĐĂNG KÝ
-        ========================= */
-
-    .hero-card {
-        background: #ffffff;
-        color: #202938;
-        padding: 22px;
-        border-radius: 18px;
-        box-shadow: 0 18px 45px rgba(0, 0, 0, 0.20);
-    }
-
-    .hero-thumbnail {
-        height: 190px;
-        background: linear-gradient( 135deg, #0d6efd, #478cff);
-        border-radius: 14px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        padding: 22px;
-        color: #ffffff;
-        margin-bottom: 20px;
-    }
-
-    .hero-thumbnail-category {
-        font-size: 13px;
-        font-weight: 700;
-        opacity: .9;
-    }
-
-    .hero-thumbnail-logo {
-        font-size: 38px;
-        font-weight: 800;
-    }
-
-    .course-price {
-        font-size: 27px;
-        font-weight: 800;
-        margin-bottom: 16px;
-    }
-
-    .enroll-button {
-        display: block;
-        width: 100%;
-        border: none;
-        background: #0d6efd;
-        color: #ffffff;
-        text-align: center;
-        text-decoration: none;
-        padding: 13px 16px;
-        border-radius: 10px;
-        font-weight: 700;
-        cursor: pointer;
-    }
-
-        .enroll-button:hover {
-            background: #0b5ed7;
-            color: #ffffff;
-        }
-
-    .wishlist-form {
-        margin-top: 10px;
-    }
-
-    .wishlist-button {
-        width: 100%;
-        min-height: 43px;
-        padding: 0 15px;
-        border: 1px solid #d6e2f5;
-        border-radius: 10px;
-        background: #f7faff;
-        color: #0d6efd;
-        font-family: inherit;
-        font-size: 12px;
-        font-weight: 800;
-        cursor: pointer;
-    }
-
-        .wishlist-button:hover {
-            border-color: #a9c8f8;
-            background: #edf4ff;
-        }
-
-        .wishlist-button.saved {
-            border-color: #f0c7cc;
-            background: #fffafa;
-            color: #c92a3a;
-        }
-
-            .wishlist-button.saved:hover {
-                border-color: #dc3545;
-                background: #fff1f2;
-            }
-
-    .enrolled-status {
-        width: 100%;
-        background: #eaf8ef;
-        color: #198754;
-        border: 1px solid #bfe5cb;
-        text-align: center;
-        padding: 12px 16px;
-        border-radius: 10px;
-        font-weight: 700;
-        margin-bottom: 18px;
-    }
-
-    /* =========================
-           TIẾN ĐỘ
-        ========================= */
-
-    .learning-progress {
-        margin-bottom: 18px;
-    }
-
-    .progress-heading {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 15px;
-        margin-bottom: 8px;
-    }
-
-    .progress-label {
-        color: #566273;
-        font-size: 13px;
-        font-weight: 600;
-    }
-
-    .progress-percent {
-        color: #0d6efd;
-        font-size: 13px;
-        font-weight: 800;
-    }
-
-    .progress-track {
-        width: 100%;
-        height: 9px;
-        background: #edf1f6;
-        border-radius: 50px;
-        overflow: hidden;
-    }
-
-    .progress-value {
-        height: 100%;
-        background: #0d6efd;
-        border-radius: 50px;
-        transition: width .3s ease;
-    }
-
-    .progress-extra {
-        color: #929aaa;
-        font-size: 11px;
-        margin-top: 7px;
-    }
-
-    .learn-button {
-        display: block;
-        width: 100%;
-        background: #0d6efd;
-        color: #ffffff;
-        border: 1px solid #0d6efd;
-        text-align: center;
-        text-decoration: none;
-        padding: 13px 16px;
-        border-radius: 10px;
-        font-weight: 700;
-    }
-
-        .learn-button:hover {
-            background: #0b5ed7;
-            color: #ffffff;
-        }
-
-    .role-note {
-        padding: 13px 15px;
-        background: #eef8ff;
-        border: 1px solid #c9e8f7;
-        color: #126278;
-        border-radius: 10px;
-        font-size: 13px;
-        text-align: center;
-    }
-
-    /* =========================
-           CONTENT
-        ========================= */
-
-    .course-content {
-        padding: 55px 0 80px;
-    }
-
-    .content-layout {
-        display: grid;
-        grid-template-columns: 1fr 310px;
-        gap: 35px;
-    }
-
-    .content-card {
-        background: #ffffff;
-        border: 1px solid #e8ebf0;
-        border-radius: 16px;
-        padding: 28px;
-        margin-bottom: 22px;
-    }
-
-    .content-title {
-        font-size: 23px;
-        font-weight: 800;
-        color: #172033;
-        margin-bottom: 18px;
-    }
-
-    .description-text {
-        color: #606b7b;
-        line-height: 1.8;
-        white-space: pre-line;
-    }
-
-    /* =========================
-           MODULE / LESSON
-        ========================= */
-
-    .module-card {
-        border: 1px solid #e9edf3;
-        border-radius: 12px;
-        margin-bottom: 12px;
-        overflow: hidden;
-    }
-
-    .module-title {
-        background: #f8fafc;
-        padding: 14px 17px;
-        font-weight: 700;
-        color: #273142;
-    }
-
-    .lesson-row {
-        padding: 12px 17px;
-        border-top: 1px solid #eef0f3;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 15px;
-        font-size: 13px;
-        color: #667085;
-    }
-
-    .lesson-main {
-        min-width: 0;
-        display: flex;
-        align-items: center;
-        gap: 9px;
-    }
-
-    .lesson-title-text {
-        color: #536075;
-        line-height: 1.45;
-    }
-
-    .lesson-free-badge {
-        flex-shrink: 0;
-        padding: 4px 7px;
-        border-radius: 999px;
-        background: #edf9f1;
-        color: #198754;
-        font-size: 10px;
-        font-weight: 800;
-        white-space: nowrap;
-    }
-
-    .lesson-side {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        gap: 10px;
-        flex-shrink: 0;
-    }
-
-    .lesson-duration {
-        color: #8a95a6;
-        font-size: 11px;
-        white-space: nowrap;
-    }
-
-    .lesson-preview-link {
-        min-height: 32px;
-        padding: 0 10px;
-        border: 1px solid #cfe0f7;
-        border-radius: 8px;
-        background: #f6faff;
-        color: #0d6efd;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 11px;
-        font-weight: 800;
-        text-decoration: none;
-        white-space: nowrap;
-    }
-
-    .lesson-preview-link:hover {
-        border-color: #9fc3f4;
-        background: #eef6ff;
-        color: #0b5ed7;
-    }
-
-    .lesson-preview-link svg {
-        width: 14px;
-        height: 14px;
-        fill: none;
-        stroke: currentColor;
-        stroke-width: 2;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-    }
-
-    .empty-content {
-        color: #8992a3;
-        background: #f8fafc;
-        padding: 20px;
-        border-radius: 10px;
-    }
-
-    /* =========================
-           SIDEBAR
-        ========================= */
-
-    .info-row {
-        padding: 11px 0;
-        border-bottom: 1px solid #eef0f3;
-    }
-
-        .info-row:last-child {
-            border-bottom: none;
-        }
-
-    .info-label {
-        color: #8992a3;
-        font-size: 12px;
-        margin-bottom: 3px;
-    }
-
-    .info-value {
-        color: #273142;
-        font-weight: 600;
-        font-size: 14px;
-    }
-
-    .instructor-name {
-        font-weight: 700;
-        color: #273142;
-        margin-bottom: 6px;
-    }
-
-    .instructor-bio {
-        color: #7a8494;
-        font-size: 13px;
-        line-height: 1.6;
-    }
-
-    /* =========================
-           REVIEW
-        ========================= */
-
-    .rating-summary {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        margin-bottom: 22px;
-    }
-
-    .rating-number {
-        font-size: 35px;
-        font-weight: 800;
-        color: #172033;
-    }
-
-    .rating-stars {
-        color: #f59e0b;
-        font-weight: 700;
-    }
-
-    .review-item {
-        padding: 16px 0;
-        border-top: 1px solid #eef0f3;
-    }
-
-    .review-user {
-        font-weight: 700;
-        color: #273142;
-    }
-
-    .review-comment {
-        color: #697386;
-        margin-top: 7px;
-        line-height: 1.6;
-    }
-
-    .review-date {
-        margin-top: 6px;
-        color: #98a2b3;
-        font-size: 10px;
-    }
-
-    .review-form-box {
-        margin-bottom: 22px;
-        padding: 18px;
-        border: 1px solid #e3e8ef;
-        border-radius: 12px;
-        background: #f9fbfd;
-    }
-
-    .review-form-title {
-        margin-bottom: 5px;
-        color: #344054;
-        font-size: 13px;
-        font-weight: 800;
-    }
-
-    .review-form-description {
-        margin: 0 0 15px;
-        color: #8992a3;
-        font-size: 10px;
-        line-height: 1.6;
-    }
-
-    .review-form-group {
-        margin-bottom: 14px;
-    }
-
-    .review-label {
-        display: block;
-        margin-bottom: 6px;
-        color: #596579;
-        font-size: 10px;
-        font-weight: 800;
-    }
-
-    .review-select,
-    .review-textarea {
-        width: 100%;
-        border: 1px solid #dce2ea;
-        border-radius: 9px;
-        background: #ffffff;
-        color: #273142;
-        font: inherit;
-        font-size: 12px;
-        outline: none;
-    }
-
-    .review-select {
-        min-height: 42px;
-        padding: 0 11px;
-    }
-
-    .review-textarea {
-        min-height: 105px;
-        padding: 11px 12px;
-        resize: vertical;
-    }
-
-        .review-select:focus,
-        .review-textarea:focus {
-            border-color: #8db9fa;
-            box-shadow: 0 0 0 3px rgba(13, 110, 253, .08);
-        }
-
-    .review-actions {
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-
-    .review-submit,
-    .review-delete {
-        min-height: 38px;
-        padding: 0 13px;
-        border-radius: 8px;
-        font-family: inherit;
-        font-size: 10px;
-        font-weight: 800;
-        cursor: pointer;
-    }
-
-    .review-submit {
-        border: 1px solid #0d6efd;
-        background: #0d6efd;
-        color: #ffffff;
-    }
-
-        .review-submit:hover {
-            background: #0b5ed7;
-        }
-
-    .review-delete {
-        border: 1px solid #f0c7cc;
-        background: #fffafa;
-        color: #c92a3a;
-    }
-
-        .review-delete:hover {
-            border-color: #dc3545;
-            background: #fff1f2;
-        }
-
-    .instructor-reply {
-        margin-top: 14px;
-        padding: 14px 16px;
-        border-left: 3px solid #0d6efd;
-        border-radius: 0 10px 10px 0;
-        background: #f5f9ff;
-    }
-
-    .instructor-reply-heading {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        margin-bottom: 7px;
-    }
-
-    .instructor-reply-title {
-        color: #0d6efd;
-        font-size: 12px;
-        font-weight: 800;
-    }
-
-    .instructor-reply-date {
-        color: #98a2b3;
-        font-size: 10px;
-    }
-
-    .instructor-reply-text {
-        color: #596579;
-        font-size: 13px;
-        line-height: 1.65;
-        white-space: pre-line;
-    }
-
-    .instructor-reply-form {
-        margin-top: 14px;
-        padding: 14px;
-        border: 1px solid #dce6f4;
-        border-radius: 10px;
-        background: #fbfdff;
-    }
-
-    .instructor-reply-label {
-        display: block;
-        margin-bottom: 7px;
-        color: #465164;
-        font-size: 11px;
-        font-weight: 800;
-    }
-
-    .instructor-reply-textarea {
-        width: 100%;
-        min-height: 88px;
-        padding: 10px 11px;
-        border: 1px solid #dce2ea;
-        border-radius: 9px;
-        background: #ffffff;
-        color: #273142;
-        font: inherit;
-        font-size: 12px;
-        line-height: 1.6;
-        resize: vertical;
-        outline: none;
-    }
-
-    .instructor-reply-textarea:focus {
-        border-color: #8db9fa;
-        box-shadow: 0 0 0 3px rgba(13, 110, 253, .08);
-    }
-
-    .instructor-reply-actions {
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-top: 9px;
-    }
-
-    .instructor-reply-submit,
-    .instructor-reply-delete {
-        min-height: 36px;
-        padding: 0 13px;
-        border-radius: 8px;
-        font-family: inherit;
-        font-size: 10px;
-        font-weight: 800;
-        cursor: pointer;
-    }
-
-    .instructor-reply-submit {
-        border: 1px solid #0d6efd;
-        background: #0d6efd;
-        color: #ffffff;
-    }
-
-    .instructor-reply-submit:hover {
-        background: #0b5ed7;
-    }
-
-    .instructor-reply-delete {
-        border: 1px solid #f0c7cc;
-        background: #fffafa;
-        color: #c92a3a;
-    }
-
-    .instructor-reply-delete:hover {
-        border-color: #dc3545;
-        background: #fff1f2;
-    }
-
-    .review-help {
-        margin-bottom: 18px;
-        padding: 13px 14px;
-        border-radius: 10px;
-        background: #f5f8fc;
-        color: #7d8798;
-        font-size: 10px;
-        line-height: 1.65;
-    }
-
-    /* =========================
-           TOAST
-        ========================= */
-
-    .toast-position {
-        position: fixed !important;
-        left: 32px !important;
-        bottom: 32px !important;
-        right: auto !important;
-        top: auto !important;
-        z-index: 2000 !important;
-        padding: 0 !important;
-    }
-
-    .edulearn-toast {
-        width: 320px;
-        max-width: calc(100vw - 64px);
-        border: none;
-        border-radius: 14px;
-        overflow: hidden;
-        background: #ffffff;
-        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.16);
-    }
-
-    .toast-success {
-        border-left: 5px solid #198754;
-    }
-
-    .toast-info {
-        border-left: 5px solid #0dcaf0;
-    }
-
-    .toast-error {
-        border-left: 5px solid #dc3545;
-    }
-
-    .toast-icon {
-        width: 34px;
-        height: 34px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 800;
-        flex-shrink: 0;
-    }
-
-    .toast-icon-success {
-        background: #e7f7ed;
-        color: #198754;
-    }
-
-    .toast-icon-info {
-        background: #e5f8fc;
-        color: #087990;
-    }
-
-    .toast-icon-error {
-        background: #fff0f1;
-        color: #b42332;
-    }
-
-    .toast-title {
-        font-weight: 700;
-        color: #202938;
-    }
-
-    .toast-message {
-        color: #697386;
-        font-size: 13px;
-        margin-top: 2px;
-    }
-
-    /* =========================
-           RESPONSIVE
-        ========================= */
-
-    @@media (max-width: 991px) {
-
-        .course-hero-grid,
-        .content-layout {
-            grid-template-columns: 1fr;
-        }
-
-        .hero-card {
-            max-width: 500px;
-        }
-    }
-
-    @@media (max-width: 600px) {
-
-        .lesson-row {
-            align-items: flex-start;
-            flex-direction: column;
-        }
-
-        .lesson-main {
-            flex-wrap: wrap;
-        }
-
-        .lesson-side {
-            width: 100%;
-            justify-content: space-between;
-        }
-
-        .course-main-title {
-            font-size: 30px;
-        }
-
-        .course-meta {
-            flex-direction: column;
-            gap: 7px;
-        }
-
-        .toast-position {
-            left: 16px !important;
-            bottom: 16px !important;
-            right: 16px !important;
-        }
-
-        .edulearn-toast {
-            width: auto;
-            max-width: none;
-        }
-    }
-
-</style>
+<link rel="stylesheet"
+      href="~/css/course-details.css"
+      asp-append-version="true" />
 
 
 <div class="details-page">
@@ -990,12 +175,14 @@
                     </div>
 
 
-                    <h1 class="course-main-title">
+                    <div class="details-main-title"
+                         role="heading"
+                         aria-level="1">
                         @Model.Title
-                    </h1>
+                    </div>
 
 
-                    <p class="course-short-description">
+                    <p class="details-short-description">
                         @Model.ShortDescription
                     </p>
 
@@ -1012,7 +199,7 @@
                         <span>
                             Cấp độ:
                             <strong>
-                                @Model.Level
+                                @levelText
                             </strong>
                         </span>
 
@@ -1028,6 +215,10 @@
                                 (@approvedReviews.Count đánh giá)
                             </span>
                         }
+                        else
+                        {
+                            <span>☆ Chưa có đánh giá</span>
+                        }
 
                     </div>
 
@@ -1040,23 +231,37 @@
 
                     <div class="hero-thumbnail">
 
-                        <div class="hero-thumbnail-category">
-                            @Model.Category.Name
-                        </div>
-
-                        <div class="hero-thumbnail-logo">
-                            @(Model.Category.Icon ?? "IT")
-                        </div>
+                        <img src="@thumbnailUrl"
+                             alt="@Model.Title"
+                             data-course-details-thumbnail
+                             data-fallback="@sharedThumbnail"
+                             data-placeholder="@placeholderThumbnail" />
 
                     </div>
 
 
-                    <div class="course-price">
-                        @Model.Price.ToString("N0") đ
+                    <div class="course-price-row">
+
+                        <div class="course-price">
+                            @effectivePrice.ToString(
+                                "N0",
+                                viCulture)đ
+                        </div>
+
+                        @if (hasDiscount)
+                        {
+                            <div class="course-old-price">
+                                @Model.Price.ToString(
+                                    "N0",
+                                    viCulture)đ
+                            </div>
+                        }
+
                     </div>
 
 
                     <!-- CHƯA ĐĂNG NHẬP -->
+
                     @if (!isAuthenticated)
                     {
                         <a asp-controller="Account"
@@ -1071,6 +276,7 @@
 
 
                     <!-- STUDENT CHƯA ĐĂNG KÝ -->
+
                     @if (isStudent && !isEnrolled)
                     {
                         <form asp-controller="Courses"
@@ -1093,6 +299,7 @@
 
 
                     <!-- STUDENT ĐÃ ĐĂNG KÝ -->
+
                     @if (isStudent && isEnrolled)
                     {
                         @if (enrollmentProgress >= 100)
@@ -1201,6 +408,7 @@
 
 
                     <!-- YÊU THÍCH -->
+
                     @if (isStudent)
                     {
                         if (!isWishlisted)
@@ -1259,6 +467,7 @@
 
 
                     <!-- ADMIN -->
+
                     @if (isAdmin)
                     {
                         <div class="role-note">
@@ -1268,6 +477,7 @@
 
 
                     <!-- INSTRUCTOR -->
+
                     @if (isInstructor)
                     {
                         <div class="role-note">
@@ -1301,11 +511,13 @@
 
                     <div class="content-card">
 
-                        <h2 class="content-title">
+                        <div class="details-section-title"
+                             role="heading"
+                             aria-level="2">
                             Giới thiệu khóa học
-                        </h2>
+                        </div>
 
-                        <div class="description-text">
+                        <div class="details-description-text">
                             @Model.Description
                         </div>
 
@@ -1316,9 +528,11 @@
 
                     <div class="content-card">
 
-                        <h2 class="content-title">
+                        <div class="details-section-title"
+                             role="heading"
+                             aria-level="2">
                             Nội dung khóa học
-                        </h2>
+                        </div>
 
 
                         @if (Model.Modules != null &&
@@ -1358,7 +572,6 @@
 
                                                 </div>
 
-
                                                 <div class="lesson-side">
 
                                                     <span class="lesson-duration">
@@ -1371,17 +584,7 @@
                                                            asp-action="PreviewLesson"
                                                            asp-route-lessonId="@lesson.Id"
                                                            class="lesson-preview-link">
-
-                                                            <svg viewBox="0 0 24 24"
-                                                                 aria-hidden="true">
-                                                                <path d="M10 8l6 4-6 4Z" />
-                                                                <circle cx="12"
-                                                                        cy="12"
-                                                                        r="9" />
-                                                            </svg>
-
                                                             Xem thử
-
                                                         </a>
                                                     }
 
@@ -1415,9 +618,11 @@
                     <div class="content-card"
                          id="reviews">
 
-                        <h2 class="content-title">
+                        <div class="details-section-title"
+                             role="heading"
+                             aria-level="2">
                             Đánh giá khóa học
-                        </h2>
+                        </div>
 
 
                         @if (isStudent &&
@@ -1629,113 +834,6 @@
 
                                     </div>
 
-
-                                    @if (!string.IsNullOrWhiteSpace(
-                                        review.InstructorReply))
-                                    {
-                                        <div class="instructor-reply">
-
-                                            <div class="instructor-reply-heading">
-
-                                                <div class="instructor-reply-title">
-                                                    Phản hồi từ giảng viên
-                                                </div>
-
-                                                @if (review.InstructorReplyUpdatedAt.HasValue)
-                                                {
-                                                    <div class="instructor-reply-date">
-
-                                                        @(review.InstructorReplyUpdatedAt.Value
-                                                            .ToLocalTime()
-                                                            .ToString("dd/MM/yyyy HH:mm"))
-
-                                                    </div>
-                                                }
-
-                                            </div>
-
-                                            <div class="instructor-reply-text">
-                                                @review.InstructorReply
-                                            </div>
-
-                                        </div>
-                                    }
-
-
-                                    @if (canReplyToReviews)
-                                    {
-                                        <div class="instructor-reply-form">
-
-                                            <form asp-controller="Reviews"
-                                                  asp-action="Reply"
-                                                  method="post">
-
-                                                @Html.AntiForgeryToken()
-
-                                                <input type="hidden"
-                                                       name="reviewId"
-                                                       value="@review.Id" />
-
-                                                <label class="instructor-reply-label"
-                                                       for="reply-@review.Id">
-
-                                                    @(string.IsNullOrWhiteSpace(
-                                                        review.InstructorReply)
-                                                        ? "Phản hồi đánh giá"
-                                                        : "Cập nhật phản hồi")
-
-                                                </label>
-
-                                                <textarea id="reply-@review.Id"
-                                                          name="reply"
-                                                          maxlength="1000"
-                                                          class="instructor-reply-textarea"
-                                                          placeholder="Nhập phản hồi của giảng viên..."
-                                                          required>@review.InstructorReply</textarea>
-
-                                                <div class="instructor-reply-actions">
-
-                                                    <button type="submit"
-                                                            class="instructor-reply-submit">
-
-                                                        @(string.IsNullOrWhiteSpace(
-                                                            review.InstructorReply)
-                                                            ? "Gửi phản hồi"
-                                                            : "Cập nhật phản hồi")
-
-                                                    </button>
-
-                                                </div>
-
-                                            </form>
-
-
-                                            @if (!string.IsNullOrWhiteSpace(
-                                                review.InstructorReply))
-                                            {
-                                                <form asp-controller="Reviews"
-                                                      asp-action="DeleteReply"
-                                                      method="post"
-                                                      class="mt-2">
-
-                                                    @Html.AntiForgeryToken()
-
-                                                    <input type="hidden"
-                                                           name="reviewId"
-                                                           value="@review.Id" />
-
-                                                    <button type="submit"
-                                                            class="instructor-reply-delete"
-                                                            onclick="return confirm('Bạn chắc chắn muốn xóa phản hồi này?');">
-                                                        Xóa phản hồi
-                                                    </button>
-
-                                                </form>
-                                            }
-
-                                        </div>
-                                    }
-
                                 </div>
                             }
                         }
@@ -1759,9 +857,11 @@
 
                     <div class="content-card">
 
-                        <h3 class="content-title">
+                        <div class="details-section-title details-section-title--aside"
+                             role="heading"
+                             aria-level="2">
                             Thông tin khóa học
-                        </h3>
+                        </div>
 
 
                         <div class="info-row">
@@ -1784,7 +884,7 @@
                             </div>
 
                             <div class="info-value">
-                                @Model.Level
+                                @levelText
                             </div>
 
                         </div>
@@ -1850,9 +950,11 @@
 
                     <div class="content-card">
 
-                        <h3 class="content-title">
+                        <div class="details-section-title details-section-title--aside"
+                             role="heading"
+                             aria-level="2">
                             Giảng viên
-                        </h3>
+                        </div>
 
 
                         <div class="instructor-name">
@@ -1863,7 +965,7 @@
                         @if (!string.IsNullOrWhiteSpace(
                             Model.Instructor.Bio))
                         {
-                            <div class="instructor-bio">
+                            <div class="details-instructor-bio">
                                 @Model.Instructor.Bio
                             </div>
                         }
@@ -1884,6 +986,7 @@
 <!-- =========================
      POPUP THÔNG BÁO
 ========================= -->
+
 @if (!string.IsNullOrWhiteSpace(toastMessage))
 {
     <div class="toast-container toast-position">
@@ -1942,30 +1045,8 @@
 
 @section Scripts {
 
-    <script>
-
-        document.addEventListener(
-            "DOMContentLoaded",
-            function () {
-
-                const toastElement =
-                    document.getElementById(
-                        "courseToast");
-
-                if (toastElement) {
-
-                    const toast =
-                        new bootstrap.Toast(
-                            toastElement,
-                            {
-                                autohide: true,
-                                delay: 3500
-                            });
-
-                    toast.show();
-                }
-            });
-
+    <script src="~/js/course-details.js"
+            asp-append-version="true">
     </script>
 
 }
