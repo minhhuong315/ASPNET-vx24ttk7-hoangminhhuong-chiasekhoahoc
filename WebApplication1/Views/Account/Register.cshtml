@@ -4,141 +4,9 @@
     ViewData["Title"] = "Đăng ký";
 }
 
-<style>
-    .register-page {
-        min-height: 78vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 40px 15px;
-        background: #f7f9fc;
-    }
+<link rel="stylesheet" href="~/css/auth-pages.css" asp-append-version="true" />
 
-    .register-wrapper {
-        width: 100%;
-        max-width: 1000px;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        background: #ffffff;
-        border-radius: 20px;
-        overflow: hidden;
-        box-shadow: 0 15px 45px rgba(0, 0, 0, 0.08);
-    }
-
-    .register-brand {
-        background: linear-gradient(135deg, #0d6efd, #4d8df7);
-        color: white;
-        padding: 55px 45px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-
-    .brand-logo {
-        font-size: 30px;
-        font-weight: 700;
-        margin-bottom: 10px;
-    }
-
-    .brand-slogan {
-        font-size: 22px;
-        font-weight: 600;
-        margin-bottom: 15px;
-    }
-
-    .brand-description {
-        opacity: 0.9;
-        line-height: 1.7;
-        margin-bottom: 30px;
-    }
-
-    .tech-box {
-        background: rgba(255,255,255,0.12);
-        border: 1px solid rgba(255,255,255,0.2);
-        border-radius: 16px;
-        padding: 20px;
-    }
-
-    .tech-title {
-        font-weight: 600;
-        margin-bottom: 15px;
-    }
-
-    .tech-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-    }
-
-    .tech-item {
-        background: white;
-        color: #0d6efd;
-        padding: 7px 12px;
-        border-radius: 20px;
-        font-size: 13px;
-        font-weight: 600;
-    }
-
-    .register-form {
-        padding: 50px 45px;
-    }
-
-    .register-form h2 {
-        font-weight: 700;
-        margin-bottom: 5px;
-    }
-
-    .register-subtitle {
-        color: #6c757d;
-        margin-bottom: 30px;
-    }
-
-    .form-label {
-        font-weight: 600;
-        margin-bottom: 7px;
-    }
-
-    .form-control {
-        min-height: 48px;
-        border-radius: 10px;
-    }
-
-    .form-control:focus {
-        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12);
-    }
-
-    .btn-register {
-        min-height: 48px;
-        border-radius: 10px;
-        font-weight: 600;
-    }
-
-    .login-text {
-        text-align: center;
-        margin-top: 22px;
-        color: #6c757d;
-    }
-
-    .validation-summary-errors ul {
-        margin-bottom: 0;
-    }
-
-    @@media (max-width: 768px) {
-        .register-wrapper {
-            grid-template-columns: 1fr;
-        }
-
-        .register-brand {
-            padding: 35px 25px;
-        }
-
-        .register-form {
-            padding: 35px 25px;
-        }
-    }
-</style>
-
-<div class="register-page">
+<div class="register-page el-auth">
     <div class="register-wrapper">
 
         <!-- Phần giới thiệu EduLearn -->
@@ -185,7 +53,7 @@
                   method="post">
 
                 <div asp-validation-summary="ModelOnly"
-                     class="alert alert-danger"></div>
+                     class="auth-validation"></div>
 
                 <div class="mb-3">
                     <label asp-for="FullName"
