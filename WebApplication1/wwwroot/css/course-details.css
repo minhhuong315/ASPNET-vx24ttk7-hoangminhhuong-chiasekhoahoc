@@ -436,6 +436,23 @@
     gap: 22px;
 }
 
+/* The main grid item must be allowed to shrink inside the content track. */
+.content-layout > div:first-child {
+    min-width: 0;
+}
+
+/* Each sidebar card owns its spacing through the sidebar grid. */
+.content-layout > aside {
+    display: grid;
+    align-content: start;
+    gap: 18px;
+    min-width: 0;
+}
+
+.content-layout > aside > .content-card {
+    margin-bottom: 0;
+}
+
 .content-card {
     min-width: 0;
     margin-bottom: 16px;
@@ -465,13 +482,14 @@
 }
 
 .details-description-text {
+    margin: 0;
     color: #475569;
-
-    font-size: 14px;
-    line-height: 1.65;
+    font-size: 15px;
+    line-height: 1.75;
     font-weight: 400;
-
+    text-align: left;
     white-space: pre-line;
+    overflow-wrap: break-word;
 }
 
 /* =========================
@@ -683,60 +701,145 @@
 }
 
 /* =========================
-   SIDEBAR
+   COURSE INFORMATION & INSTRUCTOR SIDEBAR
+   Scope: these two Course Details cards only
 ========================= */
 
-.info-row {
-    padding: 10px 0;
-
-    border-bottom: 1px solid #EEF2F7;
+.course-information-card,
+.course-instructor-card {
+    align-self: start;
+    padding: 20px;
+    border-color: #E2E8F0;
+    border-radius: 14px;
+    background: #FFFFFF;
 }
 
-.info-row:last-child {
+.course-information-card .details-section-title--aside,
+.course-instructor-card .details-section-title--aside {
+    font-size: 19px;
+    line-height: 1.35;
+    font-weight: 700;
+    margin-bottom: 13px;
+}
+
+.course-information-card .sidebar-card-heading {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.course-information-card .sidebar-card-heading__icon {
+    width: 21px;
+    height: 21px;
+    display: inline-flex;
+    flex: 0 0 21px;
+    color: #2563EB;
+}
+
+.course-information-card .info-row {
+    display: grid;
+    grid-template-columns: 18px minmax(0, 1fr);
+    align-items: start;
+    column-gap: 12px;
+    min-width: 0;
+    padding: 10px 0;
+    border-bottom: 1px solid #E2E8F0;
+    text-align: left;
+}
+
+.course-information-card .sidebar-card-heading + .info-row {
+    padding-top: 0;
+}
+
+.course-information-card .info-row:last-child {
     padding-bottom: 0;
     border-bottom: 0;
 }
 
-.info-row:first-of-type {
-    padding-top: 0;
-}
-
-.info-label {
-    margin-bottom: 3px;
-
+.course-information-card .info-row__icon {
+    width: 18px;
+    height: 18px;
+    margin-top: 1px;
     color: #64748B;
-
-    font-size: 11px;
-    line-height: 1.35;
-    font-weight: 500;
 }
 
-.info-value {
-    color: #334155;
+.course-information-card .info-row__details {
+    min-width: 0;
+}
 
+.course-information-card .info-label {
+    margin-bottom: 4px;
+    color: #64748B;
+    font-size: 12px;
+    line-height: 1.35;
+    font-weight: 400;
+}
+
+.course-information-card .info-value {
+    color: #0F172A;
     font-size: 13px;
     line-height: 1.45;
     font-weight: 600;
-
     overflow-wrap: anywhere;
 }
 
-.instructor-name {
-    margin-bottom: 6px;
+.course-information-card svg,
+.course-instructor-card .details-instructor-avatar svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.75;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
 
+.course-instructor-card .details-instructor-profile {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+}
+
+.course-instructor-card .details-instructor-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    flex: 0 0 48px;
+    padding: 11px;
+    border-radius: 12px;
+    background: #EFF6FF;
+    color: #2563EB;
+}
+
+.course-instructor-card .details-instructor-copy {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.course-instructor-card .instructor-name {
+    margin: 0;
     color: #0F172A;
-
     font-size: 15px;
     line-height: 1.4;
     font-weight: 600;
+    overflow-wrap: anywhere;
 }
 
-.details-instructor-bio {
-    color: #64748B;
-
-    font-size: 13px;
-    line-height: 1.55;
+.course-instructor-card .details-instructor-bio {
+    width: 100%;
+    min-width: 0;
+    margin-top: 14px;
+    color: #475569;
+    font-size: 14px;
+    line-height: 1.7;
     font-weight: 400;
+    text-align: left;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
 }
 
 /* =========================
@@ -1205,10 +1308,8 @@
     }
 
     .content-layout aside {
-        display: grid;
         grid-template-columns:
             repeat(2, minmax(0, 1fr));
-
         gap: 16px;
     }
 }
@@ -1259,9 +1360,19 @@
         font-size: 18px;
     }
 
+    .course-information-card,
+    .course-instructor-card {
+        padding: 18px;
+    }
+
+    .course-information-card .details-section-title--aside,
+    .course-instructor-card .details-section-title--aside {
+        font-size: 18px;
+    }
+
     .content-layout aside {
         grid-template-columns: 1fr;
-        gap: 0;
+        gap: 16px;
     }
 }
 
@@ -1350,6 +1461,11 @@
     }
 
     .content-card {
+        padding: 16px;
+    }
+
+    .course-information-card,
+    .course-instructor-card {
         padding: 16px;
     }
 }
