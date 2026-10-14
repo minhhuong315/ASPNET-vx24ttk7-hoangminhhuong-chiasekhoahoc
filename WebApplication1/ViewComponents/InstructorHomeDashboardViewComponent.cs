@@ -141,6 +141,9 @@ namespace OnlineLearningPlatform.ViewComponents
                                     Title =
                                         c.Title,
 
+                                    Slug =
+                                        c.Slug,
+
                                     CategoryName =
                                         c.Category?.Name
                                         ?? "Chưa phân loại",

@@ -179,6 +179,9 @@ namespace OnlineLearningPlatform.ViewComponents
                             Slug =
                                 c.Slug,
 
+                            ThumbnailUrl =
+                                c.ThumbnailUrl,
+
                             CategoryName =
                                 c.Category.Name,
 

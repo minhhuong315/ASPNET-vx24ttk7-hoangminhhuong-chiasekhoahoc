@@ -1,4 +1,6 @@
-﻿@model OnlineLearningPlatform.ViewModels.InstructorCoursesViewModel
+﻿@using OnlineLearningPlatform.Helpers
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment CourseImageHost
+@model OnlineLearningPlatform.ViewModels.InstructorCoursesViewModel
 
 @{
     ViewData["Title"] = "Khóa học đang phụ trách";
@@ -75,15 +77,15 @@
 <style>
 
     .instructor-courses-page {
-        min-height: 80vh;
-        padding: 45px 0 75px;
-        background: #f8fafc;
+        min-height: 0;
+        padding: 0;
+        background: transparent;
     }
 
     .instructor-courses-container {
         max-width: 1120px;
         margin: 0 auto;
-        padding: 0 20px;
+        padding: 0;
     }
 
     .page-header {
@@ -97,16 +99,16 @@
     .page-eyebrow {
         margin-bottom: 6px;
         color: #0d6efd;
-        font-size: 12px;
-        font-weight: 800;
+        font-size: var(--ed-type-label);
+        font-weight: var(--ed-weight-label);
         text-transform: uppercase;
     }
 
     .page-title {
         margin: 0;
         color: #172033;
-        font-size: 32px;
-        font-weight: 800;
+        font-size: var(--ed-type-page-title);
+        font-weight: var(--ed-weight-page);
     }
 
     .page-description {
@@ -125,8 +127,8 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 12px;
-        font-weight: 800;
+        font-size: var(--ed-type-button);
+        font-weight: var(--ed-weight-button);
         text-decoration: none;
         white-space: nowrap;
     }
@@ -206,14 +208,14 @@
     .stat-label {
         margin-bottom: 5px;
         color: #8992a3;
-        font-size: 11px;
-        font-weight: 600;
+        font-size: var(--ed-type-label);
+        font-weight: var(--ed-weight-label);
     }
 
     .stat-number {
         color: #172033;
-        font-size: 25px;
-        font-weight: 800;
+        font-size: var(--ed-type-stat);
+        font-weight: var(--ed-weight-stat);
     }
 
     .stat-number.published {
@@ -229,8 +231,8 @@
 
         color: #98a2b3;
 
-        font-size: 9px;
-        font-weight: 700;
+        font-size: var(--ed-type-meta);
+        font-weight: var(--ed-weight-meta);
     }
 
     .course-stat.filter-stat.active .stat-hint {
@@ -277,8 +279,8 @@
 
         color: #536075;
 
-        font-size: 11px;
-        font-weight: 800;
+        font-size: var(--ed-type-meta);
+        font-weight: var(--ed-weight-meta);
     }
 
     .level-filter-link {
@@ -295,8 +297,8 @@
         align-items: center;
         gap: 7px;
 
-        font-size: 10px;
-        font-weight: 800;
+        font-size: var(--ed-type-button);
+        font-weight: var(--ed-weight-button);
 
         text-decoration: none;
 
@@ -353,8 +355,8 @@
     .clear-filter-link {
         color: #7a8494;
 
-        font-size: 10px;
-        font-weight: 800;
+        font-size: var(--ed-type-button);
+        font-weight: var(--ed-weight-button);
 
         text-decoration: none;
         white-space: nowrap;
@@ -375,13 +377,13 @@
     .course-list-title {
         margin: 0;
         color: #172033;
-        font-size: 19px;
-        font-weight: 800;
+        font-size: var(--ed-type-section-title);
+        font-weight: var(--ed-weight-section);
     }
 
     .course-list-count {
         color: #8b95a5;
-        font-size: 11px;
+        font-size: var(--ed-type-meta);
     }
 
     .instructor-course-grid {
@@ -391,6 +393,9 @@
     }
 
     .instructor-course-card {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
         overflow: hidden;
         border: 1px solid #e3e8ef;
         border-radius: 15px;
@@ -405,6 +410,21 @@
         box-shadow:
             0 12px 30px
             rgba(32, 47, 71, .09);
+    }
+
+    .instructor-course-cover {
+        position: relative;
+        aspect-ratio: 16 / 9;
+        width: 100%;
+        overflow: hidden;
+        background: #EFF6FF;
+    }
+
+    .instructor-course-cover img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
 
     .course-color {
@@ -428,6 +448,10 @@
     }
 
     .course-card-body {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
         padding: 20px;
     }
 
@@ -461,15 +485,15 @@
 
     .course-category-name {
         color: #7a8494;
-        font-size: 11px;
-        font-weight: 600;
+        font-size: var(--ed-type-card-title);
+        font-weight: var(--ed-weight-card);
     }
 
     .course-status {
         padding: 5px 9px;
         border-radius: 20px;
-        font-size: 9px;
-        font-weight: 800;
+        font-size: var(--ed-type-badge);
+        font-weight: var(--ed-weight-badge);
         white-space: nowrap;
     }
 
@@ -486,9 +510,9 @@
     .course-title {
         margin: 0 0 10px;
         color: #202938;
-        font-size: 17px;
-        font-weight: 800;
-        line-height: 1.45;
+        font-size: var(--ed-type-card-title);
+        font-weight: var(--ed-weight-card);
+        line-height: var(--ed-lh-heading);
     }
 
     .course-badges {
@@ -503,8 +527,8 @@
     .price-badge {
         padding: 5px 9px;
         border-radius: 20px;
-        font-size: 9px;
-        font-weight: 800;
+        font-size: var(--ed-type-badge);
+        font-weight: var(--ed-weight-badge);
     }
 
     .level-badge.beginner {
@@ -548,24 +572,25 @@
 
     .meta-number {
         color: #273142;
-        font-size: 14px;
-        font-weight: 800;
+        font-size: var(--ed-type-meta);
+        font-weight: var(--ed-weight-meta);
     }
 
     .meta-label {
         margin-top: 2px;
         color: #929baa;
-        font-size: 9px;
+        font-size: var(--ed-type-label);
     }
 
     .course-updated {
         margin-bottom: 15px;
         color: #98a2b3;
-        font-size: 10px;
+        font-size: var(--ed-type-meta);
     }
 
     .course-actions {
         display: flex;
+        margin-top: auto;
         flex-wrap: wrap;
         gap: 8px;
         padding-top: 15px;
@@ -582,8 +607,8 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 10px;
-        font-weight: 800;
+        font-size: var(--ed-type-button);
+        font-weight: var(--ed-weight-button);
         text-decoration: none;
     }
 
@@ -633,7 +658,7 @@
     .empty-description {
         margin-bottom: 18px;
         color: #8490a2;
-        font-size: 12px;
+        font-size: var(--ed-type-body);
     }
 
     @@media (max-width: 950px) {
@@ -675,7 +700,10 @@
         }
 
         .course-meta-grid {
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .course-meta-grid .course-meta:last-child {
+            grid-column: 1 / -1;
         }
 
         .course-actions {
@@ -690,9 +718,9 @@
 </style>
 
 
-<div class="instructor-courses-page">
+<div class="instructor-courses-page ed-page">
 
-    <div class="instructor-courses-container">
+    <div class="instructor-courses-container ed-container">
 
 
         <div class="page-header">
@@ -939,6 +967,8 @@
                     var levelText =
                         GetLevelText(course.Level);
 
+                    var thumbnail = CourseThumbnailResolver.Resolve(
+                        Url, CourseImageHost, course.ThumbnailUrl, course.Slug);
 
                     <article class="instructor-course-card">
 
@@ -946,6 +976,12 @@
                         <div class="course-color @levelClass">
                         </div>
 
+                        <div class="instructor-course-cover">
+                            <img src="@thumbnail.Source" alt="@course.Title" loading="lazy"
+                                 data-ed-thumb-fallback="@thumbnail.Fallback"
+                                 data-ed-thumb-placeholder="@thumbnail.Placeholder"
+                                 onerror="@CourseThumbnailResolver.OnErrorHandler" />
+                        </div>
 
                         <div class="course-card-body">
 

@@ -1,4 +1,6 @@
-﻿@model IEnumerable<OnlineLearningPlatform.Models.Wishlist>
+﻿@using OnlineLearningPlatform.Helpers
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment CourseImageHost
+@model IEnumerable<OnlineLearningPlatform.Models.Wishlist>
 
 @{
     ViewData["Title"] = "Danh sách yêu thích";
@@ -8,17 +10,19 @@
         ?? new List<OnlineLearningPlatform.Models.Wishlist>();
 }
 
+
+
 <style>
     .wishlist-page {
-        min-height: 80vh;
-        padding: 48px 0 78px;
-        background: #f8fafc;
+        min-height: 0;
+        padding: 0;
+        background: transparent;
     }
 
     .wishlist-container {
         max-width: 1080px;
         margin: 0 auto;
-        padding: 0 20px;
+        padding: 0;
     }
 
     .wishlist-heading {
@@ -28,31 +32,31 @@
     .page-eyebrow {
         margin-bottom: 6px;
         color: #0d6efd;
-        font-size: 11px;
-        font-weight: 800;
+        font-size: var(--ed-type-label);
+        font-weight: var(--ed-weight-label);
         text-transform: uppercase;
     }
 
     .page-title {
         margin: 0 0 8px;
         color: #172033;
-        font-size: 31px;
-        font-weight: 800;
+        font-size: var(--ed-type-page-title);
+        font-weight: var(--ed-weight-page);
     }
 
     .page-description {
         margin: 0;
         color: #7d8798;
-        font-size: 12px;
-        line-height: 1.7;
+        font-size: var(--ed-type-body);
+        line-height: var(--ed-lh-body);
     }
 
     .message {
         margin-bottom: 18px;
         padding: 13px 15px;
         border-radius: 10px;
-        font-size: 12px;
-        font-weight: 700;
+        font-size: var(--ed-type-body);
+        font-weight: var(--ed-weight-body);
     }
 
     .message.success {
@@ -74,6 +78,9 @@
     }
 
     .wishlist-card {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
         overflow: hidden;
         border: 1px solid #e1e7ee;
         border-radius: 15px;
@@ -81,7 +88,10 @@
     }
 
     .course-thumbnail {
+        position: relative;
+        aspect-ratio: 16 / 9;
         min-height: 145px;
+        overflow: hidden;
         padding: 18px;
         background: linear-gradient(135deg, #0d6efd, #5a96f8);
         color: #ffffff;
@@ -90,9 +100,27 @@
         justify-content: space-between;
     }
 
+    .course-thumbnail-image {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .course-thumbnail.has-image .course-category {
+        position: relative;
+        z-index: 1;
+        align-self: flex-start;
+        padding: 4px 8px;
+        border-radius: 8px;
+        background: rgba(15, 23, 42, .70);
+        opacity: 1;
+    }
+
     .course-category {
-        font-size: 10px;
-        font-weight: 700;
+        font-size: var(--ed-type-meta);
+        font-weight: var(--ed-weight-meta);
         opacity: .9;
     }
 
@@ -102,6 +130,10 @@
     }
 
     .course-body {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
         padding: 18px;
     }
 
@@ -112,23 +144,23 @@
         border-radius: 20px;
         background: #eef4ff;
         color: #0d6efd;
-        font-size: 9px;
-        font-weight: 800;
+        font-size: var(--ed-type-label);
+        font-weight: var(--ed-weight-label);
     }
 
     .course-title {
         min-height: 42px;
         margin-bottom: 6px;
         color: #273142;
-        font-size: 14px;
-        font-weight: 800;
-        line-height: 1.5;
+        font-size: var(--ed-type-card-title);
+        font-weight: var(--ed-weight-card);
+        line-height: var(--ed-lh-heading);
     }
 
     .course-instructor {
         margin-bottom: 15px;
         color: #8b95a5;
-        font-size: 10px;
+        font-size: var(--ed-type-body);
     }
 
     .course-footer {
@@ -141,18 +173,20 @@
 
     .course-price {
         color: #172033;
-        font-size: 13px;
-        font-weight: 800;
+        font-size: var(--ed-type-meta);
+        font-weight: var(--ed-weight-meta);
     }
 
     .course-added {
         color: #98a2b3;
-        font-size: 9px;
+        font-size: var(--ed-type-meta);
     }
 
     .course-actions {
         display: grid;
-        grid-template-columns: 1fr auto;
+        margin-top: auto;
+        padding-top: 12px;
+        grid-template-columns: minmax(0, 1fr) auto;
         gap: 8px;
     }
 
@@ -164,8 +198,8 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 10px;
-        font-weight: 800;
+        font-size: var(--ed-type-button);
+        font-weight: var(--ed-weight-button);
         text-decoration: none;
     }
 
@@ -199,14 +233,14 @@
     .empty-title {
         margin-bottom: 7px;
         color: #475467;
-        font-size: 15px;
-        font-weight: 800;
+        font-size: var(--ed-type-card-title);
+        font-weight: var(--ed-weight-card);
     }
 
     .empty-text {
         margin: 0 0 17px;
         color: #8992a3;
-        font-size: 11px;
+        font-size: var(--ed-type-meta);
     }
 
     .browse-link {
@@ -218,8 +252,8 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 10px;
-        font-weight: 800;
+        font-size: var(--ed-type-button);
+        font-weight: var(--ed-weight-button);
         text-decoration: none;
     }
 
@@ -236,8 +270,8 @@
     }
 </style>
 
-<div class="wishlist-page">
-    <div class="wishlist-container">
+<div class="wishlist-page ed-page">
+    <div class="wishlist-container ed-container">
 
         <div class="wishlist-heading">
             <div class="page-eyebrow">Học viên</div>
@@ -279,16 +313,19 @@
                             _ => course.Level
                         };
 
+                    var thumbnail = CourseThumbnailResolver.Resolve(Url, CourseImageHost, course.ThumbnailUrl, course.Slug);
+
                     <article class="wishlist-card">
 
-                        <div class="course-thumbnail">
+                        <div class="course-thumbnail has-image">
+                            <img class="course-thumbnail-image" src="@thumbnail.Source" alt="@course.Title"
+                                 loading="lazy" data-ed-thumb-fallback="@thumbnail.Fallback"
+                                 data-ed-thumb-placeholder="@thumbnail.Placeholder"
+                                 onerror="@CourseThumbnailResolver.OnErrorHandler" />
                             <div class="course-category">
                                 @course.Category.Name
                             </div>
 
-                            <div class="course-icon">
-                                @(course.Category.Icon ?? "IT")
-                            </div>
                         </div>
 
                         <div class="course-body">

@@ -1,4 +1,6 @@
-﻿@model IEnumerable<OnlineLearningPlatform.Models.Enrollment>
+﻿@using OnlineLearningPlatform.Helpers
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment CourseImageHost
+@model IEnumerable<OnlineLearningPlatform.Models.Enrollment>
 
 @{
     ViewData["Title"] = "Khóa học của tôi";
@@ -12,17 +14,19 @@
         enrollmentList.Count - completedCount;
 }
 
+
+
 <style>
     .mycourses-page {
-        min-height: 80vh;
-        background: #f8fafc;
-        padding: 55px 0 80px;
+        min-height: 0;
+        background: transparent;
+        padding: 0;
     }
 
     .mycourses-container {
         max-width: 1180px;
         margin: 0 auto;
-        padding: 0 20px;
+        padding: 0;
     }
 
     .page-header {
@@ -31,8 +35,8 @@
 
     .page-title {
         color: #172033;
-        font-size: 34px;
-        font-weight: 800;
+        font-size: var(--ed-type-page-title);
+        font-weight: var(--ed-weight-page);
         margin-bottom: 8px;
     }
 
@@ -59,13 +63,13 @@
 
     .summary-number {
         color: #0d6efd;
-        font-size: 28px;
-        font-weight: 800;
+        font-size: var(--ed-type-stat);
+        font-weight: var(--ed-weight-stat);
     }
 
     .summary-label {
         color: #7a8494;
-        font-size: 13px;
+        font-size: var(--ed-type-label);
         margin-top: 3px;
     }
 
@@ -73,11 +77,14 @@
 
     .course-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 22px;
     }
 
     .course-card {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
         background: #ffffff;
         border: 1px solid #e8ebf0;
         border-radius: 17px;
@@ -91,7 +98,11 @@
     }
 
     .course-thumbnail {
-        height: 155px;
+        position: relative;
+        aspect-ratio: 16 / 9;
+        min-height: 155px;
+        height: auto;
+        overflow: hidden;
         padding: 20px;
         background: linear-gradient(135deg, #0d6efd, #488dff);
         color: #ffffff;
@@ -100,9 +111,27 @@
         justify-content: space-between;
     }
 
+    .course-thumbnail-image {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .course-thumbnail.has-image .course-category {
+        position: relative;
+        z-index: 1;
+        align-self: flex-start;
+        padding: 4px 8px;
+        border-radius: 8px;
+        background: rgba(15, 23, 42, .70);
+        opacity: 1;
+    }
+
     .course-category {
-        font-size: 12px;
-        font-weight: 700;
+        font-size: var(--ed-type-meta);
+        font-weight: var(--ed-weight-meta);
         opacity: 0.9;
     }
 
@@ -112,20 +141,24 @@
     }
 
     .course-body {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
         padding: 20px;
     }
 
     .course-name {
         color: #202938;
-        font-size: 17px;
-        font-weight: 700;
-        line-height: 1.45;
+        font-size: var(--ed-type-card-title);
+        font-weight: var(--ed-weight-card);
+        line-height: var(--ed-lh-heading);
         min-height: 50px;
     }
 
     .course-instructor {
         color: #8992a3;
-        font-size: 12px;
+        font-size: var(--ed-type-body);
         margin-top: 8px;
         margin-bottom: 17px;
     }
@@ -141,14 +174,14 @@
 
     .progress-label {
         color: #667085;
-        font-size: 12px;
-        font-weight: 600;
+        font-size: var(--ed-type-label);
+        font-weight: var(--ed-weight-label);
     }
 
     .progress-percent {
         color: #0d6efd;
-        font-size: 12px;
-        font-weight: 700;
+        font-size: var(--ed-type-meta);
+        font-weight: var(--ed-weight-meta);
     }
 
     .progress-track {
@@ -169,13 +202,14 @@
         padding-top: 14px;
         border-top: 1px solid #eef0f3;
         color: #8992a3;
-        font-size: 12px;
+        font-size: var(--ed-type-meta);
     }
 
     .course-actions {
         display: flex;
         gap: 8px;
-        margin-top: 17px;
+        margin-top: auto;
+        padding-top: 17px;
     }
 
     .btn-detail,
@@ -187,8 +221,8 @@
         align-items: center;
         justify-content: center;
         text-decoration: none;
-        font-size: 13px;
-        font-weight: 700;
+        font-size: var(--ed-type-button);
+        font-weight: var(--ed-weight-button);
     }
 
     .btn-detail {
@@ -239,8 +273,8 @@
 
     .empty-title {
         color: #273142;
-        font-size: 21px;
-        font-weight: 800;
+        font-size: var(--ed-type-card-title);
+        font-weight: var(--ed-weight-card);
         margin-bottom: 8px;
     }
 
@@ -279,9 +313,9 @@
 </style>
 
 
-<div class="mycourses-page">
+<div class="mycourses-page ed-page">
 
-    <div class="mycourses-container">
+    <div class="mycourses-container ed-container">
 
         <div class="page-header">
 
@@ -356,17 +390,21 @@
                             0,
                             100);
 
+                    var thumbnail = CourseThumbnailResolver.Resolve(Url, CourseImageHost, enrollment.Course.ThumbnailUrl, enrollment.Course.Slug);
+
                     <div class="course-card">
 
-                        <div class="course-thumbnail">
+                        <div class="course-thumbnail has-image">
+
+                            <img class="course-thumbnail-image" src="@thumbnail.Source" alt="@enrollment.Course.Title"
+                                 loading="lazy" data-ed-thumb-fallback="@thumbnail.Fallback"
+                                 data-ed-thumb-placeholder="@thumbnail.Placeholder"
+                                 onerror="@CourseThumbnailResolver.OnErrorHandler" />
 
                             <div class="course-category">
                                 @enrollment.Course.Category.Name
                             </div>
 
-                            <div class="course-logo">
-                                @(enrollment.Course.Category.Icon ?? "IT")
-                            </div>
 
                         </div>
 

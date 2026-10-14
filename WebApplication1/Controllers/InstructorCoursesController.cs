@@ -118,6 +118,9 @@ namespace OnlineLearningPlatform.Controllers
                             Slug =
                                 c.Slug,
 
+                            ThumbnailUrl =
+                                c.ThumbnailUrl,
+
                             CategoryName =
                                 c.Category?.Name
                                 ?? "Chưa phân loại",

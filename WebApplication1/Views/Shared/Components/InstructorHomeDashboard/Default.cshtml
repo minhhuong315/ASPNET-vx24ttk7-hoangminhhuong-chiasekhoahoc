@@ -1,154 +1,16 @@
+﻿@using OnlineLearningPlatform.Helpers
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment CourseImageHost
 @model OnlineLearningPlatform.ViewModels.InstructorHomeDashboardViewModel
 
-@{
-    string? GetDashboardCourseThumbnail(
-        string title,
-        string? rawUrl)
-    {
-        string value =
-            (title ?? string.Empty)
-                .Trim()
-                .ToLowerInvariant();
-
-
-        string? mappedThumbnail =
-            null;
-
-
-        if (value.Contains("git") &&
-            value.Contains("github"))
-        {
-            mappedThumbnail =
-                "~/images/course-thumbnails/git-github.png";
-        }
-        else if (value.Contains(
-            "sql server"))
-        {
-            mappedThumbnail =
-                "~/images/course-thumbnails/sql-server.png";
-        }
-        else if (value.Contains(
-            "asp.net") ||
-            value.Contains(
-                "aspnet"))
-        {
-            mappedThumbnail =
-                "~/images/course-thumbnails/aspnet-core.png";
-        }
-        else if (value.Contains(
-            "c#") ||
-            value.Contains(
-                "csharp"))
-        {
-            mappedThumbnail =
-                "~/images/course-thumbnails/csharp-co-ban.png";
-        }
-        else if (value.Contains(
-            "javascript") &&
-            (
-                value.Contains(
-                    "nâng cao") ||
-                value.Contains(
-                    "es6")
-            ))
-        {
-            mappedThumbnail =
-                "~/images/course-thumbnails/javascript-nang-cao-es6.png";
-        }
-        else if (value.Contains(
-            "javascript"))
-        {
-            mappedThumbnail =
-                "~/images/course-thumbnails/javascript-co-ban.png";
-        }
-
-
-        if (!string.IsNullOrWhiteSpace(
-            mappedThumbnail))
-        {
-            return Url.Content(
-                mappedThumbnail);
-        }
-
-
-        return ResolveDashboardThumbnailUrl(
-            rawUrl);
-    }
-
-
-    string? ResolveDashboardThumbnailUrl(
-        string? rawUrl)
-    {
-        if (string.IsNullOrWhiteSpace(
-            rawUrl))
-        {
-            return null;
-        }
-
-
-        string value =
-            rawUrl
-                .Trim()
-                .Replace(
-                    "\\",
-                    "/");
-
-
-        if (value.StartsWith(
-            "http://",
-            StringComparison.OrdinalIgnoreCase) ||
-            value.StartsWith(
-                "https://",
-                StringComparison.OrdinalIgnoreCase) ||
-            value.StartsWith(
-                "//",
-                StringComparison.Ordinal) ||
-            value.StartsWith(
-                "data:",
-                StringComparison.OrdinalIgnoreCase) ||
-            value.StartsWith(
-                "blob:",
-                StringComparison.OrdinalIgnoreCase))
-        {
-            return value;
-        }
-
-
-        if (value.StartsWith(
-            "~/",
-            StringComparison.Ordinal))
-        {
-            return Url.Content(
-                value);
-        }
-
-
-        if (value.StartsWith(
-            "wwwroot/",
-            StringComparison.OrdinalIgnoreCase))
-        {
-            value =
-                value.Substring(
-                    "wwwroot/".Length);
-        }
-
-
-        if (value.StartsWith(
-            "/",
-            StringComparison.Ordinal))
-        {
-            return value;
-        }
-
-
-        return Url.Content(
-            "~/" +
-            value.TrimStart('/'));
-    }
-
-}
-
 <style>
+    /* Chỉ trang Home khi render InstructorHomeDashboard. Không sửa shell của các role khác. */
+    body.role-workspace-page:has(.instructor-home) {
+        --ed-page-bg: #F5F7FB;
+    }
+
+    body.role-workspace-page .home-page:has(> .instructor-home) {
+        background: transparent;
+    }
 
     /* =========================================================
        INSTRUCTOR DASHBOARD V2
@@ -159,16 +21,19 @@
 
     .instructor-home {
         width: 100%;
-        min-height: 78vh;
-        padding: 28px 0 64px;
-        background: #f8fafc;
+        min-height: 0;
+        padding: 0;
+        background: transparent;
+        color: #475569;
+        font-family: Inter, sans-serif;
     }
 
     .instructor-home-container {
         width: 100%;
-        max-width: 1560px;
+        max-width: var(--ed-ds-wide);
         margin: 0 auto;
-        padding: 0 28px;
+        padding: 0;
+        box-sizing: border-box;
     }
 
 
@@ -181,7 +46,7 @@
         align-items: flex-start;
         justify-content: space-between;
         gap: 24px;
-        margin-bottom: 24px;
+        margin-bottom: 22px;
     }
 
     .instructor-home .instructor-heading-copy {
@@ -191,18 +56,18 @@
     .instructor-home .instructor-eyebrow {
         margin-bottom: 6px;
         color: #2563eb;
-        font-size: 12px;
-        font-weight: 600;
+        font-size: var(--ed-type-label);
+        font-weight: var(--ed-weight-label);
         letter-spacing: .02em;
         text-transform: uppercase;
     }
 
     .instructor-home .instructor-title {
         margin: 0;
-        color: #0f172a;
-        font-size: 40px;
-        font-weight: 700;
-        line-height: 1.2;
+        color: var(--ed-ds-heading);
+        font-size: var(--ed-type-page-title) !important; /* global typography h1 dùng !important */
+        font-weight: var(--ed-weight-page);
+        line-height: var(--ed-lh-heading);
         letter-spacing: -0.025em;
     }
 
@@ -210,9 +75,9 @@
         max-width: 720px;
         margin: 8px 0 0;
         color: #64748b;
-        font-size: 14px;
-        font-weight: 400;
-        line-height: 1.6;
+        font-size: var(--ed-type-body);
+        font-weight: var(--ed-weight-body);
+        line-height: var(--ed-lh-body);
     }
 
     .instructor-home .create-course-button {
@@ -220,14 +85,14 @@
         margin-top: 2px;
         padding: 0 18px;
         border-radius: 10px;
-        background: #126bff;
+        background: #2563EB;
         color: #ffffff;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
-        font-size: 14px;
-        font-weight: 600;
+        font-size: var(--ed-type-button);
+        font-weight: var(--ed-weight-button);
         line-height: 1.2;
         text-decoration: none;
         white-space: nowrap;
@@ -237,7 +102,7 @@
     }
 
     .instructor-home .create-course-button:hover {
-        background: #075ee8;
+        background: #1D4ED8;
         color: #ffffff;
         transform: translateY(-1px);
     }
@@ -256,19 +121,18 @@
 
     .instructor-home .instructor-stat {
         min-width: 0;
-        min-height: 104px;
-        padding: 18px;
+        min-height: 108px;
+        padding: 16px;
         border: 1px solid #e2e8f0;
-        border-radius: 14px;
+        border-radius: 13px;
         background: #ffffff;
         color: inherit;
-        display: flex;
+        display: grid;
+        grid-template-columns: 44px minmax(0, 1fr);
+        gap: 13px;
         align-items: center;
-        gap: 14px;
         text-decoration: none;
-        box-shadow:
-            0 6px 20px
-            rgba(36, 68, 112, .04);
+        box-shadow: none;
         transition:
             border-color .18s ease,
             box-shadow .18s ease,
@@ -285,21 +149,36 @@
     }
 
     .instructor-home .stat-icon {
-        width: 46px;
-        height: 46px;
-        flex: 0 0 46px;
-        border-radius: 13px;
+        width: 44px;
+        height: 44px;
+        border-radius: 11px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 14px;
-        font-weight: 700;
-        line-height: 1;
+    }
+
+    .instructor-home .ui-icon {
+        width: 21px;
+        height: 21px;
+        display: block;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.9;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        flex-shrink: 0;
+    }
+
+    .instructor-home .stat-copy {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        gap: 4px;
     }
 
     .instructor-home .stat-icon.blue {
-        background: #eaf3ff;
-        color: #126bff;
+        background: #EFF6FF;
+        color: #2563EB;
     }
 
     .instructor-home .stat-icon.green {
@@ -318,18 +197,20 @@
     }
 
     .instructor-home .stat-value {
-        color: #0f172a;
-        font-size: 26px;
-        font-weight: 700;
-        line-height: 1.1;
+        color: var(--ed-ds-heading);
+        font-size: var(--ed-type-stat);
+        font-weight: var(--ed-weight-stat);
+        line-height: 1.15;
+        order: 2;
     }
 
     .instructor-home .stat-label {
-        margin-top: 5px;
-        color: #334155;
-        font-size: 14px;
-        font-weight: 600;
-        line-height: 1.4;
+        margin-top: 0;
+        color: #64748B;
+        font-size: var(--ed-type-label);
+        font-weight: var(--ed-weight-label);
+        line-height: var(--ed-lh-meta);
+        order: 1;
     }
 
 
@@ -340,8 +221,8 @@
     .instructor-home .instructor-content-grid {
         display: grid;
         grid-template-columns:
-            minmax(0, 2fr)
-            minmax(300px, 1fr);
+            minmax(0, 1.9fr)
+            minmax(280px, 1fr);
         gap: 18px;
         align-items: start;
     }
@@ -369,13 +250,13 @@
 
     .instructor-home .panel-heading {
         margin: 0;
-        color: #0f172a;
+        color: var(--ed-ds-heading);
         display: flex;
         align-items: center;
         gap: 10px;
-        font-size: 18px;
-        font-weight: 600;
-        line-height: 1.35;
+        font-size: var(--ed-type-section-title) !important; /* global typography h2 */
+        font-weight: var(--ed-weight-section);
+        line-height: var(--ed-lh-heading);
     }
 
     .instructor-home .panel-heading-icon {
@@ -384,18 +265,16 @@
         flex: 0 0 40px;
         border-radius: 11px;
         background: #eaf3ff;
-        color: #126bff;
+        color: #2563EB;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 13px;
-        font-weight: 700;
     }
 
     .instructor-home .panel-link {
-        color: #126bff;
-        font-size: 14px;
-        font-weight: 600;
+        color: var(--ed-ds-primary);
+        font-size: var(--ed-type-button);
+        font-weight: var(--ed-weight-button);
         text-decoration: none;
         white-space: nowrap;
     }
@@ -416,7 +295,7 @@
 
     .instructor-home .course-table {
         width: 100%;
-        min-width: 760px;
+        min-width: 730px;
         border-collapse: collapse;
         table-layout: fixed;
     }
@@ -435,19 +314,20 @@
     .instructor-home .course-table th {
         background: #fbfcfe;
         color: #64748b;
-        font-size: 12px;
-        font-weight: 600;
-        line-height: 1.4;
+        font-size: var(--ed-type-table);
+        font-weight: var(--ed-weight-table);
+        line-height: var(--ed-lh-table);
         text-align: left;
     }
 
     .instructor-home .course-table td {
         color: #334155;
-        font-size: 14px;
-        font-weight: 400;
-        line-height: 1.5;
+        font-size: var(--ed-type-table);
+        font-weight: var(--ed-weight-table);
+        line-height: var(--ed-lh-table);
     }
 
+    @@media (min-width: 1101px) {
     .instructor-home .course-table th:nth-child(1),
     .instructor-home .course-table td:nth-child(1) {
         width: 48%;
@@ -475,6 +355,8 @@
     .instructor-home .course-table td:nth-child(5) {
         width: 14%;
         text-align: right;
+    }
+
     }
 
     .instructor-home .course-cell {
@@ -519,30 +401,32 @@
         background: #EFF6FF;
         color: #2563EB;
 
-        font-size: 12px;
-        font-weight: 600;
+        font-size: var(--ed-type-meta);
+        font-weight: var(--ed-weight-meta);
     }
 
     .instructor-home .course-info {
         min-width: 0;
     }
 
-    .instructor-home .course-name {
+    .instructor-home .instructor-course-name {
         overflow: hidden;
-        color: #0f172a;
-        font-size: 16px;
-        font-weight: 600;
-        line-height: 1.4;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        color: var(--ed-ds-heading);
+        font-size: var(--ed-type-card-title);
+        font-weight: var(--ed-weight-card);
+        line-height: var(--ed-lh-heading);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow-wrap: anywhere;
     }
 
-    .instructor-home .course-category {
+    .instructor-home .instructor-course-category {
         margin-top: 3px;
         color: #64748b;
-        font-size: 12px;
-        font-weight: 400;
-        line-height: 1.4;
+        font-size: var(--ed-type-meta);
+        font-weight: var(--ed-weight-meta);
+        line-height: var(--ed-lh-meta);
     }
 
     .instructor-home .course-status {
@@ -551,9 +435,9 @@
         border-radius: 999px;
         background: #eaf9f2;
         color: #148759;
-        font-size: 12px;
-        font-weight: 500;
-        line-height: 1.2;
+        font-size: var(--ed-type-badge);
+        font-weight: var(--ed-weight-badge);
+        line-height: var(--ed-lh-meta);
         white-space: nowrap;
     }
 
@@ -563,9 +447,9 @@
     }
 
     .instructor-home .manage-link {
-        color: #126bff;
-        font-size: 14px;
-        font-weight: 600;
+        color: var(--ed-ds-primary);
+        font-size: var(--ed-type-button);
+        font-weight: var(--ed-weight-button);
         text-decoration: none;
         white-space: nowrap;
     }
@@ -583,6 +467,14 @@
         padding: 12px;
         display: grid;
         gap: 10px;
+    }
+
+    .instructor-home .attention-copy {
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
     }
 
     .instructor-home .attention-item {
@@ -619,8 +511,16 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 14px;
-        font-weight: 700;
+    }
+
+    /* Instructor v37: không sinh icon mask thứ hai từ dashboard-polish.css. */
+    .role-dashboard--instructor.instructor-home .attention-item > .attention-icon::before {
+        content: none;
+    }
+
+    .role-dashboard--instructor.instructor-home .attention-item > .attention-icon .ui-icon {
+        width: 20px;
+        height: 20px;
     }
 
     .instructor-home .attention-icon.orange {
@@ -630,22 +530,22 @@
 
     .instructor-home .attention-icon.blue {
         background: #eaf3ff;
-        color: #126bff;
+        color: var(--ed-ds-primary);
     }
 
     .instructor-home .attention-value {
-        color: #0f172a;
-        font-size: 22px;
-        font-weight: 700;
+        color: var(--ed-ds-heading);
+        font-size: var(--ed-type-stat);
+        font-weight: var(--ed-weight-stat);
         line-height: 1.1;
     }
 
     .instructor-home .attention-label {
         margin-top: 4px;
         color: #334155;
-        font-size: 14px;
-        font-weight: 500;
-        line-height: 1.4;
+        font-size: var(--ed-type-label);
+        font-weight: var(--ed-weight-label);
+        line-height: var(--ed-lh-meta);
     }
 
     .instructor-home .attention-arrow {
@@ -658,87 +558,127 @@
     .instructor-home .dashboard-empty {
         padding: 42px 20px;
         color: #64748b;
-        font-size: 14px;
-        font-weight: 400;
-        line-height: 1.6;
+        font-size: var(--ed-type-meta);
+        font-weight: var(--ed-weight-meta);
+        line-height: var(--ed-lh-meta);
         text-align: center;
     }
 
 
     /* =========================================================
-       RESPONSIVE
+       RESPONSIVE: table → one card per existing <tr>; no duplicated actions
     ========================================================= */
 
+    @@media (max-width: 1420px) {
+        .instructor-home .instructor-content-grid {
+            grid-template-columns: minmax(0, 1fr);
+        }
+    }
+
     @@media (max-width: 1180px) {
-
-        .instructor-home-container {
-            padding: 0 24px;
-        }
-
-        .instructor-home .instructor-content-grid {
-            grid-template-columns:
-                minmax(0, 1.65fr)
-                minmax(280px, .85fr);
-        }
-    }
-
-
-    @@media (max-width: 900px) {
-
-        .instructor-home {
-            padding-top: 22px;
-        }
-
         .instructor-home .instructor-stats {
-            grid-template-columns:
-                repeat(2, minmax(0, 1fr));
-        }
-
-        .instructor-home .instructor-content-grid {
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
         }
     }
 
-
-    @@media (max-width: 680px) {
-
-        .instructor-home-container {
-            padding: 0 16px;
+    @@media (max-width: 1100px) {
+        .instructor-home .course-table-wrap {
+            overflow-x: visible;
+            padding: 12px;
         }
 
-        .instructor-home .instructor-heading {
-            flex-direction: column;
-            gap: 16px;
+        .instructor-home .instructor-course-name {
+            display: block;
+            -webkit-line-clamp: unset;
+            overflow: visible;
         }
 
-        .instructor-home .create-course-button {
+        .instructor-home .course-table,
+        .instructor-home .course-table tbody {
+            display: block;
             width: 100%;
+            min-width: 0;
         }
 
-        .instructor-home .instructor-title {
-            font-size: 30px;
+        .instructor-home .course-table thead {
+            display: none;
+        }
+
+        .instructor-home .course-table tbody {
+            display: grid;
+            gap: 12px;
+        }
+
+        .instructor-home .course-table tbody tr {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px 14px;
+            padding: 14px;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            background: #FFFFFF;
+            min-width: 0;
+        }
+
+        .instructor-home .course-table tbody td,
+        .instructor-home .course-table tbody tr:last-child td {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+            min-width: 0;
+            width: auto;
+            padding: 0;
+            border: 0;
+            text-align: left;
+        }
+
+        .instructor-home .course-table tbody td:first-child {
+            grid-column: 1 / -1;
+        }
+
+        .instructor-home .course-table tbody td:nth-child(4),
+        .instructor-home .course-table tbody td:nth-child(5) {
+            grid-column: 1 / -1;
+        }
+
+        .instructor-home .course-table tbody td[data-label]::before {
+            content: attr(data-label);
+            color: #64748B;
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 1.35;
+        }
+
+        .instructor-home .course-table tbody td:nth-child(5) {
+            margin-top: 2px;
+        }
+
+        .instructor-home .manage-link {
+            width: 100%;
+            min-height: 42px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #BFDBFE;
+            border-radius: 9px;
+            background: #EFF6FF;
+            color: #2563EB;
         }
     }
 
-
-    @@media (max-width: 520px) {
-
+    @@media (max-width: 375px) {
         .instructor-home .instructor-stats {
             grid-template-columns: 1fr;
-        }
-
-        .instructor-home .instructor-stat {
-            min-height: 94px;
-            padding: 15px;
         }
     }
 
 </style>
 
 
-<section class="role-dashboard role-dashboard--instructor instructor-home">
+<section class="role-dashboard role-dashboard--instructor instructor-home ed-dash">
 
-    <div class="instructor-home-container">
+    <div class="instructor-home-container ed-container ed-container--wide">
 
 
         <header class="instructor-heading">
@@ -772,105 +712,78 @@
 
         <div class="instructor-stats">
 
-            <a asp-controller="InstructorCourses"
-               asp-action="Index"
-               class="instructor-stat">
-
-                <span class="stat-icon blue">
-                    KH
+            <a asp-controller="InstructorCourses" asp-action="Index" class="instructor-stat ed-stat">
+                <span class="stat-icon ed-stat-icon blue" aria-hidden="true">
+                    <svg class="ui-icon" viewBox="0 0 24 24">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                        <path d="M4 4v15.5"></path>
+                        <path d="M6.5 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5"></path>
+                    </svg>
                 </span>
-
-                <span>
-                    <span class="stat-value d-block">
-                        @Model.TotalCourses
-                    </span>
-
-                    <span class="stat-label d-block">
-                        Khóa học
-                    </span>
+                <span class="stat-copy">
+                    <span class="stat-label ed-stat-label">Khóa học</span>
+                    <span class="stat-value ed-stat-value">@Model.TotalCourses</span>
                 </span>
-
             </a>
 
-
-            <a asp-controller="InstructorStudents"
-               asp-action="Index"
-               class="instructor-stat">
-
-                <span class="stat-icon green">
-                    HV
+            <a asp-controller="InstructorStudents" asp-action="Index" class="instructor-stat ed-stat">
+                <span class="stat-icon ed-stat-icon green" aria-hidden="true">
+                    <svg class="ui-icon" viewBox="0 0 24 24">
+                        <circle cx="9" cy="8" r="3"></circle>
+                        <path d="M3 20v-2a6 6 0 0 1 12 0v2"></path>
+                        <path d="M17 5a3 3 0 0 1 0 6"></path>
+                        <path d="M18 14a5 5 0 0 1 3 5v1"></path>
+                    </svg>
                 </span>
-
-                <span>
-                    <span class="stat-value d-block">
-                        @Model.UniqueStudents
-                    </span>
-
-                    <span class="stat-label d-block">
-                        Học viên
-                    </span>
+                <span class="stat-copy">
+                    <span class="stat-label ed-stat-label">Học viên</span>
+                    <span class="stat-value ed-stat-value">@Model.UniqueStudents</span>
                 </span>
-
             </a>
 
-
-            <a asp-controller="InstructorAnalytics"
-               asp-action="Index"
-               class="instructor-stat">
-
-                <span class="stat-icon orange">
-                    BH
+            <a asp-controller="InstructorAnalytics" asp-action="Index" class="instructor-stat ed-stat">
+                <span class="stat-icon ed-stat-icon orange" aria-hidden="true">
+                    <svg class="ui-icon" viewBox="0 0 24 24">
+                        <path d="M7 3h7l4 4v14H7z"></path>
+                        <path d="M14 3v5h5M10 13h5M10 17h5"></path>
+                    </svg>
                 </span>
-
-                <span>
-                    <span class="stat-value d-block">
-                        @Model.TotalLessons
-                    </span>
-
-                    <span class="stat-label d-block">
-                        Bài học
-                    </span>
+                <span class="stat-copy">
+                    <span class="stat-label ed-stat-label">Bài học</span>
+                    <span class="stat-value ed-stat-value">@Model.TotalLessons</span>
                 </span>
-
             </a>
 
-
-            <a asp-controller="InstructorAnalytics"
-               asp-action="Index"
-               class="instructor-stat">
-
-                <span class="stat-icon purple">
-                    ★
+            <a asp-controller="InstructorAnalytics" asp-action="Index" class="instructor-stat ed-stat">
+                <span class="stat-icon ed-stat-icon purple" aria-hidden="true">
+                    <svg class="ui-icon" viewBox="0 0 24 24">
+                        <path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1L12 2Z"></path>
+                    </svg>
                 </span>
-
-                <span>
-                    <span class="stat-value d-block">
-                        @(Model.AverageRating > 0
+                <span class="stat-copy">
+                    <span class="stat-label ed-stat-label">Đánh giá trung bình</span>
+                    <span class="stat-value ed-stat-value">@(Model.AverageRating > 0
                             ? Model.AverageRating.ToString("0.0")
-                            : "—")
-                    </span>
-
-                    <span class="stat-label d-block">
-                        Đánh giá trung bình
-                    </span>
+                            : "—")</span>
                 </span>
-
             </a>
-
         </div>
-
 
         <div class="instructor-content-grid">
 
 
-            <section class="instructor-panel">
+            <section class="instructor-panel ed-panel">
 
                 <div class="panel-header">
 
                     <h2 class="panel-heading">
 
-                        <span class="panel-heading-icon">
-                            KH
+                        <span class="panel-heading-icon" aria-hidden="true">
+                            <svg class="ui-icon" viewBox="0 0 24 24">
+                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                <path d="M4 4v15.5"></path>
+                                <path d="M6.5 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5"></path>
+                            </svg>
                         </span>
 
                         Khóa học của tôi
@@ -908,10 +821,7 @@
 
                                 @foreach (var course in Model.RecentCourses)
                                 {
-                                    string? thumbnail =
-                                        GetDashboardCourseThumbnail(
-                                            course.Title,
-                                            course.ThumbnailUrl);
+                                    var thumbnail = CourseThumbnailResolver.Resolve(Url, CourseImageHost, course.ThumbnailUrl, course.Slug);
 
                                     <tr>
 
@@ -921,37 +831,20 @@
 
                                                 <div class="course-thumb">
 
-                                                    @if (!string.IsNullOrWhiteSpace(
-                                                        thumbnail))
-                                                    {
-                                                        <img src="@thumbnail"
+                                                    <img src="@thumbnail.Source"
                                                              alt="@course.Title"
-                                                             onerror="this.hidden=true;this.nextElementSibling.hidden=false;" />
-
-                                                        <div class="course-thumb-fallback"
-                                                             hidden
-                                                             aria-hidden="true">
-                                                            KH
-                                                        </div>
-                                                    }
-                                                    else
-                                                    {
-                                                        <div class="course-thumb-fallback"
-                                                             aria-hidden="true">
-                                                            KH
-                                                        </div>
-                                                    }
+                                                             data-ed-thumb-fallback="@thumbnail.Fallback" data-ed-thumb-placeholder="@thumbnail.Placeholder" onerror="@CourseThumbnailResolver.OnErrorHandler" />
 
                                                 </div>
 
 
                                                 <div class="course-info">
 
-                                                    <div class="course-name">
+                                                    <div class="instructor-course-name">
                                                         @course.Title
                                                     </div>
 
-                                                    <div class="course-category">
+                                                    <div class="instructor-course-category">
                                                         @course.CategoryName
                                                     </div>
 
@@ -962,17 +855,17 @@
                                         </td>
 
 
-                                        <td>
+                                        <td data-label="Học viên">
                                             @course.EnrollmentCount
                                         </td>
 
 
-                                        <td>
+                                        <td data-label="Bài học">
                                             @course.LessonCount
                                         </td>
 
 
-                                        <td>
+                                        <td data-label="Trạng thái">
 
                                             <span class="course-status @(course.IsPublished ? "" : "draft")">
 
@@ -1015,14 +908,16 @@
             </section>
 
 
-            <aside class="instructor-panel">
+            <aside class="instructor-panel ed-panel">
 
                 <div class="panel-header">
 
                     <h2 class="panel-heading">
 
-                        <span class="panel-heading-icon">
-                            ⚡
+                        <span class="panel-heading-icon" aria-hidden="true">
+                            <svg class="ui-icon" viewBox="0 0 24 24">
+                                <path d="M12 3 3 13h8l-1 8 11-12h-8l1-6Z"></path>
+                            </svg>
                         </span>
 
                         Cần xử lý
@@ -1039,12 +934,16 @@
                        asp-action="Index"
                        class="attention-item">
 
-                        <span class="attention-icon">
-                            Q
+                        <span class="attention-icon" aria-hidden="true">
+                            <svg class="ui-icon" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="9"></circle>
+                                <path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 2-2.5 2.25-2.5 4"></path>
+                                <path d="M12 17h.01"></path>
+                            </svg>
                         </span>
 
 
-                        <span>
+                        <span class="attention-copy">
 
                             <span class="attention-value d-block">
                                 @Model.PendingQuestions
@@ -1069,12 +968,14 @@
                        asp-route-status="draft"
                        class="attention-item">
 
-                        <span class="attention-icon orange">
-                            BN
+                        <span class="attention-icon orange" aria-hidden="true">
+                            <svg class="ui-icon" viewBox="0 0 24 24">
+                                <path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"></path>
+                            </svg>
                         </span>
 
 
-                        <span>
+                        <span class="attention-copy">
 
                             <span class="attention-value d-block">
                                 @Model.DraftCourses
@@ -1098,12 +999,15 @@
                        asp-action="Index"
                        class="attention-item">
 
-                        <span class="attention-icon blue">
-                            PT
+                        <span class="attention-icon blue" aria-hidden="true">
+                            <svg class="ui-icon" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="9"></circle>
+                                <path d="m8 12 2.5 2.5L16 9"></path>
+                            </svg>
                         </span>
 
 
-                        <span>
+                        <span class="attention-copy">
 
                             <span class="attention-value d-block">
                                 @Model.PublishedCourses
@@ -1133,3 +1037,4 @@
     </div>
 
 </section>
+

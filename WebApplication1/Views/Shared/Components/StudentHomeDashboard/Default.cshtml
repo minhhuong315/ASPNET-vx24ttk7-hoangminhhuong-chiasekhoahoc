@@ -1,3 +1,5 @@
+@using OnlineLearningPlatform.Helpers
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment CourseImageHost
 @model OnlineLearningPlatform.ViewModels.StudentHomeDashboardViewModel
 
 @{
@@ -11,155 +13,6 @@
             _ => level
         };
     }
-
-    string? GetDashboardCourseThumbnail(
-        string title,
-        string? rawUrl)
-    {
-        string value =
-            (title ?? string.Empty)
-                .Trim()
-                .ToLowerInvariant();
-
-
-        string? mappedThumbnail =
-            null;
-
-
-        if (value.Contains("git") &&
-            value.Contains("github"))
-        {
-            mappedThumbnail =
-                "~/images/course-thumbnails/git-github.png";
-        }
-        else if (value.Contains(
-            "sql server"))
-        {
-            mappedThumbnail =
-                "~/images/course-thumbnails/sql-server.png";
-        }
-        else if (value.Contains(
-            "asp.net") ||
-            value.Contains(
-                "aspnet"))
-        {
-            mappedThumbnail =
-                "~/images/course-thumbnails/aspnet-core.png";
-        }
-        else if (value.Contains(
-            "c#") ||
-            value.Contains(
-                "csharp"))
-        {
-            mappedThumbnail =
-                "~/images/course-thumbnails/csharp-co-ban.png";
-        }
-        else if (value.Contains(
-            "javascript") &&
-            (
-                value.Contains(
-                    "nâng cao") ||
-                value.Contains(
-                    "es6")
-            ))
-        {
-            mappedThumbnail =
-                "~/images/course-thumbnails/javascript-nang-cao-es6.png";
-        }
-        else if (value.Contains(
-            "javascript"))
-        {
-            mappedThumbnail =
-                "~/images/course-thumbnails/javascript-co-ban.png";
-        }
-
-
-        if (!string.IsNullOrWhiteSpace(
-            mappedThumbnail))
-        {
-            return Url.Content(
-                mappedThumbnail);
-        }
-
-
-        return ResolveDashboardThumbnailUrl(
-            rawUrl);
-    }
-
-
-    string? ResolveDashboardThumbnailUrl(
-        string? rawUrl)
-    {
-        if (string.IsNullOrWhiteSpace(
-            rawUrl))
-        {
-            return null;
-        }
-
-
-        string value =
-            rawUrl
-                .Trim()
-                .Replace(
-                    "\\",
-                    "/");
-
-
-        if (value.StartsWith(
-            "http://",
-            StringComparison.OrdinalIgnoreCase) ||
-            value.StartsWith(
-                "https://",
-                StringComparison.OrdinalIgnoreCase) ||
-            value.StartsWith(
-                "//",
-                StringComparison.Ordinal) ||
-            value.StartsWith(
-                "data:",
-                StringComparison.OrdinalIgnoreCase) ||
-            value.StartsWith(
-                "blob:",
-                StringComparison.OrdinalIgnoreCase))
-        {
-            return value;
-        }
-
-
-        if (value.StartsWith(
-            "~/",
-            StringComparison.Ordinal))
-        {
-            return Url.Content(
-                value);
-        }
-
-
-        if (value.StartsWith(
-            "wwwroot/",
-            StringComparison.OrdinalIgnoreCase))
-        {
-            value =
-                value.Substring(
-                    "wwwroot/".Length);
-        }
-
-
-        if (value.StartsWith(
-            "/",
-            StringComparison.Ordinal))
-        {
-            return value;
-        }
-
-
-        return Url.Content(
-            "~/" +
-            value.TrimStart('/'));
-    }
-
-
-
-
 
     var continueCourse =
         Model.RecentCourses
@@ -185,16 +38,16 @@
     ========================================================= */
 
     .studentdash-root {
-        --sd-primary: #2563EB;
+        --sd-primary: var(--ed-ds-primary);
         --sd-primary-hover: #1D4ED8;
 
-        --sd-heading: #0F172A;
-        --sd-body: #334155;
-        --sd-muted: #64748B;
+        --sd-heading: var(--ed-ds-heading);
+        --sd-body: var(--ed-ds-body);
+        --sd-muted: var(--ed-ds-muted);
 
-        --sd-bg: #F5F7FB;
-        --sd-card: #FFFFFF;
-        --sd-border: #E2E8F0;
+        --sd-bg: var(--ed-ds-bg);
+        --sd-card: var(--ed-ds-surface);
+        --sd-border: var(--ed-ds-border);
 
         --sd-blue-bg: #EFF6FF;
         --sd-green-bg: #ECFDF3;
@@ -203,17 +56,10 @@
 
         width: 100%;
         min-width: 0;
-        min-height: 78vh;
-
+        min-height: 0;
         margin: 0;
-
-        padding:
-            28px
-            0
-            56px;
-
-        background:
-            var(--sd-bg);
+        padding: 0;
+        background: transparent;
 
         color:
             var(--sd-body);
@@ -236,7 +82,7 @@
 
     .studentdash-container {
         width: 100%;
-        max-width: 1560px;
+        max-width: var(--ed-ds-wide);
 
         margin-inline: auto;
 
@@ -277,9 +123,9 @@
         color:
             var(--sd-primary);
 
-        font-size: 12px;
-        font-weight: 600;
-        line-height: 1.4;
+        font-size: var(--ed-type-label);
+        font-weight: var(--ed-weight-label);
+        line-height: var(--ed-lh-meta);
 
         letter-spacing: .02em;
         text-transform: uppercase;
@@ -295,9 +141,9 @@
         color:
             var(--sd-heading);
 
-        font-size: 26px;
-        font-weight: 700;
-        line-height: 1.3;
+        font-size: var(--ed-type-page-title);
+        font-weight: var(--ed-weight-page);
+        line-height: var(--ed-lh-heading);
 
         letter-spacing: -0.02em;
     }
@@ -311,9 +157,9 @@
         color:
             var(--sd-muted);
 
-        font-size: 14px;
-        font-weight: 400;
-        line-height: 1.5;
+        font-size: var(--ed-type-body);
+        font-weight: var(--ed-weight-body);
+        line-height: var(--ed-lh-body);
     }
 
 
@@ -448,8 +294,8 @@
         color:
             var(--sd-heading);
 
-        font-size: 24px;
-        font-weight: 700;
+        font-size: var(--ed-type-stat);
+        font-weight: var(--ed-weight-stat);
         line-height: 1.15;
     }
 
@@ -460,9 +306,9 @@
         color:
             var(--sd-muted);
 
-        font-size: 13px;
-        font-weight: 500;
-        line-height: 1.4;
+        font-size: var(--ed-type-label);
+        font-weight: var(--ed-weight-label);
+        line-height: var(--ed-lh-meta);
     }
 
 
@@ -511,9 +357,9 @@
         color:
             var(--sd-heading);
 
-        font-size: 18px;
-        font-weight: 600;
-        line-height: 1.3;
+        font-size: var(--ed-type-section-title);
+        font-weight: var(--ed-weight-section);
+        line-height: var(--ed-lh-heading);
     }
 
 
@@ -523,8 +369,8 @@
         color:
             var(--sd-primary);
 
-        font-size: 13px;
-        font-weight: 600;
+        font-size: var(--ed-type-button);
+        font-weight: var(--ed-weight-button);
         line-height: 1.4;
 
         text-decoration: none;
@@ -658,9 +504,9 @@
         color:
             var(--sd-heading);
 
-        font-size: 16px;
-        font-weight: 600;
-        line-height: 1.4;
+        font-size: var(--ed-type-card-title);
+        font-weight: var(--ed-weight-card);
+        line-height: var(--ed-lh-heading);
     }
 
 
@@ -668,9 +514,9 @@
         color:
             var(--sd-muted);
 
-        font-size: 12px;
-        font-weight: 400;
-        line-height: 1.45;
+        font-size: var(--ed-type-meta);
+        font-weight: var(--ed-weight-meta);
+        line-height: var(--ed-lh-meta);
     }
 
 
@@ -689,8 +535,8 @@
         color:
             var(--sd-muted);
 
-        font-size: 12px;
-        line-height: 1.4;
+        font-size: var(--ed-type-meta);
+        line-height: var(--ed-lh-meta);
     }
 
 
@@ -746,8 +592,8 @@
         align-items: center;
         justify-content: center;
 
-        font-size: 14px;
-        font-weight: 600;
+        font-size: var(--ed-type-button);
+        font-weight: var(--ed-weight-button);
         line-height: 1.2;
 
         text-decoration: none;
@@ -817,8 +663,8 @@
         position: relative;
 
         font-family: inherit;
-        font-size: 13px;
-        font-weight: 500;
+        font-size: var(--ed-type-meta);
+        font-weight: var(--ed-weight-meta);
 
         white-space: nowrap;
 
@@ -942,9 +788,9 @@
         color:
             var(--sd-heading);
 
-        font-size: 15px;
-        font-weight: 600;
-        line-height: 1.4;
+        font-size: var(--ed-type-card-title);
+        font-weight: var(--ed-weight-card);
+        line-height: var(--ed-lh-heading);
 
         display: -webkit-box;
 
@@ -961,9 +807,9 @@
         color:
             var(--sd-muted);
 
-        font-size: 12px;
-        font-weight: 400;
-        line-height: 1.4;
+        font-size: var(--ed-type-meta);
+        font-weight: var(--ed-weight-meta);
+        line-height: var(--ed-lh-meta);
     }
 
 
@@ -1000,9 +846,9 @@
 
         color: #64748B;
 
-        font-size: 11px;
-        font-weight: 500;
-        line-height: 1.2;
+        font-size: var(--ed-type-meta);
+        font-weight: var(--ed-weight-meta);
+        line-height: var(--ed-lh-meta);
     }
 
 
@@ -1059,9 +905,9 @@
         color:
             var(--sd-primary);
 
-        font-size: 12px;
-        font-weight: 600;
-        line-height: 1.2;
+        font-size: var(--ed-type-meta);
+        font-weight: var(--ed-weight-meta);
+        line-height: var(--ed-lh-meta);
 
         text-align: right;
     }
@@ -1095,8 +941,8 @@
         justify-self: end;
         align-self: center;
 
-        font-size: 13px;
-        font-weight: 600;
+        font-size: var(--ed-type-button);
+        font-weight: var(--ed-weight-button);
         line-height: 1.2;
 
         text-decoration: none;
@@ -1262,9 +1108,9 @@
         color:
             var(--sd-heading);
 
-        font-size: 14px;
-        font-weight: 600;
-        line-height: 1.4;
+        font-size: var(--ed-type-card-title);
+        font-weight: var(--ed-weight-card);
+        line-height: var(--ed-lh-heading);
 
         display: -webkit-box;
 
@@ -1279,9 +1125,9 @@
         color:
             var(--sd-muted);
 
-        font-size: 12px;
-        font-weight: 400;
-        line-height: 1.45;
+        font-size: var(--ed-type-meta);
+        font-weight: var(--ed-weight-meta);
+        line-height: var(--ed-lh-meta);
     }
 
 
@@ -1403,9 +1249,9 @@
         color:
             var(--sd-heading);
 
-        font-size: 14px;
-        font-weight: 600;
-        line-height: 1.4;
+        font-size: var(--ed-type-card-title);
+        font-weight: var(--ed-weight-card);
+        line-height: var(--ed-lh-heading);
     }
 
 
@@ -1415,9 +1261,9 @@
         color:
             var(--sd-muted);
 
-        font-size: 12px;
-        font-weight: 400;
-        line-height: 1.4;
+        font-size: var(--ed-type-meta);
+        font-weight: var(--ed-weight-meta);
+        line-height: var(--ed-lh-meta);
     }
 
 
@@ -1452,8 +1298,8 @@
         color:
             var(--sd-muted);
 
-        font-size: 14px;
-        line-height: 1.55;
+        font-size: var(--ed-type-body);
+        line-height: var(--ed-lh-body);
 
         text-align: center;
     }
@@ -1504,10 +1350,7 @@
     @@media (max-width: 768px) {
 
         .studentdash-root {
-            padding:
-                22px
-                0
-                44px;
+            padding: 0;
         }
 
 
@@ -1678,9 +1521,9 @@
 </style>
 
 
-<section class="studentdash-root">
+<section class="studentdash-root ed-dash">
 
-    <div class="studentdash-container">
+    <div class="studentdash-container ed-container ed-container--wide">
 
 
         <!-- =================================================
@@ -1716,9 +1559,9 @@
 
             <a asp-controller="Courses"
                asp-action="MyCourses"
-               class="studentdash-stat">
+               class="studentdash-stat ed-stat">
 
-                <span class="studentdash-stat-icon blue">
+                <span class="studentdash-stat-icon ed-stat-icon blue">
 
                     <svg class="studentdash-svg"
                          viewBox="0 0 24 24"
@@ -1733,11 +1576,11 @@
                 </span>
 
 
-                <span class="studentdash-stat-label">
+                <span class="studentdash-stat-label ed-stat-label">
                     Khóa đã đăng ký
                 </span>
 
-                <span class="studentdash-stat-number">
+                <span class="studentdash-stat-number ed-stat-value">
                     @Model.RegisteredCourseCount
                 </span>
 
@@ -1746,9 +1589,9 @@
 
             <a asp-controller="Courses"
                asp-action="MyCourses"
-               class="studentdash-stat">
+               class="studentdash-stat ed-stat">
 
-                <span class="studentdash-stat-icon green">
+                <span class="studentdash-stat-icon ed-stat-icon green">
 
                     <svg class="studentdash-svg"
                          viewBox="0 0 24 24"
@@ -1766,11 +1609,11 @@
                 </span>
 
 
-                <span class="studentdash-stat-label">
+                <span class="studentdash-stat-label ed-stat-label">
                     Đang học
                 </span>
 
-                <span class="studentdash-stat-number">
+                <span class="studentdash-stat-number ed-stat-value">
                     @Model.InProgressCourseCount
                 </span>
 
@@ -1779,9 +1622,9 @@
 
             <a asp-controller="Courses"
                asp-action="MyCourses"
-               class="studentdash-stat">
+               class="studentdash-stat ed-stat">
 
-                <span class="studentdash-stat-icon purple">
+                <span class="studentdash-stat-icon ed-stat-icon purple">
 
                     <svg class="studentdash-svg"
                          viewBox="0 0 24 24"
@@ -1799,11 +1642,11 @@
                 </span>
 
 
-                <span class="studentdash-stat-label">
+                <span class="studentdash-stat-label ed-stat-label">
                     Khóa đã hoàn thành
                 </span>
 
-                <span class="studentdash-stat-number">
+                <span class="studentdash-stat-number ed-stat-value">
                     @Model.CompletedCourseCount
                 </span>
 
@@ -1812,9 +1655,9 @@
 
             <a asp-controller="Courses"
                asp-action="StudyHistory"
-               class="studentdash-stat">
+               class="studentdash-stat ed-stat">
 
-                <span class="studentdash-stat-icon orange">
+                <span class="studentdash-stat-icon ed-stat-icon orange">
 
                     <svg class="studentdash-svg"
                          viewBox="0 0 24 24"
@@ -1830,11 +1673,11 @@
                 </span>
 
 
-                <span class="studentdash-stat-label">
+                <span class="studentdash-stat-label ed-stat-label">
                     Bài học hoàn thành
                 </span>
 
-                <span class="studentdash-stat-number">
+                <span class="studentdash-stat-number ed-stat-value">
                     @Model.CompletedLessonCount
                 </span>
 
@@ -1855,16 +1698,12 @@
                     continueCourse.Progress,
                     0m,
                     100m);
-
-            string? continueThumbnail =
-                GetDashboardCourseThumbnail(
-                    continueCourse.Title,
-                    continueCourse.ThumbnailUrl);
+            var continueThumbnail = CourseThumbnailResolver.Resolve(Url, CourseImageHost, continueCourse.ThumbnailUrl, continueCourse.Slug);
 
 
             <section class="studentdash-continue-wrap">
 
-                <div class="studentdash-panel studentdash-continue-panel">
+                <div class="studentdash-panel ed-panel studentdash-continue-panel">
 
 
                     <div class="studentdash-panel-head">
@@ -1881,45 +1720,10 @@
 
                         <div class="studentdash-continue-thumb">
 
-                            @if (!string.IsNullOrWhiteSpace(
-                                continueThumbnail))
-                            {
-                                <img src="@continueThumbnail"
+                            <img src="@continueThumbnail.Source"
                                      alt="@continueCourse.Title"
                                      class="studentdash-image"
-                                     onerror="this.hidden=true;this.nextElementSibling.hidden=false;" />
-
-                                <div class="studentdash-placeholder"
-                                     hidden
-                                     aria-hidden="true">
-
-                                    <svg class="studentdash-svg"
-                                         viewBox="0 0 24 24">
-
-                                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                                        <path d="M4 4v15.5"></path>
-                                        <path d="M6.5 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5"></path>
-
-                                    </svg>
-
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="studentdash-placeholder"
-                                     aria-hidden="true">
-
-                                    <svg class="studentdash-svg"
-                                         viewBox="0 0 24 24">
-
-                                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                                        <path d="M4 4v15.5"></path>
-                                        <path d="M6.5 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5"></path>
-
-                                    </svg>
-
-                                </div>
-                            }
+                                     data-ed-thumb-fallback="@continueThumbnail.Fallback" data-ed-thumb-placeholder="@continueThumbnail.Placeholder" onerror="@CourseThumbnailResolver.OnErrorHandler" />
 
                         </div>
 
@@ -1979,7 +1783,7 @@
              MY COURSES
         ================================================== -->
 
-        <section class="studentdash-panel studentdash-courses-panel">
+        <section class="studentdash-panel ed-panel studentdash-courses-panel">
 
 
             <div class="studentdash-panel-head">
@@ -2042,10 +1846,7 @@
                                 0m,
                                 100m);
 
-                        string? thumbnail =
-                            GetDashboardCourseThumbnail(
-                                course.Title,
-                                course.ThumbnailUrl);
+                        var thumbnail = CourseThumbnailResolver.Resolve(Url, CourseImageHost, course.ThumbnailUrl, course.Slug);
 
                         string actionText =
                             progress >= 100m
@@ -2075,46 +1876,11 @@
 
                             <div class="studentdash-course-thumb">
 
-                                @if (!string.IsNullOrWhiteSpace(
-                                    thumbnail))
-                                {
-                                    <img src="@thumbnail"
+                                <img src="@thumbnail.Source"
                                          alt="@course.Title"
                                          class="studentdash-image"
                                          loading="lazy"
-                                         onerror="this.hidden=true;this.nextElementSibling.hidden=false;" />
-
-                                    <div class="studentdash-placeholder"
-                                         hidden
-                                         aria-hidden="true">
-
-                                        <svg class="studentdash-svg"
-                                             viewBox="0 0 24 24">
-
-                                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                                            <path d="M4 4v15.5"></path>
-                                            <path d="M6.5 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5"></path>
-
-                                        </svg>
-
-                                    </div>
-                                }
-                                else
-                                {
-                                    <div class="studentdash-placeholder"
-                                         aria-hidden="true">
-
-                                        <svg class="studentdash-svg"
-                                             viewBox="0 0 24 24">
-
-                                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                                            <path d="M4 4v15.5"></path>
-                                            <path d="M6.5 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5"></path>
-
-                                        </svg>
-
-                                    </div>
-                                }
+                                         data-ed-thumb-fallback="@thumbnail.Fallback" data-ed-thumb-placeholder="@thumbnail.Placeholder" onerror="@CourseThumbnailResolver.OnErrorHandler" />
 
                             </div>
 
@@ -2198,7 +1964,7 @@
         <div class="studentdash-bottom-grid">
 
 
-            <section class="studentdash-panel">
+            <section class="studentdash-panel ed-panel">
 
 
                 <div class="studentdash-panel-head">
@@ -2224,10 +1990,7 @@
 
                         @foreach (var course in Model.ExploreCourses)
                         {
-                            string? thumbnail =
-                            GetDashboardCourseThumbnail(
-                                course.Title,
-                                course.ThumbnailUrl);
+                            var thumbnail = CourseThumbnailResolver.Resolve(Url, CourseImageHost, course.ThumbnailUrl, course.Slug);
 
 
                             <a asp-controller="Courses"
@@ -2238,45 +2001,10 @@
 
                                 <div class="studentdash-recommend-thumb">
 
-                                    @if (!string.IsNullOrWhiteSpace(
-                                        thumbnail))
-                                    {
-                                        <img src="@thumbnail"
+                                    <img src="@thumbnail.Source"
                                              alt="@course.Title"
                                              class="studentdash-image"
-                                             onerror="this.hidden=true;this.nextElementSibling.hidden=false;" />
-
-                                        <div class="studentdash-placeholder"
-                                             hidden
-                                             aria-hidden="true">
-
-                                            <svg class="studentdash-svg"
-                                                 viewBox="0 0 24 24">
-
-                                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                                                <path d="M4 4v15.5"></path>
-                                                <path d="M6.5 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5"></path>
-
-                                            </svg>
-
-                                        </div>
-                                    }
-                                    else
-                                    {
-                                        <div class="studentdash-placeholder"
-                                             aria-hidden="true">
-
-                                            <svg class="studentdash-svg"
-                                                 viewBox="0 0 24 24">
-
-                                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                                                <path d="M4 4v15.5"></path>
-                                                <path d="M6.5 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5"></path>
-
-                                            </svg>
-
-                                        </div>
-                                    }
+                                             data-ed-thumb-fallback="@thumbnail.Fallback" data-ed-thumb-placeholder="@thumbnail.Placeholder" onerror="@CourseThumbnailResolver.OnErrorHandler" />
 
                                 </div>
 
@@ -2316,7 +2044,7 @@
             </section>
 
 
-            <aside class="studentdash-panel">
+            <aside class="studentdash-panel ed-panel">
 
 
                 <div class="studentdash-panel-head">

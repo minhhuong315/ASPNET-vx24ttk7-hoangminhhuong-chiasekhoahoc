@@ -1,4 +1,6 @@
-﻿@model IEnumerable<OnlineLearningPlatform.Models.Course>
+﻿@using OnlineLearningPlatform.Helpers
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment CourseImageHost
+@model IEnumerable<OnlineLearningPlatform.Models.Course>
 
 @{
     string pageTitle =
@@ -661,20 +663,8 @@
                                 effectivePrice <
                                 course.Price;
 
-                            string sharedThumbnail =
-                                Url.Content(
-                                    $"~/images/course-thumbnails/by-slug/{course.Slug}.png");
-
-                            string placeholderThumbnail =
-                                Url.Content(
-                                    "~/images/course-thumbnails/by-slug/course-placeholder.svg");
-
-                            string thumbnailUrl =
-                                string.IsNullOrWhiteSpace(
-                                    course.ThumbnailUrl)
-                                    ? sharedThumbnail
-                                    : Url.Content(
-                                        course.ThumbnailUrl);
+                            var thumbnail = CourseThumbnailResolver.Resolve(
+                                Url, CourseImageHost, course.ThumbnailUrl, course.Slug);
 
                             <article class="course-card">
 
@@ -686,12 +676,12 @@
 
                                     <span class="course-thumbnail">
 
-                                        <img src="@thumbnailUrl"
+                                        <img src="@thumbnail.Source"
                                              alt="@course.Title"
                                              loading="lazy"
-                                             data-course-thumbnail
-                                             data-fallback="@sharedThumbnail"
-                                             data-placeholder="@placeholderThumbnail" />
+                                             data-ed-thumb-fallback="@thumbnail.Fallback"
+                                             data-ed-thumb-placeholder="@thumbnail.Placeholder"
+                                             onerror="@CourseThumbnailResolver.OnErrorHandler" />
 
                                     </span>
 

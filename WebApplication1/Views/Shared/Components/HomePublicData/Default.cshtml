@@ -1,11 +1,11 @@
+@using OnlineLearningPlatform.Helpers
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment CourseImageHost
 @model OnlineLearningPlatform.ViewModels.HomePublicDataViewModel
 
 @{
     string ratingText = Model.AverageRating > 0 ? $"{Model.AverageRating:0.0}/5" : "—";
     string LevelText(string level) => level switch { "Beginner" => "Cơ bản", "Intermediate" => "Trung cấp", "Advanced" => "Nâng cao", _ => level };
     string LevelClass(string level) => level switch { "Intermediate" => "edg-level--intermediate", "Advanced" => "edg-level--advanced", _ => "edg-level--beginner" };
-    string ThumbnailForSlug(string slug) => Url.Content($"~/images/course-thumbnails/by-slug/{slug}.png");
-    string placeholderThumbnail = Url.Content("~/images/course-thumbnails/by-slug/course-placeholder.svg");
 
     string CategoryIconKey(
         string name,
@@ -317,9 +317,8 @@
 
                 @foreach (var course in Model.FeaturedCourses)
                 {
-                    string thumbnail =
-                        ThumbnailForSlug(
-                            course.Slug);
+                    var thumbnail = CourseThumbnailResolver.Resolve(
+                        Url, CourseImageHost, course.ThumbnailUrl, course.Slug);
 
                     <article class="edg-course-card">
 
@@ -329,10 +328,12 @@
                            class="edg-course-media"
                            aria-label="Xem khóa học @course.Title">
 
-                            <img src="@thumbnail"
+                            <img src="@thumbnail.Source"
                                  alt="@course.Title"
                                  loading="lazy"
-                                 onerror="this.onerror=null;this.src='@placeholderThumbnail';" />
+                                 data-ed-thumb-fallback="@thumbnail.Fallback"
+                                 data-ed-thumb-placeholder="@thumbnail.Placeholder"
+                                 onerror="@CourseThumbnailResolver.OnErrorHandler" />
 
                             @if (course.IsFeatured)
                             {
@@ -360,7 +361,9 @@
                             </div>
 
 
-                            <h3 class="edg-course-title">
+                            <div class="edg-course-title"
+                                 role="heading"
+                                 aria-level="3">
 
                                 <a asp-controller="Courses"
                                    asp-action="Details"
@@ -368,7 +371,7 @@
                                     @course.Title
                                 </a>
 
-                            </h3>
+                            </div>
 
 
                             <div class="edg-course-footer">
