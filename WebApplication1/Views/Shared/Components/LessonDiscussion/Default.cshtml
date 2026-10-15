@@ -579,12 +579,8 @@
 
 
                 string initial =
-                    !string.IsNullOrWhiteSpace(
-                        studentName)
-                        ? studentName
-                            .Substring(0, 1)
-                            .ToUpper()
-                        : "H";
+                    OnlineLearningPlatform.Helpers.UserAvatarPresentation
+                        .GetLastWordInitial(question.User?.FullName) ?? "H";
 
 
                 bool isOwner =

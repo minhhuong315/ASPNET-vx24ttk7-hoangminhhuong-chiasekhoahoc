@@ -13,23 +13,22 @@
         };
 
     string firstLetter =
-        !string.IsNullOrWhiteSpace(Model.FullName)
-            ? Model.FullName.Substring(0, 1).ToUpper()
-            : "U";
+        OnlineLearningPlatform.Helpers.UserAvatarPresentation
+            .GetLastWordInitial(Model.FullName) ?? "U";
 }
 
 <style>
 
     .profile-page {
-        min-height: 80vh;
-        padding: 45px 0 75px;
-        background: #f8fafc;
+        min-height: 0;
+        padding: 0;
+        background: transparent;
     }
 
     .profile-container {
         max-width: 1050px;
         margin: 0 auto;
-        padding: 0 20px;
+        padding: 0;
     }
 
     .profile-heading {
@@ -39,30 +38,30 @@
     .page-eyebrow {
         margin-bottom: 6px;
         color: #0d6efd;
-        font-size: 12px;
-        font-weight: 800;
+        font-size: var(--ed-type-label);
+        font-weight: var(--ed-weight-label);
         text-transform: uppercase;
     }
 
     .page-title {
         margin: 0 0 7px;
         color: #172033;
-        font-size: 31px;
-        font-weight: 800;
+        font-size: var(--ed-type-page-title);
+        font-weight: var(--ed-weight-page);
     }
 
     .page-description {
         margin: 0;
         color: #7c8798;
-        font-size: 13px;
+        font-size: var(--ed-type-body);
     }
 
     .message {
         margin-bottom: 18px;
         padding: 13px 15px;
         border-radius: 10px;
-        font-size: 12px;
-        font-weight: 700;
+        font-size: var(--ed-type-body);
+        font-weight: var(--ed-weight-body);
     }
 
     .message.success {
@@ -101,14 +100,14 @@
     .card-title {
         margin: 0 0 4px;
         color: #273142;
-        font-size: 16px;
-        font-weight: 800;
+        font-size: var(--ed-type-card-title);
+        font-weight: var(--ed-weight-card);
     }
 
     .card-description {
         margin: 0;
         color: #929baa;
-        font-size: 10px;
+        font-size: var(--ed-type-body);
     }
 
     .card-body {
@@ -140,15 +139,15 @@
 
     .profile-name {
         color: #273142;
-        font-size: 15px;
-        font-weight: 800;
+        font-size: var(--ed-type-card-title);
+        font-weight: var(--ed-weight-card);
     }
 
     .profile-role {
         margin-top: 3px;
         color: #8b95a5;
-        font-size: 10px;
-        font-weight: 700;
+        font-size: var(--ed-type-meta);
+        font-weight: var(--ed-weight-meta);
     }
 
     .form-group {
@@ -159,8 +158,8 @@
         display: block;
         margin-bottom: 7px;
         color: #465164;
-        font-size: 11px;
-        font-weight: 700;
+        font-size: var(--ed-type-label);
+        font-weight: var(--ed-weight-label);
     }
 
     .form-control-edulearn {
@@ -172,7 +171,7 @@
         background: #ffffff;
         color: #273142;
         font: inherit;
-        font-size: 12px;
+        font-size: var(--ed-type-input);
         outline: none;
     }
 
@@ -197,8 +196,8 @@
         display: block;
         margin-top: 5px;
         color: #dc3545;
-        font-size: 10px;
-        font-weight: 600;
+        font-size: var(--ed-type-label);
+        font-weight: var(--ed-weight-label);
     }
 
     .validation-summary-errors {
@@ -208,7 +207,7 @@
         border-radius: 9px;
         background: #fff5f6;
         color: #b42332;
-        font-size: 11px;
+        font-size: var(--ed-type-label);
     }
 
     .validation-summary-errors ul {
@@ -229,8 +228,8 @@
         background: #0d6efd;
         color: #ffffff;
         font-family: inherit;
-        font-size: 11px;
-        font-weight: 800;
+        font-size: var(--ed-type-button);
+        font-weight: var(--ed-weight-button);
         cursor: pointer;
     }
 
@@ -256,16 +255,19 @@
     }
 
     .account-label {
-        color: #8b95a5;
-        font-size: 10px;
-        font-weight: 600;
+        flex: 0 0 auto;
+        color: #64748B;
+        font-size: var(--ed-type-label);
+        font-weight: var(--ed-weight-label);
     }
 
     .account-value {
-        max-width: 190px;
+        flex: 1 1 auto;
+        min-width: 0;
+        max-width: 100%;
         color: #344054;
-        font-size: 10px;
-        font-weight: 700;
+        font-size: var(--ed-type-body);
+        font-weight: 500;
         text-align: right;
         overflow-wrap: anywhere;
     }
@@ -283,15 +285,15 @@
     .password-title {
         margin-bottom: 6px;
         color: #344054;
-        font-size: 12px;
-        font-weight: 800;
+        font-size: var(--ed-type-card-title);
+        font-weight: var(--ed-weight-card);
     }
 
     .password-text {
         margin: 0 0 12px;
         color: #8992a3;
-        font-size: 10px;
-        line-height: 1.6;
+        font-size: var(--ed-type-meta);
+        line-height: var(--ed-lh-meta);
     }
 
     .password-link {
@@ -304,8 +306,8 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 10px;
-        font-weight: 800;
+        font-size: var(--ed-type-meta);
+        font-weight: var(--ed-weight-meta);
         text-decoration: none;
     }
 
@@ -319,9 +321,9 @@
 </style>
 
 
-<div class="profile-page">
+<div class="profile-page ed-page">
 
-    <div class="profile-container">
+    <div class="profile-container ed-container">
 
 
         <div class="profile-heading">

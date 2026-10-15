@@ -7,15 +7,15 @@
 <style>
 
     .students-page {
-        min-height: 80vh;
-        padding: 48px 0 78px;
-        background: #f8fafc;
+        min-height: 0;
+        padding: 0;
+        background: transparent;
     }
 
     .students-container {
         max-width: 1180px;
         margin: 0 auto;
-        padding: 0 20px;
+        padding: 0;
     }
 
     .page-header {
@@ -29,23 +29,23 @@
     .page-eyebrow {
         margin-bottom: 6px;
         color: #0d6efd;
-        font-size: 11px;
-        font-weight: 800;
+        font-size: var(--ed-type-label);
+        font-weight: var(--ed-weight-label);
         text-transform: uppercase;
     }
 
     .page-title {
         margin: 0 0 7px;
         color: #172033;
-        font-size: 31px;
-        font-weight: 800;
+        font-size: var(--ed-type-page-title);
+        font-weight: var(--ed-weight-page);
     }
 
     .page-description {
         margin: 0;
         color: #7d8798;
-        font-size: 12px;
-        line-height: 1.7;
+        font-size: var(--ed-type-body);
+        line-height: var(--ed-lh-body);
     }
 
     .course-filter {
@@ -56,8 +56,8 @@
         display: block;
         margin-bottom: 6px;
         color: #667085;
-        font-size: 10px;
-        font-weight: 700;
+        font-size: var(--ed-type-label);
+        font-weight: var(--ed-weight-label);
     }
 
     .course-select {
@@ -69,7 +69,7 @@
         background: #ffffff;
         color: #344054;
         font: inherit;
-        font-size: 11px;
+        font-size: var(--ed-type-input);
         outline: none;
     }
 
@@ -87,21 +87,21 @@
 
     .course-name {
         color: #273142;
-        font-size: 14px;
-        font-weight: 800;
+        font-size: var(--ed-type-card-title);
+        font-weight: var(--ed-weight-card);
     }
 
     .course-meta {
         margin-top: 4px;
         color: #8a94a5;
-        font-size: 10px;
+        font-size: var(--ed-type-meta);
     }
 
     .status-badge {
         padding: 5px 9px;
         border-radius: 20px;
-        font-size: 9px;
-        font-weight: 800;
+        font-size: var(--ed-type-badge);
+        font-weight: var(--ed-weight-badge);
         white-space: nowrap;
     }
 
@@ -132,16 +132,16 @@
 
     .stat-label {
         color: #8b95a5;
-        font-size: 9px;
-        font-weight: 700;
+        font-size: var(--ed-type-label);
+        font-weight: var(--ed-weight-label);
         text-transform: uppercase;
     }
 
     .stat-value {
         margin-top: 6px;
         color: #273142;
-        font-size: 23px;
-        font-weight: 800;
+        font-size: var(--ed-type-stat);
+        font-weight: var(--ed-weight-stat);
     }
 
     .students-card {
@@ -163,14 +163,14 @@
     .card-title {
         margin: 0;
         color: #344054;
-        font-size: 14px;
-        font-weight: 800;
+        font-size: var(--ed-type-card-title);
+        font-weight: var(--ed-weight-card);
     }
 
     .card-count {
         color: #8b95a5;
-        font-size: 10px;
-        font-weight: 700;
+        font-size: var(--ed-type-meta);
+        font-weight: var(--ed-weight-meta);
     }
 
     .table-wrap {
@@ -189,8 +189,8 @@
         border-bottom: 1px solid #edf0f4;
         background: #fbfcfd;
         color: #7d8798;
-        font-size: 9px;
-        font-weight: 800;
+        font-size: var(--ed-type-table);
+        font-weight: var(--ed-weight-table);
         text-align: left;
         text-transform: uppercase;
     }
@@ -199,7 +199,7 @@
         padding: 14px 15px;
         border-bottom: 1px solid #f0f2f5;
         color: #475467;
-        font-size: 10px;
+        font-size: var(--ed-type-table);
         vertical-align: middle;
     }
 
@@ -230,14 +230,14 @@
 
     .student-name {
         color: #344054;
-        font-size: 11px;
-        font-weight: 800;
+        font-size: var(--ed-type-card-title);
+        font-weight: var(--ed-weight-card);
     }
 
     .student-email {
         margin-top: 2px;
         color: #98a2b3;
-        font-size: 9px;
+        font-size: var(--ed-type-meta);
     }
 
     .progress-block {
@@ -253,13 +253,13 @@
 
     .progress-lessons {
         color: #7d8798;
-        font-size: 9px;
+        font-size: var(--ed-type-meta);
     }
 
     .progress-percent {
         color: #344054;
-        font-size: 9px;
-        font-weight: 800;
+        font-size: var(--ed-type-meta);
+        font-weight: var(--ed-weight-meta);
     }
 
     .progress-track {
@@ -279,8 +279,8 @@
         display: inline-flex;
         padding: 5px 8px;
         border-radius: 20px;
-        font-size: 9px;
-        font-weight: 800;
+        font-size: var(--ed-type-badge);
+        font-weight: var(--ed-weight-badge);
     }
 
     .learning-status.completed {
@@ -301,16 +301,16 @@
     .empty-state {
         padding: 52px 20px;
         color: #8992a3;
-        font-size: 11px;
-        line-height: 1.7;
+        font-size: var(--ed-type-body);
+        line-height: var(--ed-lh-body);
         text-align: center;
     }
 
     .empty-title {
         margin-bottom: 6px;
         color: #475467;
-        font-size: 14px;
-        font-weight: 800;
+        font-size: var(--ed-type-card-title);
+        font-weight: var(--ed-weight-card);
     }
 
     @@media (max-width: 900px) {
@@ -341,9 +341,9 @@
 </style>
 
 
-<div class="students-page">
+<div class="students-page ed-page">
 
-    <div class="students-container">
+    <div class="students-container ed-container">
 
 
         <div class="page-header">
@@ -567,12 +567,8 @@
                                 @foreach (var student in Model.Students)
                                 {
                                     string firstLetter =
-                                        !string.IsNullOrWhiteSpace(
-                                            student.FullName)
-                                            ? student.FullName
-                                                .Substring(0, 1)
-                                                .ToUpper()
-                                            : "H";
+                                        OnlineLearningPlatform.Helpers.UserAvatarPresentation
+                                            .GetLastWordInitial(student.FullName) ?? "H";
 
 
                                     string statusClass =
