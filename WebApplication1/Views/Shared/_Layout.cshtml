@@ -185,13 +185,13 @@
                 ?? "User";
 
 
-    string firstLetter =
-        !string.IsNullOrWhiteSpace(
-            displayName)
-            ? displayName
-                .Substring(0, 1)
-                .ToUpper()
-            : "U";
+    string? firstLetter =
+        OnlineLearningPlatform.Helpers.UserAvatarPresentation
+            .GetLastWordInitial(currentUser?.FullName);
+
+    string? avatarUrl =
+        OnlineLearningPlatform.Helpers.UserAvatarPresentation
+            .ResolveImageUrl(Url, currentUser?.Avatar);
 
 
     string roleLabel =
@@ -624,6 +624,27 @@
             position: relative;
         }
 
+        /* Caret anchored to the trigger, rather than the wider menu. */
+        .account-dropdown::before {
+            content: "";
+            position: absolute;
+            top: calc(100% + 2px);
+            right: calc(50% - 8px);
+            width: 16px;
+            height: 16px;
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            border-left: 1px solid #e2e8f0;
+            transform: rotate(45deg);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 1251;
+        }
+
+        .account-dropdown.open::before {
+            opacity: 1;
+        }
+
 
         /*
          * CẦU NỐI CHO MENU TÀI KHOẢN
@@ -682,24 +703,44 @@
 
 
         .account-avatar {
+            position: relative;
             width: 32px;
             height: 32px;
-
             flex: 0 0 32px;
-
+            overflow: hidden;
             border-radius: 50%;
-
             background: #edf4ff;
-            color: #0d6efd;
-
-            display: flex;
+            color: #2563eb;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-
             font-size: 12px;
-            font-weight: 800;
-
+            font-weight: 700;
             text-transform: uppercase;
+        }
+
+        .account-avatar--menu {
+            width: 36px;
+            height: 36px;
+            flex-basis: 36px;
+        }
+
+        .account-avatar__image {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .account-avatar__fallback-icon {
+            width: 19px;
+            height: 19px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.75;
+            stroke-linecap: round;
+            stroke-linejoin: round;
         }
 
 
@@ -897,8 +938,6 @@
         }
 
 
-        .account-dropdown:hover
-        .account-chevron,
         .account-dropdown.open
         .account-chevron {
             transform: rotate(180deg);
@@ -906,6 +945,7 @@
 
 
         .account-dropdown-menu {
+            box-sizing: border-box;
             position: absolute;
 
             top: calc(100% + 9px);
@@ -913,18 +953,16 @@
 
             z-index: 1250;
 
-            width: 270px;
+            width: min(270px, calc(100vw - 24px));
 
             padding: 10px;
 
-            border: 1px solid #e4e9f0;
+            border: 1px solid #e2e8f0;
             border-radius: 13px;
 
             background: #ffffff;
 
-            box-shadow:
-                0 18px 45px
-                rgba(34, 48, 73, .15);
+            box-shadow: 0 12px 28px rgba(15, 23, 42, .10);
 
             opacity: 0;
 
@@ -941,28 +979,6 @@
         }
 
 
-        .account-dropdown-menu::before {
-            content: "";
-
-            position: absolute;
-
-            top: -8px;
-            right: 28px;
-
-            width: 16px;
-            height: 16px;
-
-            background: #ffffff;
-
-            border-left: 1px solid #e4e9f0;
-            border-top: 1px solid #e4e9f0;
-
-            transform: rotate(45deg);
-        }
-
-
-        .account-dropdown:hover
-        > .account-dropdown-menu,
         .account-dropdown.open
         > .account-dropdown-menu {
             opacity: 1;
@@ -981,6 +997,14 @@
 
         .account-menu-header {
             padding: 11px 12px 12px;
+            display: flex;
+            align-items: center;
+            gap: 11px;
+        }
+
+        .account-menu-identity {
+            flex: 1;
+            min-width: 0;
         }
 
 
@@ -1013,6 +1037,7 @@
         ========================================= */
 
         .account-menu-item {
+            box-sizing: border-box;
             width: 100%;
 
             min-height: 42px;
@@ -1076,14 +1101,30 @@
         .account-menu-icon {
             width: 18px;
             height: 18px;
-
             flex: 0 0 18px;
-
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-
             color: currentColor;
+        }
+
+        .account-menu-icon svg {
+            display: block;
+            width: 18px;
+            height: 18px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .account-menu-symbols {
+            position: absolute;
+            width: 0;
+            height: 0;
+            overflow: hidden;
+            pointer-events: none;
         }
 
 
@@ -2124,18 +2165,44 @@
 
                     <div class="account-dropdown"
                          data-dropdown>
+                        <!-- Shared Lucide-style outline icons, defined once for all three roles. -->
+                        <svg class="account-menu-symbols" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                            <symbol id="account-icon-book" viewBox="0 0 24 24"><path d="M12 7v14M3 18V5a2 2 0 0 1 2-2h3a4 4 0 0 1 4 4 4 4 0 0 1 4-4h3a2 2 0 0 1 2 2v13h-5a4 4 0 0 0-4 3 4 4 0 0 0-4-3H3Z"/></symbol>
+                            <symbol id="account-icon-heart" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></symbol>
+                            <symbol id="account-icon-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 2-2.5 2-2.5 4M12 17h.01"/></symbol>
+                            <symbol id="account-icon-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M16 3.4a4 4 0 0 1 0 7.6M22 21v-2a4 4 0 0 0-3-3.9"/><circle cx="9" cy="7" r="4"/></symbol>
+                            <symbol id="account-icon-chart" viewBox="0 0 24 24"><path d="M3 3v18h18M7 16v-5M12 16V7M17 16V5"/></symbol>
+                            <symbol id="account-icon-message" viewBox="0 0 24 24"><path d="M20 11.5a8.5 8.5 0 0 1-8.5 8.5 9 9 0 0 1-4-.9L3 20l.9-4.5a8.5 8.5 0 1 1 16.1-4Z"/></symbol>
+                            <symbol id="account-icon-dashboard" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></symbol>
+                            <symbol id="account-icon-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+                            <symbol id="account-icon-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+                            <symbol id="account-icon-logout" viewBox="0 0 24 24"><path d="M10 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5M16 7l5 5-5 5M21 12H9"/></symbol>
+                        </svg>
+
 
 
                         <button type="button"
                                 class="account-dropdown-button"
                                 data-dropdown-trigger
-                                aria-expanded="false">
+                                aria-expanded="false"
+                                aria-haspopup="true"
+                                aria-controls="accountDropdownMenu"
+                                aria-label="Mở menu tài khoản">
 
 
                             <span class="account-avatar">
-
-                                @firstLetter
-
+                                @if (!string.IsNullOrWhiteSpace(firstLetter))
+                                {
+                                    @firstLetter
+                                }
+                                else
+                                {
+                                    <svg class="account-avatar__fallback-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#account-icon-user" /></svg>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(avatarUrl))
+                                {
+                                    <img class="account-avatar__image" src="@avatarUrl" alt="" onerror="this.remove()" />
+                                }
                             </span>
 
 
@@ -2174,10 +2241,24 @@
 
 
 
-                        <div class="account-dropdown-menu">
-
+                        <div class="account-dropdown-menu" id="accountDropdownMenu">
 
                             <div class="account-menu-header">
+                                <span class="account-avatar account-avatar--menu">
+                                    @if (!string.IsNullOrWhiteSpace(firstLetter))
+                                    {
+                                        @firstLetter
+                                    }
+                                    else
+                                    {
+                                        <svg class="account-avatar__fallback-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#account-icon-user" /></svg>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(avatarUrl))
+                                    {
+                                        <img class="account-avatar__image" src="@avatarUrl" alt="" onerror="this.remove()" />
+                                    }
+                                </span>
+                                <div class="account-menu-identity">
 
                                 <div class="account-menu-name">
 
@@ -2190,6 +2271,7 @@
 
                                     @roleLabel
 
+                                </div>
                                 </div>
 
                             </div>
@@ -2208,7 +2290,7 @@
                                    class="account-menu-item @(isMyCoursesPage ? "active" : "")">
 
                                     <span class="account-menu-icon">
-                                        ▣
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#account-icon-book" /></svg>
                                     </span>
 
                                     <span>
@@ -2222,7 +2304,7 @@
                                    class="account-menu-item @(isWishlistPage ? "active" : "")">
 
                                     <span class="account-menu-icon">
-                                        ♡
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#account-icon-heart" /></svg>
                                     </span>
 
                                     <span>
@@ -2239,7 +2321,7 @@
                                    class="account-menu-item @(isQuestionsPage ? "active" : "")">
 
                                     <span class="account-menu-icon">
-                                        ?
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#account-icon-help" /></svg>
                                     </span>
 
                                     <span>
@@ -2260,7 +2342,7 @@
                                    class="account-menu-item @(isInstructorCoursesPage ? "active" : "")">
 
                                     <span class="account-menu-icon">
-                                        ▣
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#account-icon-book" /></svg>
                                     </span>
 
                                     <span>
@@ -2275,7 +2357,7 @@
                                    class="account-menu-item @(isInstructorStudentsPage ? "active" : "")">
 
                                     <span class="account-menu-icon">
-                                        HV
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#account-icon-users" /></svg>
                                     </span>
 
                                     <span>
@@ -2290,7 +2372,7 @@
                                    class="account-menu-item @(isInstructorAnalyticsPage ? "active" : "")">
 
                                     <span class="account-menu-icon">
-                                        PT
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#account-icon-chart" /></svg>
                                     </span>
 
                                     <span>
@@ -2305,7 +2387,7 @@
                                    class="account-menu-item @(isQuestionsPage ? "active" : "")">
 
                                     <span class="account-menu-icon">
-                                        ?
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#account-icon-message" /></svg>
                                     </span>
 
                                     <span>
@@ -2326,7 +2408,7 @@
                                    class="account-menu-item @(isAdminDashboardPage ? "active" : "")">
 
                                     <span class="account-menu-icon">
-                                        DB
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#account-icon-dashboard" /></svg>
                                     </span>
 
                                     <span>
@@ -2341,7 +2423,7 @@
                                    class="account-menu-item @(isAdminCoursesPage ? "active" : "")">
 
                                     <span class="account-menu-icon">
-                                        KH
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#account-icon-book" /></svg>
                                     </span>
 
                                     <span>
@@ -2356,7 +2438,7 @@
                                    class="account-menu-item @(isAdminCategoriesPage ? "active" : "")">
 
                                     <span class="account-menu-icon">
-                                        DM
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#account-icon-grid" /></svg>
                                     </span>
 
                                     <span>
@@ -2371,7 +2453,7 @@
                                    class="account-menu-item @(isAdminUsersPage ? "active" : "")">
 
                                     <span class="account-menu-icon">
-                                        ND
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#account-icon-users" /></svg>
                                     </span>
 
                                     <span>
@@ -2386,7 +2468,7 @@
                                    class="account-menu-item @(isQuestionsPage ? "active" : "")">
 
                                     <span class="account-menu-icon">
-                                        ?
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#account-icon-message" /></svg>
                                     </span>
 
                                     <span>
@@ -2404,8 +2486,8 @@
                                class="account-menu-item @(isProfilePage ? "active" : "")">
 
                                 <span class="account-menu-icon">
-                                    ○
-                                </span>
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#account-icon-user" /></svg>
+                                    </span>
 
                                 <span>
                                     Quản lý tài khoản
@@ -2429,7 +2511,7 @@
                                         class="account-menu-item danger">
 
                                     <span class="account-menu-icon">
-                                        ↪
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#account-icon-logout" /></svg>
                                     </span>
 
                                     <span>
@@ -2873,6 +2955,19 @@
                     }
                 );
 
+
+                // Escape closes the account menu and restores keyboard focus.
+                document.addEventListener("keydown", function (event) {
+                    if (event.key !== "Escape") return;
+                    const openAccount = document.querySelector(".account-dropdown.open");
+                    if (!openAccount) return;
+                    openAccount.classList.remove("open");
+                    const trigger = openAccount.querySelector("[data-dropdown-trigger]");
+                    if (trigger) {
+                        trigger.setAttribute("aria-expanded", "false");
+                        trigger.focus();
+                    }
+                });
 
                 document.addEventListener(
                     "click",
